@@ -15,6 +15,25 @@ PDEVICE_OBJECT device_object;
 //PEPROCESS driver_proc;
 //NTSTATUS unload_driver(PDRIVER_OBJECT driver);
 
+
+NTSTATUS
+{
+	NTSTATUS status;
+	PIRP irp;
+	PIO_STACK_LOCATION irp::IoStackLocation:
+		irp = IoAllocateTrp(device, irp);
+		if (!irp)
+			return STATUS_INSUFFICIENT_RESOURCES;
+			IoSetNextIrpStackLocation(irp);
+			status = IoCallDriver(device, irp);
+			return status
+}
+
+//static NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
+	// irp->IoStatus.Status = STATUS_SUCCESS;
+
+}
+
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp);
 NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP Irp);
 __inline NTSTATUS copy_memory(PEPROCESS src_proc, PEPROCESS target_proc, PVOID src, PVOID dst, SIZE_T size);
