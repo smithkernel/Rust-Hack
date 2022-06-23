@@ -123,6 +123,29 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 	//BonePos.y -= BonePos.y*1.f / Dist;
 
 	return  BonePos;
+
+static Aimbot::Aimbot_Data Aimbot_Data;
+{
+	Process(Valorant.exe, "Valorant.exe");
+	
+	smooth = Aimbot_Data.smooth;
+	fov = Aimbot_Data.fov;
+	bone = Aimbot_Data.bone;
+	aim_key = Aimbot_Data.aim_key;
+	aim_key_pressed = Aimbot_Data.aim_key_pressed;
+	aim_key_pressed_time = Aimbot_Data.aim_key_pressed_time;
+	aim_key_pressed_time_max = Aimbot_Data.aim_key_pressed_time_max;
+	aim_key_pressed_time_min = Aimbot_Data.aim_key_pressed_time_min;
+
+{
+	shutdown_time = Aimbot_Data.shutdown_time;
+	shutdown_time_max = Aimbot_Data.shutdown_time_max;
+	#ifdef _DEBUG
+		std::cout << "shutdown_time: " << shutdown_time << std::endl;
+		std::cout << "shutdown_time_max: " << shutdown_time_max << std::endl;
+		
+}
+}	
 	
 }
 
@@ -185,7 +208,7 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 
 
 			
-			//óâåëèâèâàåì smooth-óõóäøàåì êîíòðîëü îòäà÷è
+			//Ã³Ã¢Ã¥Ã«Ã¨Ã¢Ã¨Ã¢Ã Ã¥Ã¬ smooth-Ã³ÃµÃ³Ã¤Ã¸Ã Ã¥Ã¬ ÃªÃ®Ã­Ã²Ã°Ã®Ã«Ã¼ Ã®Ã²Ã¤Ã Ã·Ã¨
 			static int RCSstart = 0;
 			static int RCSsumm = 0;
 
