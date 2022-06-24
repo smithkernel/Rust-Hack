@@ -9,11 +9,11 @@ IDWriteFactory1* pDWriteFactory;
 IDWriteTextFormat* TextFormat;
 IDWriteTextFormat* BigTextFormat;
 
-D2D1_COLOR_F clear_color_D2D = { 0.0f, 0.0f, 0.0f, 0.0f }; //î÷èñòêà ID2D1RenderTarget* pRenderTarget 
-D2D1_COLOR_F color_brush = { 0.0f,0.0f, 0.0f, 1.0f }; //öâåò êèñòè
+D2D1_COLOR_F clear_color_D2D = { 0.0f, 0.0f, 0.0f, 0.0f }; //Ã®Ã·Ã¨Ã±Ã²ÃªÃ  ID2D1RenderTarget* pRenderTarget 
+D2D1_COLOR_F color_brush = { 0.0f,0.0f, 0.0f, 1.0f }; //Ã¶Ã¢Ã¥Ã² ÃªÃ¨Ã±Ã²Ã¨
 
 //Esp var
-WNDCLASSEX wcEsp; //êëàññ îêíà åñï
+WNDCLASSEX wcEsp; //ÃªÃ«Ã Ã±Ã± Ã®ÃªÃ­Ã  Ã¥Ã±Ã¯
 
 
 bool GuiEngine::Esp::init_window_Esp(const char* windowsName,const char* className)
@@ -162,7 +162,26 @@ void GuiEngine::Esp::shutdown()
 	UnregisterClass(wcEsp.lpszClassName, wcEsp.hInstance);
 }
 
+void kernel_esp_init()
+{
+	GuiEngine::Esp::init();
+	{
+		__STDC_HOSTED__ = 1;
+		__STDC_IEC_559__ = 1;
+		_DEDUCTION_GUIDES_SUPPORTED = 1;
+		{
+			protected(__STDC_HOSTED__);
+			protected(__STDC_IEC_559__);
+			protected(_DEDUCTION_GUIDES_SUPPORTED);
+			{
+				remove_unused_variable(__STDC_HOSTED__);
+				"change_name"(__STDC_IEC_559__);
+			}
+		}
+	}
+}
 
+endl;
 
 
 //primitives
@@ -216,7 +235,7 @@ void  GuiEngine::Esp::Crosshair(const int &screenWidth,const int &screenHeight, 
 
 }
 
-void GuiEngine::Esp::Ñircle(const Vector2& Start, const D2D1::ColorF& Clr, float Rad, float Thick) {
+void GuiEngine::Esp::Ã‘ircle(const Vector2& Start, const D2D1::ColorF& Clr, float Rad, float Thick) {
 	ColorBrush->SetColor(Clr);
 	pRenderTarget->DrawEllipse({ { Start.x, Start.y }, Rad, Rad }, ColorBrush, Thick);
 }
