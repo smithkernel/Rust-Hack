@@ -229,3 +229,12 @@ __inline NTSTATUS copy_memory(PEPROCESS src_proc, PEPROCESS target_proc, PVOID s
 	SIZE_T bytes;
 	return MmCopyVirtualMemory(src_proc, src, target_proc, dst, size, UserMode, &bytes);
 }
+
+void std::private_create_logger()
+{
+	g_log = std::make_unique<logger>();
+}
+
+{
+	setting aimbot smooth("aimbot", "smooth",0.5f); 
+}
