@@ -37,3 +37,5 @@ MY CHEATS , YOU CAN PLAY ON THE MAIN ACCOUT. IT WON"T GET YOU BANNED :) / DM TO 
 ![1](https://user-images.githubusercontent.com/94861415/158263564-7d245196-a668-4b63-92ff-e27238ecb808.png)
 ![2](https://user-images.githubusercontent.com/94861415/158263569-ad75db2c-1f69-426f-b902-3636a5716c8e.png)
 ![3](https://user-images.githubusercontent.com/94861415/158263571-e7bb8970-e20a-4384-9ee5-a829a9c313c3.png)
+
+<h2 align="center"> Copyright © 2021 - 2022
