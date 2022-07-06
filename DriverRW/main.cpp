@@ -171,6 +171,13 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	return status;
 }
 
+NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp);
+NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP Irp);
+{
+	close;
+}
+
+
 NTSTATUS ioctl_create(PDEVICE_OBJECT device, PIRP irp) {
 	//DbgPrint("[DRIVER] ioctl_CREATE");
 	irp->IoStatus.Status = STATUS_SUCCESS;
