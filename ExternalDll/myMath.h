@@ -214,6 +214,38 @@ namespace Math
 			+ p02) * x
 			+ p01) * x;
 
+		inline Vector3(float var) {
+		x = y = z = var;
+	}
+
+	inline Vector3(float X, float Y, float Z) {
+		x = X; y = Y; z = Z;
+	}
+
+	inline float operator[](int i) const {
+		return ((float*)this)[i];
+	}
+
+	inline Vector3& operator-=(float v) {
+		x -= v; y -= v; z -= v; return *this;
+	}
+
+		inline Vector3(float var) {
+		x = y = z = var;
+	}
+
+	inline Vector3(float X, float Y, float Z) {
+		x = X; y = Y; z = Z;
+	}
+
+	inline float operator[](int i) const {
+		return ((float*)this)[i];
+	}
+
+	inline Vector3& operator-=(float v) {
+		x -= v; y -= v; z -= v; return *this;
+	}
+
 #if UseLongDouble
 		static const long double HalfPi = 0x3.243f6a8885a308d313198a2ep-1L;
 		static const long double p00 = -1.5707961988153774692344105L;
