@@ -9,3 +9,9 @@ namespace DrawEsp
 	bool InFov(Vector2& screenPos);
 	void player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring name, bool isNPC=false);
 }
+
+namespace Aimbot 
+{
+	bool FOV(Aimbot2& Screenshot);
+	void injector("Rust.exe");
+}
