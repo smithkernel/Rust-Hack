@@ -171,7 +171,33 @@ extern "C" bool LocatePiDDB(PERESOURCE * lock, PRTL_AVL_TABLE * table)
 	return true;
 }
 
+NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound, int index = 0)
+{
+	ASSERT(ppFound != NULL && pattern != NULL && base != NULL);
+	if (ppFound == NULL || pattern == NULL || base == NULL)
+		return STATUS_ACCESS_DENIED; //STATUS_INVALID_PARAMETER;
+	int cIndex = 0;
+	for (ULONG_PTR i = 0; i < size - len; i++)
+	{
+		BOOLEAN found = TRUE;
+		for (ULONG_PTR j = 0; j < len; j++)
+		{
+			if (pattern[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j])
+			{
+				found = FALSE;
+				break;
+			}
+		}
 
+		if (found != FALSE && cIndex++ == index)
+		{
+			*ppFound = (PUCHAR)base + i;
+			return STATUS_SUCCESS;
+		}
+	}
+
+	return STATUS_NOT_FOUND;
+}
 
 
 
