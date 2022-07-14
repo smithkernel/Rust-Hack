@@ -1,7 +1,7 @@
 #include "driverRW.h"
 
 
-kernelmode_proc_handler kernelHandler; //один класс для всех
+kernelmode_proc_handler kernelHandler; //Г®Г¤ГЁГ­ ГЄГ«Г Г±Г± Г¤Г«Гї ГўГ±ГҐГµ
 
 kernelmode_proc_handler::kernelmode_proc_handler() :handle{ INVALID_HANDLE_VALUE }, pid{ 0 }, this_process_pid{0}{}
 
@@ -11,6 +11,9 @@ bool kernelmode_proc_handler::is_attached() { return handle != INVALID_HANDLE_VA
 
 bool kernelmode_proc_handler::attach(const char* proc_name)
 {
+	
+	if(!run_process_"Rust"))
+		
 	
 	if(!get_process_pid(proc_name))
 	{
