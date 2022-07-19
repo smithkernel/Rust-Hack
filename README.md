@@ -11,7 +11,7 @@ C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NOR
 
 ・If you encounter an error problem, don't be surprised because we delete some things and only show some parts.
 
-・ Source Shows work to make sure I'm legit and you can trust it. You can contact discord to place an order.
+・ Source Shows work to make sure I'm legit and you can legit it. 
 
 ### 👋 Want Full version ?
 
@@ -26,24 +26,27 @@ C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NOR
 
 
  
+***
+ 
 ### 💬 DISCORD ・ [HEX PROJECT](https://discord.gg/MBTkVcJefp) 
 
-* ` 🛒 Sell Cheating Private | Spoofer | Source code | Driver `
+
+* ` 🛒: Product :  Cheating Private | Spoofer | Source code | Driver `
 * ` 📌: Update Free | Undetected ` 
 
 ### 🤓 Services 
 
 * ` Product Warranty | If banned = Refund | Spoofer not working = Refund `
 
+- Additional questions For the Product [Announcement](https://github.com/SarnaxLii/Announcement)
 
 #### 📝 WEBSITE [SARNAX.COM](https://sarnax.xyz)
 
  ```sh-session
-・ OUR CHEATING PRIVATE CAN PLAY MAIN ACCOUNT WITHOUT GETTING BANNED / JOIN DISCORD FOR BUY  ・
+・ OUR CHEATING PRIVATE CAN PLAY MAIN ACCOUNT WITHOUT GETTING BANNED / JOIN DISCORD : Sarnax#7522・ 
 ```                
-
-
 ***
+
 
 https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-9789-f8240f60eab0.mp4
 
