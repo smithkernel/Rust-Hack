@@ -20,6 +20,39 @@ EXTERN_C PVOID ResolveRelativeAddress(
 	return ResolvedAddr;
 }
 
+BOOL D3DInitialize(HWND hWnd) {
+	ImGuiIO& io = ImGui::GetIO();
+	
+	Direct3DCreate9Ex(D3D_SDK_VERSION, &pInstance);
+	pParams.Windowed = TRUE;
+	pParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	pParams.hDeviceWindow = hWnd;
+	pParams.BackBufferFormat = D3DFMT_A8R8G8B8;
+	pParams.BackBufferWidth = Globals::rWidth;
+	pParams.BackBufferHeight = Globals::rHeight;
+	pParams.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+	pParams.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
+	pParams.EnableAutoDepthStencil = TRUE;
+	pParams.AutoDepthStencilFormat = D3DFMT_D16;
+	pInstance->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &pParams, 0, &pDevice);
+	
+	if (pDevice == NULL) { return FALSE; }
+
+	//ImGui
+	ImGui::CreateContext();
+
+	ImFontConfig fontCfg = ImFontConfig();
+	io.DeltaTime = 1.0f / 60.0f;
+	fontCfg.RasterizerFlags = 0x01;
+	fontCfg.OversampleH = fontCfg.OversampleV = 1;
+	fontCfg.PixelSnapH = true;
+
+	ImGui_ImplDX9_Init(hWnd, pDevice);
+	return TRUE;
+}
+
+
+
 NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound, int index = 0)
 {
 	ASSERT(ppFound != NULL && pattern != NULL && base != NULL);
