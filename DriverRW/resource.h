@@ -2,7 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by DriverRW.rc
 
-// Ñëåäóþùèå ñòàíäàðòíûå çíà÷åíèÿ äëÿ íîâûõ îáúåêòîâ
+// resource for defline
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
