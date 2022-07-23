@@ -3,16 +3,38 @@
 
 using namespace std;
 
-extern HWND gameHWND, cheatMenuHWND, cheatEspHWND;
+	void Update() {
+		while (true) {
 
-void update_cheat_windows_size(HWND GameHWND, int* Width, int* High)
-{
-	RECT clientRect;
-	GetClientRect(GameHWND, &clientRect);
-	*Width = clientRect.right - clientRect.left;
-	*High = clientRect.bottom - clientRect.top;
+			if (Globals::tWnd == GetForegroundWindow()) {
+
+			}
+
+			if (GetAsyncKeyState(0x2D)) {
+				if (!Globals::bShowMenu) {
+					long winlong = GetWindowLong(Globals::hWnd, GWL_EXSTYLE);
+
+					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST)
+						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST);
+					std::this_thread::sleep_for(std::chrono::milliseconds(50));
+				}
+
+				if (Globals::bShowMenu) {
+					long winlong = GetWindowLong(Globals::hWnd, GWL_EXSTYLE);
+
+					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT)
+						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT);
+				}
+				Globals::bShowMenu = !Globals::bShowMenu;
+
+				while (GetAsyncKeyState(0x2D)) {}
+			}
+
+			//CHANGEDTIME
+			std::this_thread::sleep_for(std::chrono::milliseconds(40));
+		}
+	}
 }
-
 
 
 void GOM_thread()
@@ -36,7 +58,7 @@ void GOM_thread()
 
 }
 
-//Проверка на валидность игрока проверяется в BaseNetworkable_loop
+//ГЏГ°Г®ГўГҐГ°ГЄГ  Г­Г  ГўГ Г«ГЁГ¤Г­Г®Г±ГІГј ГЁГЈГ°Г®ГЄГ  ГЇГ°Г®ГўГҐГ°ГїГҐГІГ±Гї Гў BaseNetworkable_loop
 void BN_thread()
 {
 	while (!Vars::Config::panic)
@@ -69,7 +91,7 @@ void ESP_thread()
 	{
 		if (!FindWindow("UnityWndClass", "Rust"))continue;
 
-		update_cheat_windows_size_and_move(gameHWND, cheatEspHWND); //выровнять окно по игре
+		update_cheat_windows_size_and_move(gameHWND, cheatEspHWND); //ГўГ»Г°Г®ГўГ­ГїГІГј Г®ГЄГ­Г® ГЇГ® ГЁГЈГ°ГҐ
 
 
 		if (PeekMessage(&msg, cheatEspHWND, 0U, 0U, PM_REMOVE))
@@ -175,7 +197,7 @@ void menu_thread()
 	}
 
 
-	c_gui gui;//для кастома
+	c_gui gui;//Г¤Г«Гї ГЄГ Г±ГІГ®Г¬Г 
 
 
 	MSG msg;
@@ -184,7 +206,7 @@ void menu_thread()
 	{
 
 		update_cheat_windows_size(gameHWND, &Vars::Config::ScreenWidth, &Vars::Config::ScreenHigh);
-		update_cheat_windows_size_and_move(gameHWND, cheatMenuHWND); //выровнять окно по игре
+		update_cheat_windows_size_and_move(gameHWND, cheatMenuHWND); //ГўГ»Г°Г®ГўГ­ГїГІГј Г®ГЄГ­Г® ГЇГ® ГЁГЈГ°ГҐ
 
 
 
@@ -466,7 +488,7 @@ void menu_thread()
 		}
 		else if (!Vars::Config::LocalPlayerIsValid)
 		{
-			if (Vars::Config::MenuActive) //если меню активно
+			if (Vars::Config::MenuActive) //ГҐГ±Г«ГЁ Г¬ГҐГ­Гѕ Г ГЄГІГЁГўГ­Г®
 			{
 				ShowWindow(cheatMenuHWND, SW_HIDE);
 				GuiEngine::Menu::clear_window();
