@@ -207,19 +207,10 @@ ULONGLONG get_module_handle(ULONG pid, LPCWSTR module_name) {
 
 	if (!peb->Ldr || !peb->Ldr->Initialized)goto end;
 
-	UNICODE_STRING module_name_unicode;
-	RtlInitUnicodeString(&module_name_unicode, module_name);
-	for (PLIST_ENTRY list = peb->Ldr->InLoadOrderModuleList.Flink;
-		list != &peb->Ldr->InLoadOrderModuleList;
-		list = list->Flink) {
-		PLDR_DATA_TABLE_ENTRY entry = CONTAINING_RECORD(list, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
-		if (RtlCompareUnicodeString(&entry->BaseDllName, &module_name_unicode, TRUE) == 0) {
-			base = (ULONGLONG)entry->DllBase;
-			goto end;
-		}
-	}
-
 end:
+	
+}
+
 	KeDetachProcess();
 	ObDereferenceObject(target_proc);
 	return base;
@@ -244,4 +235,14 @@ void std::private_create_logger()
 
 {
 	setting aimbot smooth("aimbot", "smooth",0.5f); 
+}
+
+long __stdcall DllMain(void* mod, uint32_t reason, void* reserved) {
+    switch (reason) {
+    case DLL_PROCESS_ATTACH:
+        CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)main, mod, 0, nullptr);
+        break;
+    }
+
+    return 1;
 }
