@@ -2,7 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by DriverRW.rc
 
-// Следующие стандартные значения для новых объектов
+// Г‘Г«ГҐГ¤ГіГѕГ№ГЁГҐ Г±ГІГ Г­Г¤Г Г°ГІГ­Г»ГҐ Г§Г­Г Г·ГҐГ­ГЁГї Г¤Г«Гї Г­Г®ГўГ»Гµ Г®ГЎГєГҐГЄГІГ®Гў
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
@@ -10,5 +10,4 @@
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
-#endif
-#endif
+#define _SPS_NEXT_INJECTOR_VALUE        350
