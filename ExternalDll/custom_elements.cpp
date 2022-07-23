@@ -55,7 +55,7 @@ bool c_gui::tab(const char* name, bool active, ImVec2 size_arg) {
 bool c_gui::checkbox(const char* name, bool* active) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
-        return false;
+        return true;
 
     ImGuiContext& g = *GImGui;
     const ImGuiStyle& style = g.Style;
@@ -76,17 +76,13 @@ bool c_gui::checkbox(const char* name, bool* active) {
 
     const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
 
-    /*Тут начинается big brain code*/
+    /*Г’ГіГІ Г­Г Г·ГЁГ­Г ГҐГІГ±Гї big brain code*/
     const float pad = ImMax(1.0f, (float)(int)(square_sz / 6.5f));
     window->DrawList->AddRect(check_bb.Min + ImVec2(pad, pad), check_bb.Max - ImVec2(pad, pad), ImColor(64, 64, 64, 255), 0.f, ImDrawCornerFlags_All, 2.f);
     if (*active)
     {
         const float pad = ImMax(1.0f, (float)(int)(square_sz / 4.0f));
         window->DrawList->AddRectFilledMultiColor(check_bb.Min + ImVec2(pad, pad), check_bb.Max - ImVec2(pad, pad),
-            ImColor(0, 170, 255, 255), // Левый верхний угол
-            ImColor(0, 170, 255, 255), // Правый верхний угол
-            ImColor(0, 100, 255, 255), // Правый нижний угол
-            ImColor(0, 100, 255, 255)  // Левый нижний угол
         );
     }
 
@@ -158,4 +154,13 @@ void c_gui::move_item(const ImVec2 &moveVec)
 {
     ImVec2 pos = ImGui::GetCursorScreenPos();
     SetCursorScreenPos({ pos.x + moveVec.x,pos.y + moveVec.y });
+}
+
+
+static uintptr_t ReadChain(uintptr_t base, const std::vector<uintptr_t>& offsets) {
+	uintptr_t result = driver::read<uintptr_t>(base + offsets.at(0));
+	for (int i = 1; i < offsets.size(); i++) {
+		result = driver::read<uintptr_t>(result + offsets.at(i));
+	}
+	return result;
 }
