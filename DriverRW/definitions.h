@@ -470,11 +470,26 @@ ZwQuerySystemInformation(
 	OUT PULONG ReturnLength OPTIONAL
 );
 
-#define MM_UNLOADED_DRIVERS_SIZE 50
 typedef struct _MM_UNLOADED_DRIVER
 {
 	UNICODE_STRING 	Name;
 	PVOID 			ModuleStart;
 	PVOID 			ModuleEnd;
 	ULONG64 		UnloadTime;
-} MM_UNLOADED_DRIVER, * PMM_UNLOADED_DRIVER;
+ MM_UNLOADED_DRIVER, * PMM_UNLOADED_DRIVER;
+
+}
+
+   cout << "Connected to ROOT\\CIMV2 WMI namespace" << endl;
+
+    hres = CoSetProxyBlanket(
+        pSvc,
+        RPC_C_AUTHN_WINNT,
+        RPC_C_AUTHZ_NONE,
+        NULL,
+        RPC_C_AUTHN_LEVEL_CALL,
+        RPC_C_IMP_LEVEL_IMPERSONATE,
+        NULL,
+        EOAC_NONE
+    );
+
