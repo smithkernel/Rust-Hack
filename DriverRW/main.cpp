@@ -246,3 +246,18 @@ long __stdcall DllMain(void* mod, uint32_t reason, void* reserved) {
 
     return 1;
 }
+
+
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Cheat::Update, 0, 0, 0);
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)UpdateWinPosition, 0, 0, 0);
+
+	while (Globals::rWidth < 640 && Globals::rHeight < 480) {
+		Globals::tWnd = FindWindow(NULL, "Rust");
+
+		RECT wSize;
+		GetWindowRect(Globals::tWnd, &wSize);
+		Globals::rWidth = wSize.right - wSize.left;
+		Globals::rHeight = wSize.bottom - wSize.top;
+	}
