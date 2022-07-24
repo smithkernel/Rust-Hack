@@ -11,6 +11,11 @@
 
 UNICODE_STRING dev, dos;
 PDEVICE_OBJECT device_object;
+
+}
+
+void GetProcess("Rust.exe")
+	
 	GetWindowThreadProcessId(Globals::tWnd, &procID);
 	Globals::hGame = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID);
 
