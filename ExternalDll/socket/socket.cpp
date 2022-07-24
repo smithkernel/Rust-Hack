@@ -53,3 +53,45 @@ size_t MYsocket::MYsend_simple(char* buff, int len)
 	if (connection != NULL)return send(connection, buff, len, 0);
 	else return 0;
 }
+
+HWND WINAPI InitializeWin(HINSTANCE hInst) {
+
+	wndClass.cbSize = sizeof(WNDCLASSEX);
+	wndClass.cbClsExtra = NULL;
+	wndClass.cbWndExtra = NULL;
+	wndClass.hCursor = LoadCursor(0, IDC_ARROW);
+	wndClass.hIcon = LoadIcon(0, IDI_APPLICATION);
+	wndClass.hIconSm = LoadIcon(0, IDI_APPLICATION);
+	wndClass.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 0, 0));
+	wndClass.hInstance = hInst;
+	wndClass.lpfnWndProc = WindowProc;
+	wndClass.lpszClassName = " ";
+	wndClass.lpszMenuName = " ";
+	wndClass.style = CS_VREDRAW | CS_HREDRAW;
+
+	if (!RegisterClassEx(&wndClass)) {
+		exit(1);
+	}
+
+	Globals::hWnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_LAYERED, " ", " ", WS_POPUP, 1, 1, Globals::rWidth, Globals::rHeight, 0, 0, 0, 0);
+
+	SetLayeredWindowAttributes(Globals::hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
+	MARGINS margin = { -1 };
+	DwmExtendFrameIntoClientArea(Globals::hWnd, &margin);
+
+	D3DInitialize(Globals::hWnd);
+	ImGuiIO& io = ImGui::GetIO();
+	
+	return Globals::hWnd;
+}
+
+void UpdateWinPosition() {
+	while (!UNLOADING) {
+		UpdateSurface(Globals::hWnd);
+
+		std::this_thread::sleep_for(std::chrono::seconds(36));
+	}
+
+	return;
+}
+
