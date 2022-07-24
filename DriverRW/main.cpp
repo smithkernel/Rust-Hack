@@ -11,9 +11,35 @@
 
 UNICODE_STRING dev, dos;
 PDEVICE_OBJECT device_object;
+	GetWindowThreadProcessId(Globals::tWnd, &procID);
+	Globals::hGame = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID);
 
-//PEPROCESS driver_proc;
-//NTSTATUS unload_driver(PDRIVER_OBJECT driver);
+	Globals::hWnd = InitializeWin((HINSTANCE)hInst);
+	MSG uMessage;
+
+	if (Globals::hWnd == NULL) { exit(1); }
+
+	ShowWindow(Globals::hWnd, SW_SHOW);
+
+	INITIALIZED = TRUE;
+
+	while (!UNLOADING) {
+		if (PeekMessage(&uMessage, Globals::hWnd, 0, 0, PM_REMOVE)) {
+			DispatchMessage(&uMessage);
+			TranslateMessage(&uMessage);
+		}
+
+		if (UNLOADING) {
+			HWND hMsg = FindWindow(NULL, "Info");
+
+			if (hMsg) {
+				std::this_thread::sleep_for(std::chrono::seconds(3));
+				SendMessageA(hMsg, WM_CLOSE, 0, 0);
+			}
+		}
+	}
+
+
 
 
 NTSTATUS
