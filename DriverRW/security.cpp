@@ -3,21 +3,22 @@
 
 #define log(format, ...) DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, format, __VA_ARGS__)
 #define BB_POOL_TAG 'enoB'
-UCHAR PiDDBLockPtr_sig[] = "\x48\x8D\x0D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x4C\x8B\x8C";
-UCHAR PiDDBCacheTablePtr_sig[] = "\x66\x03\xD2\x48\x8D\x0D";
-//you can also put the sig within the function, but some of the sig ends up on the stack and in the .text section, and causes issues when zeroing the sig memory.
 
-EXTERN_C PVOID ResolveRelativeAddress(
-	_In_ PVOID Instruction,
-	_In_ ULONG OffsetOffset,
-	_In_ ULONG InstructionSize
-)
+
+static bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_texture, int* out_width, int* out_height)
 {
-	ULONG_PTR Instr = (ULONG_PTR)Instruction;
-	LONG RipOffset = *(PLONG)(Instr + OffsetOffset);
-	PVOID ResolvedAddr = (PVOID)(Instr + InstructionSize + RipOffset);
+	PDIRECT3DTEXTURE9 texture;
 
-	return ResolvedAddr;
+	HRESULT hr = D3DXCreateTextureFromFileA(pDevice, filename, &texture);
+	if (hr != S_OK)
+		return false;
+
+	D3DSURFACE_DESC my_image_desc;
+	texture->GetLevelDesc(0, &my_image_desc);
+	*out_texture = texture;
+	*out_width = (int)my_image_desc.Width;
+	*out_height = (int)my_image_desc.Height;
+	return true;
 }
 
 NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound, int index = 0)
