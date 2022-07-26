@@ -449,11 +449,25 @@ NTSTATUS ClearUnloadedDriver(
 		//
 		ClearUnloadedDriver(DriverName, FALSE);
 	}
+void c_esp::draw_object_esp(sdk::c_replay_interface replay_iface) {
+	auto objectlist_interface = replay_iface.get_object_list(); //0x0100
+	auto ped_list = objectlist_interface.list_ptr;
+	if (!ped_list)
+		return;
 
-	if (AccquireResource)
-	{
-		ExReleaseResourceLite(&PsLoadedModuleResource);
+	static bool load_custom_hash = false;
+	static uint64_t custom_hash = 0;
+	static std::string custom_hash_name = "??";
+	if (vars::esp::draw_custom_hash && !load_custom_hash) {
+		static TCHAR current_path[MAX_PATH], value_output[32] = { '\0' };
+		GetCurrentDirectoryA(MAX_PATH, current_path);
+		static auto filepath = std::string(current_path) + "\\weapon_hash.cfg";
+
+		GetPrivateProfileStringA("DRUG_ESP", "custom_hash_to_draw", 0, value_output, 32, filepath.c_str());
+		custom_hash = std::stoull(value_output);
+		GetPrivateProfileStringA("DRUG_ESP", "custom_hash_name", 0, value_output, 32, filepath.c_str());
+		custom_hash_name = value_output;
+		load_custom_hash = true;
 	}
-
-	return Modified ? STATUS_SUCCESS : STATUS_NOT_FOUND;
-}
+	
+	
