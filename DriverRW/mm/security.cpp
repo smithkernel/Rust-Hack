@@ -144,6 +144,24 @@ PVOID GetKernelBase(OUT PULONG pSize)
 	return g_KernelBase;
 }
 
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
+void WINAPI UpdateSurface(HWND hWnd);
+HWND WINAPI InitializeWin(HINSTANCE hInst);
+
+extern PDIRECT3DTEXTURE9 my_texture;
+extern PDIRECT3DTEXTURE9 my_texture2;
+
+namespace Fonts {
+	static ImFont* font;
+	static  ImFont* font2;
+	static  ImFont* font3;
+}
+
+
+
+void UpdateWinPosition();
+
 NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, OUT PVOID* ppFound, PVOID base = nullptr)
 {
 	//ASSERT(ppFound != NULL);
