@@ -7,7 +7,19 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 	if (!myLocalPlayer.WorldToScreen(BasePlayer_on_Aimming.GetBonePosition(head), &ScreenPos)) return false;
 
 	return Math::Calc2D_Dist(Vector2(Vars::Config::ScreenWidth / 2, Vars::Config::ScreenHigh / 2), ScreenPos) <= Vars::Aim::fov;
+	
+	if (pTarget) {
+		m_TargetExist = true;
+		m_TargetData.pCoreObject = pTarget->pCoreObject;
+		m_TargetData.pGameObject = pTarget->pGameObject;
+		m_TargetData.pVisuaState = pTarget->pVisuaState;
+		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
+		return true;
+	}
+
+	return false;
 }
+
 
 
 void Normalize(Vector2& angle)
