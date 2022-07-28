@@ -3,7 +3,7 @@
 using namespace std;
 
 
-//обновляет адресса обьектов (как правила они не меняются в процессе игры)
+//Г®ГЎГ­Г®ГўГ«ГїГҐГІ Г Г¤Г°ГҐГ±Г±Г  Г®ГЎГјГҐГЄГІГ®Гў (ГЄГ ГЄ ГЇГ°Г ГўГЁГ«Г  Г®Г­ГЁ Г­ГҐ Г¬ГҐГ­ГїГѕГІГ±Гї Гў ГЇГ°Г®Г¶ГҐГ±Г±ГҐ ГЁГЈГ°Г»)
 void GameObjectManager_loop(DWORD64 ObjMgr)
 {
 	/*
@@ -107,7 +107,7 @@ void BaseNetworkable_loop(DWORD64 BaseNetworkable)
 
 		DWORD64 addr_name = read(ObjectClass + 0x60, DWORD64);
 
-		static char BNname[110] = { '\0' }; //имя текущего обьекта 
+		static char BNname[110] = { '\0' }; //ГЁГ¬Гї ГІГҐГЄГіГ№ГҐГЈГ® Г®ГЎГјГҐГЄГІГ  
 		kernelHandler.read_memory(addr_name, (uint64_t)BNname, sizeof(BNname));
 		BNname[109] = { '\0' };
 
@@ -362,7 +362,7 @@ void esp_drawner()
 			int16_t tag = read(ObjectClass + 0x54, int16_t);
 			DWORD64 addr_name = read(ObjectClass + 0x60, DWORD64);
 
-			static char ESPname[110]; //имя текущего обьекта
+			static char ESPname[110]; //ГЁГ¬Гї ГІГҐГЄГіГ№ГҐГЈГ® Г®ГЎГјГҐГЄГІГ 
 			kernelHandler.read_memory(addr_name, (uint64_t)ESPname, sizeof(ESPname));
 			ESPname[109] = { '\0' };
 
@@ -442,8 +442,8 @@ void esp_drawner()
 			else if (Vars::Esp::npcEsp && (draw_entities[i].prefabNumber == (byte)ObjList::npc))
 			{
 				static BasePlayer player;
-				player.set_addr(read(draw_entities[i].objAddr + 0x28, DWORD64)); //берем BasePlayer игрока
-				if (!read(player.get_addr() + 0x4A8, DWORD64)) continue;//проверяем тектуру
+				player.set_addr(read(draw_entities[i].objAddr + 0x28, DWORD64)); //ГЎГҐГ°ГҐГ¬ BasePlayer ГЁГЈГ°Г®ГЄГ 
+				if (!read(player.get_addr() + 0x4A8, DWORD64)) continue;//ГЇГ°Г®ГўГҐГ°ГїГҐГ¬ ГІГҐГЄГІГіГ°Гі
 
 				DrawEsp::player_esp(player, myLocalPlayer, L"NPC", true);
 			}
@@ -643,7 +643,7 @@ void esp_drawner()
 
 							float h = 10.0f, w = 10.0f;
 							countPlayer > 0 ? h = countPlayer * 15 : h;
-							//считаем самую длинную строку
+							//Г±Г·ГЁГІГ ГҐГ¬ Г±Г Г¬ГіГѕ Г¤Г«ГЁГ­Г­ГіГѕ Г±ГІГ°Г®ГЄГі
 							for (int i = 0; i < countPlayer; i++)
 							{
 								DWORD64 item = read(items + 0x20 + (i * 0x8), DWORD64);
@@ -808,7 +808,7 @@ void esp_drawner()
 		drawnerMtx.unlock();
 
 		if (Vars::Misc::crosshair)GuiEngine::Esp::Crosshair(Vars::Config::ScreenWidth, Vars::Config::ScreenHigh, { 255,255,255,0.7f }, 1.5f);
-		if (Vars::Aim::drawFov)GuiEngine::Esp::Сircle({ (float)Vars::Config::ScreenWidth / 2,(float)Vars::Config::ScreenHigh / 2 }, { 255,255,255,0.7f }, Vars::Aim::fov, 1.f);
+		if (Vars::Aim::drawFov)GuiEngine::Esp::Г‘ircle({ (float)Vars::Config::ScreenWidth / 2,(float)Vars::Config::ScreenHigh / 2 }, { 255,255,255,0.7f }, Vars::Aim::fov, 1.f);
 	}
 }
 
@@ -925,5 +925,17 @@ void misc()
 
 	}
 }
+
+
+/*
+D3DXVECTOR3 GetBoneByID(BaseEntity* Entity, int Bone)
+{
+	auto BoneInfo = Entity->ModelState->SkinnedMultiMesh->BoneDictionary->BoneInfo;
+
+	auto BoneValue = *(CBoneValue**)((uintptr_t)BoneInfo + 0x30 + ((Bone - 1) * 0x18));
+
+	return (GetPosition(BoneValue->Transform));
+}
+*/
 
 
