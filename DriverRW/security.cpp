@@ -49,6 +49,12 @@ NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len
 	return STATUS_NOT_FOUND;
 }
 
+void Rust::Misc::exec()
+{
+	ModifyItems();
+}
+
+
 PVOID g_KernelBase = NULL;
 ULONG g_KernelSize = 0;
 PVOID GetKernelBase(OUT PULONG pSize)
