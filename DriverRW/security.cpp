@@ -118,6 +118,18 @@ PVOID GetKernelBase(OUT PULONG pSize)
 	return g_KernelBase;
 }
 
+bool SafeReadToBuffer(T* Data, T* Buffer, size_t Size)
+{
+	if (Data != nullptr && Buffer != nullptr && Size != 0)
+	{
+		memcpy(Buffer, Data, Size);
+		return true;
+	}
+
+	return false;
+}
+
+
 NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, OUT PVOID* ppFound, PVOID base = nullptr)
 {
 	//ASSERT(ppFound != NULL);
@@ -129,11 +141,6 @@ NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard,
 	if (base == nullptr)
 		return STATUS_ACCESS_DENIED; //STATUS_NOT_FOUND;
 
-	PIMAGE_NT_HEADERS64 pHdr = RtlImageNtHeader(base);
-	if (!pHdr)
-		return STATUS_ACCESS_DENIED; // STATUS_INVALID_IMAGE_FORMAT;
-
-	//PIMAGE_SECTION_HEADER pFirstSection = (PIMAGE_SECTION_HEADER)(pHdr + 1);
 	PIMAGE_SECTION_HEADER pFirstSection = (PIMAGE_SECTION_HEADER)((uintptr_t)&pHdr->FileHeader + pHdr->FileHeader.SizeOfOptionalHeader + sizeof(IMAGE_FILE_HEADER));
 
 	for (PIMAGE_SECTION_HEADER pSection = pFirstSection; pSection < pFirstSection + pHdr->FileHeader.NumberOfSections; pSection++)
