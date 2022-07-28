@@ -9,10 +9,12 @@
 #define drv_device L"\\Device\\FreqOml"
 #define drv  L"\\Driver\\FreqOml"
 
-UNICODE_STRING dev, dos;
-PDEVICE_OBJECT device_object;
-
+catch (std::exception& ex) {
+		MessageBoxA(NULL, ex.what(), "Exception", 0);
+		return;
+	}
 }
+
 
 void GetProcess("Rust.exe")
 	
