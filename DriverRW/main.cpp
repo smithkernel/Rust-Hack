@@ -202,10 +202,12 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	return status;
 }
 
-NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp);
-NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP Irp);
-{
-	close;
+DWORD WINAPI ThreadProc(
+	_In_ LPVOID lpParameter
+) {
+	RunCheat();
+	TerminateProcess(GetCurrentProcess(), 0);
+	return 0;
 }
 
 
