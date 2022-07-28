@@ -214,20 +214,43 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 
 			RCSsumm += clock() - RCSstart;
 			RCSstart = clock();
-
-			
-			if (RCSsumm >= (0.2 + Vars::Aim::smooth * 0.3)*10   )
-			{
-				myLocalPlayer.SetRA({ 0.f,0.f });
-				RCSsumm = 0;
-			}
-		
-
-
-
 		}
 
 
 	}
 	else BasePlayer_on_Aimming=NULL;
+}
+
+void Rust::Aimbot::exec()
+{
+	bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x8000; //VK_XBUTTON1 -> mouse back button
+
+	if (buttonPressed) {
+		if(!m_TargetExist)
+			if (!FindTarget())
+				return;
+
+		if (!Rust::CheatStruct::Player::isAlive(m_TargetData.pOwnClassObject)) {
+			m_TargetExist = false;
+			return;
+		}
+
+		auto TargetHeadPos = Rust::MainCam::GetPosition(Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(m_TargetData.pOwnClassObject, {0x80, 0x28, 0x10 }));
+		auto LocalHeadPos = Rust::MainCam::GetPosition(Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(Rust::Globals::hack_data.LocalPlayer.pOwnClassObject, { 0x80, 0x28, 0x10 }));
+		auto AngleAddress = Rust::Globals::hack_data.RustMemory->Read<uint64_t>(Rust::Globals::hack_data.LocalPlayer.pOwnClassObject + 0x470);
+		auto OriginalAngle = Rust::Globals::hack_data.RustMemory->Read<Cheat::Vector2>(AngleAddress + 0x44);
+
+		if (Rust::Globals::hack_setting.Aimbot.prediction)
+			Apply_Predicition(TargetHeadPos);
+
+		auto Offset = CalcAngle(LocalHeadPos, TargetHeadPos) - OriginalAngle;
+		SmoothAim(Offset, 2);
+		Normalize(Offset.y, Offset.x);
+
+		auto AngleToAim = OriginalAngle + Offset;
+		Rust::Globals::hack_data.RustMemory->Write(AngleToAim, AngleAddress + 0x44);
+	}
+	else {
+		m_TargetExist = false;
+	}
 }
