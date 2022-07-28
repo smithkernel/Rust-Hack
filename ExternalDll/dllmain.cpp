@@ -159,71 +159,62 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 			cout << "BaseNetworkable:" << std::hex << Vars::Config::BaseNetworkable << endl;
 		}
 	
-void Rust::CheatManager::exec()
-{
-	//if in game 
-	try {
-		if (!m_previousInGame && IsinGame()) {
-			Rust::EntityUpdator::UpdateLocalPlayerAndCameraData();
-			m_previousInGame = true;
+while (transformIndex >= 0)
+		{
+			Matrix34 matrix34 = *(Matrix34*)((ULONGLONG)pMatriciesBuf + 0x30 * transformIndex);
+
+			__m128 xxxx = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x00));	// xxxx
+			__m128 yyyy = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x55));	// yyyy
+			__m128 zwxy = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x8E));	// zwxy
+			__m128 wzyw = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0xDB));	// wzyw
+			__m128 zzzz = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0xAA));	// zzzz
+			__m128 yxwy = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x71));	// yxwy
+			__m128 tmp7 = _mm_mul_ps(*(__m128*)(&matrix34.vec2), result);
+
+			result = _mm_add_ps(
+				_mm_add_ps(
+					_mm_add_ps(
+						_mm_mul_ps(
+							_mm_sub_ps(
+								_mm_mul_ps(_mm_mul_ps(xxxx, mulVec1), zwxy),
+								_mm_mul_ps(_mm_mul_ps(yyyy, mulVec2), wzyw)),
+							_mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(tmp7), 0xAA))),
+						_mm_mul_ps(
+							_mm_sub_ps(
+								_mm_mul_ps(_mm_mul_ps(zzzz, mulVec2), wzyw),
+								_mm_mul_ps(_mm_mul_ps(xxxx, mulVec0), yxwy)),
+							_mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(tmp7), 0x55)))),
+					_mm_add_ps(
+						_mm_mul_ps(
+							_mm_sub_ps(
+								_mm_mul_ps(_mm_mul_ps(yyyy, mulVec0), yxwy),
+								_mm_mul_ps(_mm_mul_ps(zzzz, mulVec1), zwxy)),
+							_mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(tmp7), 0x00))),
+						tmp7)), *(__m128*)(&matrix34.vec0));
+
+			transformIndex = *(int*)((ULONGLONG)pIndicesBuf + 0x4 * transformIndex);
 		}
-		else if (m_previousInGame && !IsinGame()) {
-			m_previousInGame = false;
-		}
-
-		m_visual.BeginDraw();
-		m_visual.DrawOtherVisuals();
-		
-		//do something with tagged object
-		try {
-			Rust::Globals::hack_data.TaggedObject.mutex.lock();
-
-			m_visual.DrawTaggedObject();
-			m_aimbot.exec();
-			m_misc.exec();
-
-			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
-		}
-		catch (Cheat::MemoryManager::MemException& ex) {
-			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
-		}
-
-		//do something with active object when you can
-		try {
-			Rust::Globals::hack_data.ActiveObjects.mutex.lock();
-
-			m_visual.DrawActiveObject();
-
-			Rust::Globals::hack_data.ActiveObjects.mutex.unlock();
-
-		}
-		catch (Cheat::MemoryManager::MemException& ex) {
-			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
-		}
-		
-		m_visual.EndDraw();
-	}
-	catch (Cheat::cexception& ex) {
-		throw ex;
-	}
-}
 
 bool Rust::CheatManager::IsinGame()
 {
 	return false;
 }
 
-void 
+Cheat::Vector3 Rust::MainCam::GetPosition(uint64_t pTransform)
+{
+	__m128 result;
 
-	int rWidth = 0;
-	int rHeight = 0;
-	HWND tWnd = 0x0;
-	HWND hWnd = 0x0;
-	HWND hMsg = 0x0;
-	HANDLE hGame = 0x0;
-	DWORD dwBase = 0x0;
-	int iFPS = 0;
-	ImFont* main_font;
-	bool bShowMenu = false;
-}
+	const __m128 mulVec0 = { -2.000, 2.000, -2.000, 0.000 };
+	const __m128 mulVec1 = { 2.000, -2.000, -2.000, 0.000 };
+	const __m128 mulVec2 = { -2.000, -2.000, 2.000, 0.000 };
 
+	TransformAccessReadOnly pTransformAccessReadOnly = Rust::Globals::hack_data.RustMemory->Read<TransformAccessReadOnly>(pTransform + 0x38);
+	unsigned int index = Rust::Globals::hack_data.RustMemory->Read<unsigned int>(pTransform + 0x40);
+	TransformData transformData = Rust::Globals::hack_data.RustMemory->Read<TransformData>(pTransformAccessReadOnly.pTransformData + 0x18);
+
+	SIZE_T sizeMatriciesBuf = sizeof(Matrix34) * index + sizeof(Matrix34);
+	SIZE_T sizeIndicesBuf = sizeof(int) * index + sizeof(int);
+
+	// Allocate memory for storing large amounts of data (matricies and indicies)
+	PVOID pMatriciesBuf = malloc(sizeMatriciesBuf);
+	PVOID pIndicesBuf = malloc(sizeIndicesBuf);
