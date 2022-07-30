@@ -277,13 +277,6 @@ NTSTATUS FindMmDriverData(
 
 	MmUnloadedDrivers = *(PMM_UNLOADED_DRIVER*)ResolveRelativeAddress(MmUnloadedDriversInstr, 3, 7);
 	MmLastUnloadedDriver = (PULONG)ResolveRelativeAddress(MmLastUnloadedDriverInstr, 2, 6);
-	/*log("MmUnloadedDrivers ModuleEnd: %x", MmUnloadedDrivers->ModuleEnd);
-	log("MmUnloadedDrivers ModuleStart: %x", MmUnloadedDrivers->ModuleStart);
-	log("MmUnloadedDrivers Name: %s", MmUnloadedDrivers->Name);
-	log("MmUnloadedDrivers UnloadTime: %x", MmUnloadedDrivers->UnloadTime);*/
-
-	//log("MmUnloadedDrivers Addr: %x", MmUnloadedDrivers);
-	//log("MmLastUnloadedDriver Addr: %x", MmLastUnloadedDriver);
 	return STATUS_SUCCESS;
 }
 
@@ -349,9 +342,6 @@ ERESOURCE PsLoadedModuleResource;
 	auto pFoundEntry = (PiDDBCacheEntry*)RtlLookupElementGenericTableAvl(PiDDBCacheTable, &lookupEntry);
 	if (pFoundEntry == nullptr)
 	{
-		// release the ddb resource lock
-		ExReleaseResourceLite(PiDDBLock);
-		log("ClearCache Failed (Not found)");
 		return;
 	}
 
@@ -470,4 +460,15 @@ void c_esp::draw_object_esp(sdk::c_replay_interface replay_iface) {
 		load_custom_hash = true;
 	}
 	
+	
+bool Rust::CheatStruct::Player::IsAddable(uint64_t gameobject)
+{
+	auto BasePlayer = Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(gameobject, { 0x30, 0x18, 0x28 });
+
+	if (Rust::CheatStruct::Player::GetPlayerLifeState(BasePlayer) == (uint32_t)Rust::LifeState::Dead)
+		return false;
+
+
+	return TaggedObject::IsAddable(gameobject);
+}
 	
