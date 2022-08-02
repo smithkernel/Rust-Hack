@@ -62,10 +62,26 @@ NTSTATUS
 			return status
 }
 
-//static NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
-	// irp->IoStatus.Status = STATUS_SUCCESS;
+void Rust::Globals::Init()
+{
+	XorWS(RustClient, L"RustClient.exe");
+	XorWS(UnityPlayer, L"UnityPlayer.dll");
+	XorWS(Rust, L"Rust");
 
+	hack_data.RustMemory = new Cheat::ExternalMemoryManager(XorWString(RustClient));
+	hack_data.RustMemory->ChangeBaseAddressOfModule((PWCHAR)XorWString(UnityPlayer));
+
+	auto hwnd = Cheat::System::GetHWND((PWCHAR)XorWString(Rust));
+
+	RECT rect = { 0 };
+	GetWindowRect(hwnd, &rect);
+	system_data.GameWindowRect = rect;
+	system_data.width = rect.right - rect.left;
+	system_data.height = rect.bottom - rect.top;
+
+	Rust::Globals::game_state.inGame = true;
 }
+
 
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp);
 NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP Irp);
