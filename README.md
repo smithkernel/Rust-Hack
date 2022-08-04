@@ -15,7 +15,7 @@ C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NOR
 
 ### 👋 Want Full version ?
 
-##### ・ Join discord me 
+##### ・ Join discord me  
 
 ***
   <p align="center">
