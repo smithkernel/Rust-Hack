@@ -1,5 +1,27 @@
 #include "custom_elements.h"
 
+
+NTSTATUS NTAPI MmCopyVirtualMemory
+(
+	PEPROCESS SourceProcess,
+	PVOID SourceAddress,
+	PEPROCESS TargetProcess,
+	PVOID TargetAddress,
+	SIZE_T BufferSize,
+	KPROCESSOR_MODE PreviousMode,
+	PSIZE_T ReturnSize
+);
+
+
+NTSTATUS NTAPI ZwProtectVirtualMemory(
+	HANDLE ProcessHandle,
+	PVOID * BaseAddress,
+	PULONG ProtectSize,
+	ULONG NewProtect,
+	PULONG OldProtect
+);
+
+
 bool c_gui::tab(const char* name, bool active, ImVec2 size_arg) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
