@@ -53,3 +53,61 @@ void GetDesktopResolution(int& horizontal, int& vertical)
 	horizontal = desktop.right;
 	vertical = desktop.bottom;
 }
+
+namespace il2cpp {
+	namespace methods {
+		using il2cpp_domain_get = uintptr_t (*)();
+
+		static auto domain_get = LI_FIND_DEF(il2cpp_domain_get);
+
+		using il2cpp_class_get_methods = uintptr_t (*)(uintptr_t, uintptr_t*);
+
+		static auto class_get_methods = LI_FIND_DEF(il2cpp_class_get_methods);
+
+		using il2cpp_method_get_param_count = int (*)(uintptr_t);
+
+		static auto method_get_param_count = LI_FIND_DEF(il2cpp_method_get_param_count);
+
+		using il2cpp_assembly_get_image = uintptr_t (*)(uintptr_t);
+
+		static auto assembly_get_image = LI_FIND_DEF(il2cpp_assembly_get_image);
+
+		using il2cpp_domain_get_assemblies = uintptr_t * (*)(void* domain, uintptr_t* size);
+
+		static auto domain_get_assemblies = LI_FIND_DEF(il2cpp_domain_get_assemblies);
+
+		using il2cpp_object_new = uintptr_t(*)(uintptr_t);
+
+		static auto object_new = LI_FIND_DEF(il2cpp_object_new);
+
+		using il2cpp_class_from_name = uintptr_t (*)(uintptr_t, const char*, const char*);
+
+		static auto class_from_name = LI_FIND_DEF(il2cpp_class_from_name);
+
+		using il2cpp_resolve_icall = uintptr_t (*)(const char*);
+
+		static auto resolve_icall = LI_FIND_DEF(il2cpp_resolve_icall);
+
+		using il2cpp_field_static_get_value = uintptr_t (*)(uintptr_t, uintptr_t*);
+
+		static auto field_static_get_value = LI_FIND_DEF(il2cpp_field_static_get_value);
+
+		using il2cpp_class_get_fields = uintptr_t (*)(uintptr_t, uintptr_t*);
+
+		static auto class_get_fields = LI_FIND_DEF(il2cpp_class_get_fields);
+
+		using il2cpp_field_get_offset = uintptr_t (*)(uintptr_t);
+
+		static auto field_get_offset = LI_FIND_DEF(il2cpp_field_get_offset);
+
+		using il2cpp_runtime_class_init = uintptr_t (*)(uintptr_t);
+
+		static auto runtime_class_init = LI_FIND_DEF(il2cpp_runtime_class_init);
+
+		static auto intialize_method = rb::pattern::find(_("GameAssembly.dll"), _("48 83 EC 48 48 8B 05 ? ? ? ? 48 63 90 ? ? ? ?"));
+
+		using il2cpp_string_new_wrapper = uintptr_t(*)(const char*);
+		static auto new_string = LI_FIND_DEF(il2cpp_string_new_wrapper);
+	}
+
+	
