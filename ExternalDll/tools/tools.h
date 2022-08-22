@@ -78,4 +78,43 @@ char hooked_event(PVOID a1)
 		//}
 	}
 	
+		if (m->get_pid != FALSE)
+		GetPid(&pid, m->process_name);
+	else if (m->change_protection != FALSE)
+		protect_virtual_memory(process, (PVOID)m->address, m->size, m->protection, m->protection_old);
+	else if (m->get_base != FALSE)
+	{
+		ANSI_STRING AS;
+		UNICODE_STRING ModuleNAme;
+
+		RtlInitAnsiString(&AS, m->module_name);
+		RtlAnsiStringToUnicodeString(&ModuleNAme, &AS, TRUE);
+
+		PsLookupProcessByProcessId((HANDLE)pid, &process);
+		if (!base_addy)
+		{
+			base_addy = get_module_base_x64(process, ModuleNAme);
+			DbgPrintEx(0, 0, "\n", ModuleNAme, base_addy);
+			m->base_address = base_addy;
+		}
+		else
+		{
+			base_addy_two = get_module_base_x64(process, ModuleNAme);
+			DbgPrintEx(0, 0, "\n", ModuleNAme, base_addy_two);
+			m->base_address = base_addy_two;
+		}
+
+		RtlFreeUnicodeString(&ModuleNAme);
+
+		if (memcpy(shared_section, m, sizeof(copy_memory)) == 0)
+			DbgPrintEx(0, 0, "\n");
+
+		//static DWORD old;
+		//if (!old)
+		//{
+		//	protect_virtual_memory(pid, base_addy + 0x5AE06F0, sizeof(uintptr_t), PAGE_EXECUTE_READWRITE, &old);
+		//}
+	}
+	
+	
 	
