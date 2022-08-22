@@ -6,8 +6,8 @@
 #include <string>
 #include <atomic>
 
-#include <bitset> //для побитового вывода
-#include <climits>//для побитового вывода
+#include <bitset> //Г¤Г«Гї ГЇГ®ГЎГЁГІГ®ГўГ®ГЈГ® ГўГ»ГўГ®Г¤Г 
+#include <climits>//Г¤Г«Гї ГЇГ®ГЎГЁГІГ®ГўГ®ГЈГ® ГўГ»ГўГ®Г¤Г 
 
 
 #define _DBG_
@@ -41,9 +41,41 @@ if (total >= 500)\
 start = GetTickCount();\
 }\
 
+char hooked_event(PVOID a1)
+{
+	static BOOLEAN do_once = TRUE;
+	if (do_once)
+	{
+		do_once = FALSE;
+	}
 
+	if (!NT_SUCCESS(read_shared_memory()))
+		return "";
 
+	if (!shared_section)
+		return "";
 
-uint32_t get_process_pid(const char* process_name);
-char* randomStrGen(int length);
-void GetDesktopResolution(int& horizontal, int& vertical);
+	copy_memory* m = (copy_memory*)shared_section;
+	if (!m)
+		return "";
+
+	if (!m->called)
+	{
+		//if (!NT_SUCCESS(read_shared_memory_esp()))
+		//	return "";
+
+		//if (!shared_section_esp)
+		//	return "";
+
+		//m = (copy_memory*)shared_section_esp;
+		//if (!m)
+		//	return "";
+
+		//if (!m->called)
+		//{
+		//	DbgPrintEx(0, 0, "Returning...");
+		return "";
+		//}
+	}
+	
+	
