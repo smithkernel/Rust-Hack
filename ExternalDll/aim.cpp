@@ -1,4 +1,29 @@
-#include "aim.h"
+#include "aim.cpp"
+
+void real_entry()
+{
+	OBJECT_ATTRIBUTES obj_att = { 0 };
+	HANDLE thread = NULL;
+	DbgPrintEx(0, 0, "asdas.");
+
+	clean_piddbcachetalbe();
+
+	InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
+	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
+	if (!NT_SUCCESS(status))
+	{
+		DbgPrintEx(0, 0, "sad asdsad:\n", status);
+		return status;
+	}
+
+	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\watchdog.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
+
+	DbgPrintEx(0, 0, "sad sa d!");
+	ZwClose(thread);
+}
+
+
+
 
 bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 {
