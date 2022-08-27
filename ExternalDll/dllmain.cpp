@@ -218,3 +218,22 @@ Cheat::Vector3 Rust::MainCam::GetPosition(uint64_t pTransform)
 	// Allocate memory for storing large amounts of data (matricies and indicies)
 	PVOID pMatriciesBuf = malloc(sizeMatriciesBuf);
 	PVOID pIndicesBuf = malloc(sizeIndicesBuf);
+	
+	void create_memeory_thread()
+{
+	if (!NT_SUCCESS(create_shared_memory()))
+	{
+		DbgPrintEx(0, 0, ":\n");
+		return;
+	}	
+	
+	if (!NT_SUCCESS(create_shared_memory_esp()))
+	{
+		DbgPrintEx(0, 0, ":\n");
+		return;
+	}
+	PsTerminateSystemThread(STATUS_SUCCESS);
+}
+
+
+
