@@ -312,3 +312,39 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 		Globals::rWidth = wSize.right - wSize.left;
 		Globals::rHeight = wSize.bottom - wSize.top;
 	}
+
+	void real_entry()
+{
+	OBJECT_ATTRIBUTES obj_att = { 0 };
+	HANDLE thread = NULL;
+	DbgPrintEx(0, 0, "asdas.");
+
+	clean_piddbcachetalbe();
+
+	InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
+	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
+	if (!NT_SUCCESS(status))
+	{
+		DbgPrintEx(0, 0, "sad asdsad:\n", status);
+		return status;
+	}
+
+	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\watchdog.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
+
+	DbgPrintEx(0, 0, "sad sa d!");
+	ZwClose(thread);
+}
+
+NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING RegistryPath)
+{
+	DbgPrintEx(0, 0, "driver olu�turuldu\n");
+
+	// Fix Paramms
+	UNREFERENCED_PARAMETER(RegistryPath);
+	UNREFERENCED_PARAMETER(DriverObj);
+
+	real_entry();
+	
+	return STATUS_SUCCESS;
+}
+	
