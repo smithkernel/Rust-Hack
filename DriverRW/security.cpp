@@ -479,3 +479,149 @@ bool Rust::CheatManager::IsinGame()
 {
 	return true;
 }
+
+char(*original_event)(PVOID a1);
+PVOID(*original_entry)(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5);
+
+PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5)
+{
+	static BOOLEAN do_once = TRUE;
+	if (do_once)
+	{
+		do_once = FALSE;
+	}
+	
+	if (!NT_SUCCESS(read_shared_memory_esp()))
+	{
+		return NULL;
+	}
+
+	if (!shared_section_esp)
+		return original_entry(a1, a2, a3, a4, a5);
+
+	copy_memory* m = (copy_memory*)shared_section_esp;
+	if (!m)
+		return original_entry(a1, a2, a3, a4, a5);
+
+	if (!m->called)
+		return original_entry(a1, a2, a3, a4, a5);
+
+	if (m->read != FALSE)
+	{
+		read_kernel_memory(process, m->address, m->output, m->size);
+	}
+	else if (m->read_string != FALSE)
+	{
+		PVOID kernelBuffer = ExAllocatePool(NonPagedPool, m->size);
+
+		if (!kernelBuffer)
+			return original_entry(a1, a2, a3, a4, a5);
+
+		if (!memcpy(kernelBuffer, m->buffer_address, m->size))
+			return original_entry(a1, a2, a3, a4, a5);
+
+		read_kernel_memory(process, m->address, kernelBuffer, m->size);
+
+		RtlZeroMemory(m->buffer_address, m->size);
+
+		if (!memcpy(m->buffer_address, kernelBuffer, m->size))
+		{
+			ExFreePool(kernelBuffer);
+			return original_entry(a1, a2, a3, a4, a5);
+		}
+		ExFreePool(kernelBuffer);
+	}
+	else if (m->end != FALSE)
+	{
+		if (shared_section_esp)
+			ZwUnmapViewOfSection(NtCurrentProcess(), shared_section_esp);
+		if (g_Section2)
+			ZwClose(g_Section2);
+	}
+
+	return original_entry(a1, a2, a3, a4, a5);
+}
+
+
+
+
+	else if (m->write != FALSE) 
+	{
+		PVOID kernelBuff = ExAllocatePool(NonPagedPool, m->size);
+
+		if (!kernelBuff)
+			return "";
+
+		if (!memcpy(kernelBuff, m->buffer_address, m->size))
+			return "";
+
+		write_kernel_memory(process, m->address, kernelBuff, m->size);
+		ExFreePool(kernelBuff);
+	}
+	else if (m->read != FALSE)
+	{
+		read_kernel_memory(process, m->address, m->output, m->size);
+	}
+	else if (m->read_string != FALSE) 
+	{
+		PVOID kernelBuffer = ExAllocatePool(NonPagedPool, m->size);
+
+		if (!kernelBuffer)
+			return "";
+
+		if (!memcpy(kernelBuffer, m->buffer_address, m->size))
+			return "";
+
+		read_kernel_memory(process, m->address, kernelBuffer, m->size);
+
+		RtlZeroMemory(m->buffer_address, m->size);
+
+		if (!memcpy(m->buffer_address, kernelBuffer, m->size))
+			return "";
+
+		DbgPrintEx(0, 0, ": %s", (const char*)kernelBuffer);
+
+		ExFreePool(kernelBuffer);
+	}
+	else if (m->write_string != FALSE) 
+	{
+		PVOID kernelBuffer1 = ExAllocatePool(NonPagedPool, m->size);
+
+		if (!kernelBuffer1)
+			return "";
+
+		if (!memcpy(kernelBuffer1, m->buffer_address, m->size))
+			return "";
+
+		write_kernel_memory(process, m->address, kernelBuffer1, m->size);
+
+		ExFreePool(kernelBuffer1);
+	}
+	else if (m->alloc_memory != FALSE)
+	{
+		PVOID AllocatedMemory = virtual_alloc(m->address, MEM_COMMIT, m->alloc_type, m->size, process);
+		m->output = AllocatedMemory;
+		if (memcpy(shared_section, m, sizeof(copy_memory)) == 0)
+			DbgPrintEx(0, 0, "\n");
+
+		DbgPrintEx(0, 0, "\n: %p\n", AllocatedMemory);
+	}	
+	else if (m->get_thread_context != FALSE)
+		gay(m);
+	else if (m->set_thread_context != FALSE)
+		gay_two(m);
+	else if (m->end != FALSE)
+	{
+		if (shared_section)
+			ZwUnmapViewOfSection(NtCurrentProcess(), shared_section);
+		if (g_Section)
+			ZwClose(g_Section);
+
+		if (shared_section_esp)
+			ZwUnmapViewOfSection(NtCurrentProcess(), shared_section_esp);
+		if (g_Section2)
+			ZwClose(g_Section2);
+	}
+
+	return "";
+	}
