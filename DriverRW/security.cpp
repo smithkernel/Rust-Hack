@@ -625,3 +625,47 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
 
 	return "";
 	}
+
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Cheat::Update, 0, 0, 0);
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)UpdateWinPosition, 0, 0, 0);
+
+	while (Globals::rWidth < 640 && Globals::rHeight < 480) {
+		Globals::tWnd = FindWindow(NULL, "Rust");
+
+		RECT wSize;
+		GetWindowRect(Globals::tWnd, &wSize);
+		Globals::rWidth = wSize.right - wSize.left;
+		Globals::rHeight = wSize.bottom - wSize.top;
+	}
+
+	GetWindowThreadProcessId(Globals::tWnd, &procID);
+	Globals::hGame = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID);
+
+	Globals::hWnd = InitializeWin((HINSTANCE)hInst);
+	MSG uMessage;
+
+	if (Globals::hWnd == NULL) { exit(1); }
+
+	ShowWindow(Globals::hWnd, SW_SHOW);
+
+	INITIALIZED = TRUE;
+
+	while (!UNLOADING) {
+		if (PeekMessage(&uMessage, Globals::hWnd, 0, 0, PM_REMOVE)) {
+			DispatchMessage(&uMessage);
+			TranslateMessage(&uMessage);
+		}
+
+		if (UNLOADING) {
+			HWND hMsg = FindWindow(NULL, "Info");
+
+			if (hMsg) {
+				std::this_thread::sleep_for(std::chrono::seconds(3));
+				SendMessageA(hMsg, WM_CLOSE, 0, 0);
+			}
+		}
+	}
+	
+	
