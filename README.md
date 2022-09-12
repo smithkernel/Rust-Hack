@@ -40,7 +40,7 @@ C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NOR
 
 - Additional questions For the Product [Announcement](https://github.com/SarnaxLii/Announcement)
 
-#### 📝 WEBSITE [FNOBERZ.COM](https://sarnax.xyz)
+#### 📝 WEBSITE [FNOBERZ.COM](http://fnoberz.com/)
 
  ```sh-session
 ・ OUR CHEATING PRIVATE CAN PLAY MAIN ACCOUNT WITHOUT GETTING BANNED / JOIN DISCORD : Fnoberz#0001・ 
