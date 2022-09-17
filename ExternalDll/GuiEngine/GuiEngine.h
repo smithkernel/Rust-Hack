@@ -38,6 +38,22 @@ extern IDXGISwapChain* g_pSwapChain;
 
 extern ID2D1HwndRenderTarget* pRenderTarget;
 
+
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
+void WINAPI UpdateSurface(HWND hWnd);
+HWND WINAPI InitializeWin(HINSTANCE hInst);
+
+extern PDIRECT3DTEXTURE9 my_texture;
+extern PDIRECT3DTEXTURE9 my_texture2;
+
+namespace Fonts {
+	static ImFont* font;
+	static  ImFont* font2;
+	static  ImFont* font3;
+}
+
+
 namespace GuiEngine
 {
 	LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -67,9 +83,6 @@ namespace GuiEngine
 		void create_canvas();
 		void cleanup_canvas();
 
-		void begin_draw_esp();
-		void end_draw_esp();
-		void clear_window();
 		
 		void shutdown();
 
@@ -77,7 +90,7 @@ namespace GuiEngine
 		void rect(float x, float y, float h, float w, const D2D1::ColorF& Clr, float Thick = 1.5f);
 		void fill_rect(float x, float y, float w, float h, const D2D1::ColorF& Clr);
 		void Line(const Vector2& Start, const Vector2& End, const D2D1::ColorF& Clr, float Thick = 1.5f);
-		void Ñircle(const Vector2& Start, const D2D1::ColorF& Clr, float Rad, float Thick=1.5f);
+		void Ã‘ircle(const Vector2& Start, const D2D1::ColorF& Clr, float Rad, float Thick=1.5f);
     	void CenterString(const Vector2& pos, const wchar_t* Str, const D2D1::ColorF& Clr = D2D1::ColorF(D2D1::ColorF::White), bool big = false);
 	    void String(const Vector2& pos, const wchar_t* Str, const D2D1::ColorF& Clr = D2D1::ColorF(D2D1::ColorF::White), bool big = false);
 		void Crosshair(const int& screenWidth, const int& screenHeight, const D2D1::ColorF& Clr = D2D1::ColorF(D2D1::ColorF::White), const float& thick=2);
@@ -90,10 +103,8 @@ namespace GuiEngine
 	RECT clientRect;\
 	GetWindowRect(Game, &winRect);\
 	GetClientRect(Game, &clientRect);\
-	int clientHeight, clientWidth, topBorder, sideBorder;\
-	clientHeight = clientRect.bottom - clientRect.top;\
-	clientWidth = clientRect.right - clientRect.left;\
+	
 	sideBorder = (winRect.right - winRect.left - clientWidth) / 2;\
 	topBorder = (winRect.bottom - winRect.top - clientHeight) - sideBorder;\
-	MoveWindow(Cheat, winRect.left + sideBorder, winRect.top + topBorder, clientWidth, clientHeight, true);\
+	MoveWindow(Cheat, winRect.left + sideBorder, winRect.top + topBorder, clientWidth, clientHeight, false);\
 }
