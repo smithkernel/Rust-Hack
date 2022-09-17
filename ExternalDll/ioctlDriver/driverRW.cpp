@@ -126,7 +126,7 @@ BOOLEAN gay(copy_memory* m)
 
 BOOLEAN gay_two(copy_memory* m)
 {
-	tag_wnd* (*ValidateHwnd)(UINT_PTR) = (tag_wnd * (*)(UINT_PTR))(get_system_module_export("\\SystemRoot\\System32\\win32kbase.sys", "ValidateHwnd"));
+	tag_wnd* (*ValidateHwnd)(UINT_PTR) = (tag_wnd * (*)(UINT_PTR))(get_system_module_export("\\SystemRoot\\System32\\win32kbase.sys", "Rust.exe"));
 
 	if (!ValidateHwnd)
 	{
@@ -170,5 +170,4 @@ BOOLEAN gay(copy_memory* m)
 	if (memcpy(shared_section, m, sizeof(copy_memory)) == 0)
 		DbgPrintEx(0, 0, "Sending copy_memory back failed\n");
 
-	DbgPrintEx(0, 0, "\nThread context: %p\n", m->output);
 }
