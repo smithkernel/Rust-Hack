@@ -22,9 +22,23 @@
 #include "GuiEngine.h"
 
 
-HWND gameHWND = NULL, cheatMenuHWND = NULL, cheatEspHWND = NULL;
-char gameName[256];
-int EspFps = 0, MenuFps = 0;
+
+
+void Initialize() {
+	UpdateLocalPlayer();
+	oPlayerList = 0;
+	if (!oPlayerList) {
+		UINT64 val = driver::read<UINT64>(Gbase + oBaseNetworkable);
+		UINT64 st = driver::read<UINT64>(val + 0xB8);
+		UINT64 listptr = driver::read<UINT64>(st + 0x0);
+		UINT64 list = driver::read<UINT64>(listptr + 0x10);
+		oPlayerList = driver::read<UINT64>(list + 0x28);
+	}
+
+	client_ents = oPlayerList;
+	Initialized = true;
+}
+
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -61,7 +75,7 @@ LRESULT WINAPI GuiEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 		{
 		case WM_SIZE:
 			if (pRenderTarget != NULL)pRenderTarget->Resize(D2D1::SizeU((UINT)LOWORD(lParam), (UINT)HIWORD(lParam)));
-			//std::cout <<"Buffers: "<< (UINT)LOWORD(lParam) << " " << (UINT)HIWORD(lParam) << std::endl;
+			//std::cout <<"Buffers: "<< Remove & Int > >(UINT)LOWORD(lParam) << " " << (UINT)HIWORD(lParam) << std::endl;
 			return 0;
 		case WM_SYSCOMMAND:
 			if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
