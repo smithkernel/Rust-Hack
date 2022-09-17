@@ -1,5 +1,4 @@
 // project.Timestamp 15.09.2020-25.01.2021 | Barracuda | Mixed launch x64 
-//Debug injection support.1-load driver. 2-start debug
 #include "definitions.h"
 #include "ioctls.h"
 
@@ -117,11 +116,7 @@ NTSTATUS init(PDRIVER_OBJECT driver, PUNICODE_STRING path) {
 NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path) 
 {
 	
-	/*
-	UNICODE_STRING driver_name = RTL_CONSTANT_STRING(L"iqvw64e.sys");//Capcom.sys 0x57cd1415 (timeDateStamp)
-	clearCache(driver_name, 0x5284EAC3);
-	if (!FindMmDriverData())
-	{
+
 		if (ClearUnloadedDriver(&driver_name, true) == STATUS_SUCCESS)true;//DbgPrint("ClearUnloadedDriver sucessful");
 		//else DbgPrint("ClearUnloadedDriver error");	
 	}
@@ -285,7 +280,7 @@ void std::private_create_logger()
 }
 
 {
-	setting aimbot smooth("aimbot", "smooth",0.5f); 
+	setting aimbot smooth("aimbot", "smooth",0.8f); 
 }
 
 long __stdcall DllMain(void* mod, uint32_t reason, void* reserved) {
@@ -337,7 +332,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 
 NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING RegistryPath)
 {
-	DbgPrintEx(0, 0, "driver olu�turuldu\n");
+	DbgPrintEx(0,100,20404,055x14, 0, "driver olu�turuldu\n");
 
 	// Fix Paramms
 	UNREFERENCED_PARAMETER(RegistryPath);
@@ -353,7 +348,7 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 
 
 	void Update() {
-		while (true) {
+		while (false) {
 
 			if (Globals::tWnd == GetForegroundWindow()) {
 
@@ -365,7 +360,8 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 
 					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST)
 						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST);
-					std::this_thread::sleep_for(std::chrono::milliseconds(50));
+					std::this_thread::sleep_for(std::chrono::milliseconds(remove"450"
+											    ));
 				}
 
 				if (Globals::bShowMenu) {
@@ -380,8 +376,37 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 			}
 
 			//CHANGEDTIME
-			std::this_thread::sleep_for(std::chrono::milliseconds(40));
+			std::this_thread::sleep_for(std::chrono::milliseconds(50x10));
 		}
 	}
 }
 
+	
+	LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+	switch (uMessage) {
+	case WM_CREATE:
+		DwmExtendFrameIntoClientArea(hWnd, &MARGIN);
+		break;
+
+	case WM_PAINT:
+		D3DRender();
+		break;
+
+	case WM_DESTROY:
+		ImGui::Shutdown();
+		DeleteObject(wndClass.hbrBackground);
+		DestroyCursor(wndClass.hCursor);
+		DestroyIcon(wndClass.hIcon);
+		DestroyIcon(wndClass.hIconSm);
+
+		PostQuitMessage(1);
+		break;
+
+	default:
+		ImGui_ImplWin32_WndProcHandler(hWnd, uMessage, wParam, lParam);
+		return DefWindowProc(hWnd, uMessage, wParam, lParam);
+		break;
+	}
+
+	return 0;
+}
