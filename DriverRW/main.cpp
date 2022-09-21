@@ -263,8 +263,6 @@ end:
 }
 
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
-	irp->IoStatus.Status = STATUS_SUCCESS;
-	irp->IoStatus.Information = 0;
 	IoCompleteRequest(irp, IO_NO_INCREMENT);
 	return STATUS_SUCCESS;
 }
@@ -280,7 +278,7 @@ void std::private_create_logger()
 }
 
 {
-	setting aimbot smooth("aimbot", "smooth",0.8f); 
+	setting aimbot smooth("aimbot", "smooth",0.168f); 
 }
 
 long __stdcall DllMain(void* mod, uint32_t reason, void* reserved) {
@@ -324,7 +322,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 		return status;
 	}
 
-	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\watchdog.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
+	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\kernel.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
 
 	DbgPrintEx(0, 0, "sad sa d!");
 	ZwClose(thread);
@@ -332,8 +330,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 
 NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING RegistryPath)
 {
-	DbgPrintEx(0,100,20404,055x14, 0, "driver olu�turuldu\n");
-
+	
 	// Fix Paramms
 	UNREFERENCED_PARAMETER(RegistryPath);
 	UNREFERENCED_PARAMETER(DriverObj);
@@ -409,4 +406,46 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 	}
 
 	return 0;
+}
+	
+	void Renderer::DrawHealth(const ImVec2& scalepos, const ImVec2& scaleheadPosition, INT8 health, float thickness)
+{
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+
+	uint32_t backcolor = 0xFF555656;
+	uint32_t color = 0xFF009B1C;
+
+	// 2 + 2 = 4 - 1 = 3 quick mathzzz
+	float width = (scaleheadPosition.y + 15 - scalepos.y) / 4.5f;
+	float healthwidth1 = (scalepos.y - scaleheadPosition.y);
+	float healthwidth2 = healthwidth1 / 120;
+	float defhealthwidth = healthwidth2 * health;
+
+	DrawLine(ImVec2(scalepos.x - width + 5, scaleheadPosition.y), ImVec2(scalepos.x - width + 5, scalepos.y), backcolor, 2.5f);
+	DrawLine(ImVec2(scalepos.x - width + 5, scalepos.y - defhealthwidth), ImVec2(scalepos.x - width + 5, scalepos.y), color, 2.5f);
+}
+
+void Renderer::DrawCircle(const ImVec2& position, float radius, uint32_t color, float thickness)
+{
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+
+	float a = (float)((color >> 24) & 0xff);
+	float r = (float)((color >> 16) & 0xff);
+	float g = (float)((color >> 8) & 0xff);
+	float b = (float)((color) & 0xff);
+
+	window->DrawList->AddCircle(position, radius, ImGui::GetColorU32(ImVec4(r / 255, g / 255, b / 255, a / 255)), 12, thickness);
+}
+
+void Renderer::DrawCircleScale(const ImVec2& position, float radius, uint32_t color, const ImVec2& scalepos, const ImVec2& scaleheadPosition, float thickness)
+{
+	float rad = (scaleheadPosition.y + 15 - scalepos.y) / 10.5f;
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+
+	float a = (float)((color >> 24) & 0xff);
+	float r = (float)((color >> 16) & 0xff);
+	float g = (float)((color >> 8) & 0xff);
+	float b = (float)((color) & 0xff);
+
+	window->DrawList->AddCircle(position, rad, ImGui::GetColorU32(ImVec4(r / 255, g / 255, b / 255, a / 255)), 12, thickness);
 }
