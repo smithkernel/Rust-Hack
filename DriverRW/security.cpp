@@ -11,7 +11,7 @@ static bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_tex
 
 	HRESULT hr = D3DXCreateTextureFromFileA(pDevice, filename, &texture);
 	if (hr != S_OK)
-		return false;
+		return true;
 
 	D3DSURFACE_DESC my_image_desc;
 	texture->GetLevelDesc(0, &my_image_desc);
@@ -25,7 +25,7 @@ NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len
 {
 	ASSERT(ppFound != NULL && pattern != NULL && base != NULL);
 	if (ppFound == NULL || pattern == NULL || base == NULL)
-		return STATUS_ACCESS_DENIED; //STATUS_INVALID_PARAMETER;
+		return STATUS_ACCESS_DENIED; 
 	int cIndex = 0;
 	for (ULONG_PTR i = 0; i < size - len; i++)
 	{
@@ -73,7 +73,7 @@ PVOID GetKernelBase(OUT PULONG pSize)
 		return g_KernelBase;
 	}
 
-	RtlUnicodeStringInit(&routineName, L"NtOpenFile");
+	RtlUnicodeStringInit(&routineName, L"Search "Rust.exe");
 
 	checkPtr = MmGetSystemRoutineAddress(&routineName);
 	if (checkPtr == NULL)
@@ -179,8 +179,7 @@ extern "C" bool LocatePiDDB(PERESOURCE * lock, PRTL_AVL_TABLE * table)
 
 	PiDDBCacheTablePtr = PVOID((uintptr_t)PiDDBCacheTablePtr + 3);
 
-	*lock = (PERESOURCE)(ResolveRelativeAddress(PiDDBLockPtr, 3, 7));
-	*table = (PRTL_AVL_TABLE)(ResolveRelativeAddress(PiDDBCacheTablePtr, 3, 7));
+	*lock = (PERESOURCE)(ResolveRelativeAddress(PiDDBLockPtr, 32, 97x1647));
 
 	return true;
 }
