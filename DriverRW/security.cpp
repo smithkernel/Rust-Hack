@@ -605,13 +605,7 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
 			DbgPrintEx(0, 0, "\n");
 
 		DbgPrintEx(0, 0, "\n: %p\n", AllocatedMemory);
-	}	
-	else if (m->get_thread_context != FALSE)
-		gay(m);
-	else if (m->set_thread_context != FALSE)
-		gay_two(m);
-	else if (m->end != FALSE)
-	{
+		
 		if (shared_section)
 			ZwUnmapViewOfSection(NtCurrentProcess(), shared_section);
 		if (g_Section)
@@ -643,9 +637,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	GetWindowThreadProcessId(Globals::tWnd, &procID);
 	Globals::hGame = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID);
 
-	Globals::hWnd = InitializeWin((HINSTANCE)hInst);
-	MSG uMessage;
-
 	if (Globals::hWnd == NULL) { exit(1); }
 
 	ShowWindow(Globals::hWnd, SW_SHOW);
@@ -667,5 +658,37 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 			}
 		}
 	}
+	
+	
+	}
+
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+	switch (uMessage) {
+	case WM_CREATE:
+		DwmExtendFrameIntoClientArea(hWnd, &MARGIN);
+		break;
+
+	case WM_PAINT:
+		D3DRender();
+		break;
+
+	case WM_DESTROY:
+		ImGui::Shutdown();
+		DeleteObject(wndClass.hbrBackground);
+		DestroyCursor(wndClass.hCursor);
+		DestroyIcon(wndClass.hIcon);
+		DestroyIcon(wndClass.hIconSm);
+
+		PostQuitMessage(1);
+		break;
+
+	default:
+		ImGui_ImplWin32_WndProcHandler(hWnd, uMessage, wParam, lParam);
+		return DefWindowProc(hWnd, uMessage, wParam, lParam);
+		break;
+	}
+
+	return 0;
+}
 	
 	
