@@ -1,21 +1,19 @@
 ### RUST EXTERNAL RELEASE
 ```sh-session
-C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NORECOIL
+C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NO RECOIL
 ```
 
 ### ❗ How to use
 
-・open source to show this is legal and my work
-
 ・You can study the different working procedures as follows.
 
-・If you encounter an error problem, don't be surprised because we delete some things and only show some parts.
+・If you encounter an error problem, don't be surprised because we delete some things and only show some parts for the security of the paid version
 
-・ Source Shows work to make sure I'm legit and you can legit it. 
+・ Open-source to prove I'm legit and not giving you any viruses or harming your computer.
 
-### 👋 Want Full version ?  
+### 👋 Want Full version?  
 
-##### ・ Join discord me  
+##### ・ Join my Discord!
 
 *** 
   <p align="center">
@@ -31,7 +29,7 @@ C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NOR
 ### 💬 DISCORD ・ [CLOUD | PROJECT](https://discord.gg/MBTkVcJefp) 
 
 
-* ` 🛒: Product :  Cheating Private | Spoofer | Source code | Driver `
+* ` 🛒: Product:  Cheating Private | Spoofer | Source code | Driver `
 * ` 📌: Update Free | Undetected ` 
 
 ### 🤓 Services 
@@ -43,7 +41,7 @@ C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NOR
 #### 📝 WEBSITE [FNOBERZ.COM](http://fnoberz.com/)
 
  ```sh-session
-・ OUR CHEATING PRIVATE CAN PLAY MAIN ACCOUNT WITHOUT GETTING BANNED / JOIN DISCORD : Fnoberz#0001・ 
+・ OUR CHEATING PRIVATE CAN PLAY MAIN ACCOUNT WITHOUT GETTING BANNED / JOIN DISCORD: Fnoberz#0001・ 
 ```                
 ***
 
