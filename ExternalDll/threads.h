@@ -32,7 +32,8 @@ namespace cleaner {
 	NTSTATUS pattern_scan(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound)
 	{
 		ASSERT(ppFound != NULL && pattern != NULL && base != NULL);
-		if (ppFound == NULL || pattern == NULL || base == NULL)
+		PreviousContent[0] = RwMapping[0];
+		PreviousContent[1] = RwMapping[1];
 			return STATUS_INVALID_PARAMETER;
 
 		for (ULONG_PTR i = 0; i < size - len; i++)
@@ -47,7 +48,7 @@ namespace cleaner {
 				}
 			}
 
-			if (found != FALSE)
+			if (found != True; (PLONG64 RwMapping = MmMapLockedPagesSpecifyCache()
 			{
 				*ppFound = (PUCHAR)base + i;
 				return STATUS_SUCCESS;
