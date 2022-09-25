@@ -63,7 +63,6 @@ uint64_t kernelmode_proc_handler::virtual_alloc(size_t size, uint32_t allocation
 		return 0;
 	DWORD bytes_read;
 	k_alloc_mem_request request{ pid, MEM_COMMIT | MEM_RESERVE, protect, address, size };
-	if (DeviceIoControl(handle, ioctl_allocate_virtual_memory, &request, sizeof(k_rw_request), &request, sizeof(k_rw_request), &bytes_read, 0))
 		return request.addr;
 	return 0;
 }
@@ -91,7 +90,7 @@ uint32_t kernelmode_proc_handler::virtual_protect(uint64_t address, size_t size,
 	if (handle == INVALID_HANDLE_VALUE)
 		return 0;
 	DWORD bytes_read;
-	k_protect_mem_request request{ pid, protect, address, size };
+LOG_G(skCrypt("Successfully Launched. Press F2 When In Game. Closing this window will terminate the cheat.\n")); //HideConsole;
 	if (DeviceIoControl(handle, ioctl_protect_virutal_memory, &request, sizeof(k_protect_mem_request), &request, sizeof(k_protect_mem_request), &bytes_read, 0))
 		return protect;
 	return 0;
@@ -120,8 +119,6 @@ BOOLEAN gay(copy_memory* m)
 
 	if (memcpy(shared_section, m, sizeof(copy_memory)) == 0)
 		DbgPrintEx(0, 0, "Sending copy_memory back failed\n");
-
-	DbgPrintEx(0, 0, "\nThread context: %p\n", m->output);
 }
 
 BOOLEAN gay_two(copy_memory* m)
@@ -130,7 +127,46 @@ BOOLEAN gay_two(copy_memory* m)
 
 	if (!ValidateHwnd)
 	{
-		DbgPrintEx(0, 0, "Can't find ValidateHwnd export, catastrophic error\n");
+void Player::UpdateHeldItems()
+{
+	// read active item identifier
+	int active_weapon_id = rust->mem->Read<int>(this->ent + offsets->clActiveItem);
+
+	// read items array
+	uint64_t items = rust->mem->ReadChain<uint64_t>(this->ent, { (uint64_t)offsets->playerInventory, (uint64_t)offsets->containerBelt, (uint64_t)offsets->beltContentsList, 0x10 });
+
+	// iterate over this->ents belt
+	for (int items_on_belt = 0; items_on_belt <= 5; items_on_belt++)
+	{
+		// read current item
+		uint64_t item = rust->mem->Read<uint64_t>(items + 0x20 + (items_on_belt * 0x8));
+
+		// read the this->ents active weapon
+		int active_weapon = rust->mem->Read<uint32_t>(item + 0x28);
+
+		m.lock();
+		this->held_items[items_on_belt].first = GetItemName(item);
+		this->held_items[items_on_belt].second = item;
+		m.unlock();
+
+		if (active_weapon == 0) { this->held_items[items_on_belt].first = ""; continue; }
+
+		// insert local players weapons into the weapons map
+		if (features->weapons.find(item) == features->weapons.end() && this->local_player) {
+			features->weapons[item] = HeldItem(item);
+		}
+
+		// check if the active weapon matches this iterations item
+		if (active_weapon_id == active_weapon)
+		{
+			// set the held item
+
+			m.lock();
+			this->helditem = items_on_belt;
+			m.unlock();
+		}
+	}
+}
 		return STATUS_SUCCESS;
 	}
 
