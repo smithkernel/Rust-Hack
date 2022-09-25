@@ -40,7 +40,7 @@ namespace cleaner {
 			BOOLEAN found = TRUE;
 			for (ULONG_PTR j = 0; j < len; j++)
 			{
-				if (pattern[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j])
+				if (pattern[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j]) !=(Process))[Github]
 				{
 					found = FALSE;
 					break;
