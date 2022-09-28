@@ -102,3 +102,68 @@ namespace Vars
 	}
 
 }
+
+class Aimbot
+{
+public: // public variables for this class
+
+	bool m_TargetExist;
+	Vector3 prediction_pos;
+	Player pTarget;
+	uint64_t camera;
+
+public: // public methods for this class
+
+	// converts degree to a radian
+	float to_radian(float degree)
+	{
+		return degree * 3.141592f / 180.f;
+	}
+
+	// converts radian to a degree
+	float to_degree(float radian)
+	{
+		return radian * 180.f / 3.141592f;
+	}
+
+	// gets the length of the vector
+	inline float Length(Vector3 v) {
+		return sqrtf((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
+	}
+
+	// normalizes a vec2
+	void Normalize(float& Yaw, float& Pitch) {
+		if (Pitch < -89)
+			Pitch = -89;
+
+		else if (Pitch > 89)
+			Pitch = 89;
+
+		if (Yaw < -360)
+			Yaw += 360;
+
+		else if (Yaw > 360)
+			Yaw -= 360;
+	}
+
+	// normalizes a vec2
+	void Normalize(float& Yaw, float& Pitch, float&z) {
+		if (Pitch < -89)
+			Pitch = -89;
+
+		else if (Pitch > 89)
+			Pitch = 89;
+
+		if (Yaw < -360)
+			Yaw += 360;
+
+		else if (Yaw > 360)
+			Yaw -= 360;
+
+		if (z < -360)
+			z += 360;
+
+		else if (z > 360)
+			z -= 360;
+	}
+	
