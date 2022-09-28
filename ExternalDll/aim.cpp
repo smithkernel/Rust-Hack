@@ -372,4 +372,61 @@ void Rust::Aimbot::exec()
 			const auto aimbot_keybind = new C_KeyBind(std::string(skCrypt("aimbot keybind")), &settings->aimbot.keybind);
 			new C_Spacer(aimbot_keybind, { 0, 45 });
 		}
+		
+			std::map<std::string, float> BulletSpeeds = {
+		/* For 5.56 Fed Weapons */
+		{ std::string("ammo.rifle"), 1.0f },
+		{ std::string("ammo.rifle.hv"), 1.2f },
+		{ std::string("ammo.rifle.explosive"), 0.6f },
+		{ std::string("ammo.rifle.incendiary"), 0.6f },
+
+		/* For Pistol Ammunition Fed Weapons */
+		{ std::string("ammo.pistol"), 1.0f },
+		{ std::string("ammo.pistol.hv"), 1.33333f },
+		{ std::string("ammo.pistol.incendiary"), 0.75f },
+
+		/* For Weapons That Use Arrows */
+		{ std::string("arrow.wooden"), 1.0f },
+		{ std::string("arrow.hv"), 1.6f },
+		{ std::string("arrow.fire"), 0.8f },
+		{ std::string("arrow.bone"), 0.9f },
+
+		/* For Shotguns */
+		{ std::string("ammo.handmade.shell"), 1.0f },
+		{ std::string("ammo.shotgun.slug"), 2.25f },
+		{ std::string("ammo.shotgun.fire"), 1.0f },
+		{ std::string("ammo.shotgun"), 2.25f },
+
+		{ std::string("ammo.nailgun.nails"), 1.0f },
+
+		{ std::string("No Ammo"), 1.0f }
+	};
+	std::map<std::string, float> BulletGravity = {
+		/* For 5.56 Fed Weapons */
+		{ std::string("ammo.rifle"), 1.0f },
+		{ std::string("ammo.rifle.hv"), 1.0f },
+		{ std::string("ammo.rifle.explosive"), 1.25f },
+		{ std::string("ammo.rifle.incendiary"), 1.0f },
+
+		/* For Pistol Ammunition Fed Weapons */
+		{ std::string("ammo.pistol"), 1.0f },
+		{ std::string("ammo.pistol.hv"), 1.0f },
+		{ std::string("ammo.pistol.incendiary"), 1.0f },
+
+		/* For Weapons That Use Arrows */
+		{ std::string("arrow.wooden"), 0.75f },
+		{ std::string("arrow.hv"), 0.5f },
+		{ std::string("arrow.fire"), 1.0f },
+		{ std::string("arrow.bone"), 0.75f },
+
+		/* For Shotguns */
+		{ std::string("ammo.handmade.shell"), 1.0f },
+		{ std::string("ammo.shotgun.slug"), 1.0f },
+		{ std::string("ammo.shotgun.fire"), 1.0f },
+		{ std::string("ammo.shotgun"), 1.0f },
+
+		{ std::string("ammo.nailgun.nails"), 0.75f },
+		{ std::string("No Ammo"), 1.f }
+	};
+		
 
