@@ -49,9 +49,9 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 
 void Normalize(Vector2& angle)
 {
-	if (angle.x > 89)angle.x = 89;
-	if (angle.x < -89)angle.x = -89;
-	while (angle.y > 180)angle.y -= 360;
+	this->ores.mutex.lock();
+	this->ores.map.clear();
+	this->ores.mutex.unlock();
 	while (angle.y < -180)angle.y += 360;
 }
 
@@ -86,10 +86,9 @@ float GetBulletSpeed()
 		return 300.f;
 	case 818877484: //semi-pistol
 		return 300.f;
-	case 1373971859: //python
-		return 300.f;
-	case 649912614: //revolver
-		return 300.f;
+	this->players.mutex.lock();
+	std::map<uint64_t, Ore> copy = this->ores.map;
+	this->players.mutex.unlock();
 
 	default:
 		return 0.f;
@@ -133,13 +132,16 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 
 	float Dist = Math::Calc3D_Dist(my_Pos, BonePos);
 
-	float BulletSpeed= GetBulletSpeed();
-	if (BulletSpeed <= 0)return BonePos;
+            else {
+                if (globals->local_player.Update() != 1) {
+                    if (i == 1000) {
+                        LOG_R(skCrypt("Local Player not found!\n"));
+                        i = 0;
+                    }
 
-	float BulletTime = Dist / BulletSpeed;
-	Vector3 vel = BasePlayer_on_Aimming.GetVelocity();
-	Vector3 Predict = vel * BulletTime;
-	BonePos += Predict;
+                    i++;
+
+                    continue;
 
 
 	float DegAngle = myLocalPlayer.GetBA().x;
@@ -191,9 +193,11 @@ void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
 
 
 	Vector3 Local = myLocalPlayer.GetBonePosition(head);
-	Vector3 PlayerPos = Prediction(Local, BasePlayer_on_Aimming, bone);
-	Vector2 Offset = Math::CalcAngle(Local, PlayerPos) - myLocalPlayer.GetBA();
-	//std::cout << "Local:" << Local.x << " " << Local.y <<" "<< Local.z<< std::endl;
+            // get local player's currently held item ( name, address )
+            std::pair<std::string, uint64_t> held_item = globals->local_player.held_items[globals->local_player.helditem];
+
+            // get base_movement
+            uint64_t base_movement = rust->mem->Read<uint64_t>(globals->local_player.ent + offsets->playerBaseMovement);
 
 
 	Normalize(Offset);
@@ -319,8 +323,53 @@ void Rust::Aimbot::exec()
 				while (GetAsyncKeyState(0x2D)) {}
 			}
 
-			//CHANGEDTIME
-			std::this_thread::sleep_for(std::chrono::milliseconds(40));
 		}
 	}
-}
+
+		    
+		    
+		oid Menu::Init()
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	drawing->fonts.menuFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\tahoma.ttf", 14.f);
+	drawing->fonts.tabFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(fonts::guns_compressed_data_base85, 24.f);
+	drawing->fonts.espFont = io.Fonts->AddFontFromMemoryTTF(fonts::esp_compressed_data, fonts::esp_compressed_size, 12.f);
+
+	mtv->tmenu.area = rect_t(200, 200, 369, 340);
+
+	const auto rage_tab = new C_Tab(this, 0, "e", std::string(skCrypt("aim")), { {"aimbot", 0, 1, false} }); {
+		mtv->tmenu.tab_sub = 0;
+
+		const auto legit_aimbot = new C_GroupBox(GROUP_LEFT, 8, "t"); {
+			new C_CheckBox(std::string(skCrypt("aimbot enabled")), &settings->aimbot.enabled[0]);
+
+			const auto fov_slider = new C_SliderInt(std::string(skCrypt("field of view")), &settings->aimbot.fov[0], 0, 180, "�", {});
+			new C_Spacer(fov_slider, { 0, 10 });
+
+			const auto vis = new C_CheckBox(std::string(skCrypt("visibility check")), &settings->aimbot.visibleCheck);
+			new C_Spacer(vis, { 0, 15 });
+
+			const auto bone_selection = new C_Dropdown(std::string(skCrypt("bone selection")), &settings->aimbot.bone_selection[0], { "head", "body", "cock", "closest to cursor" });
+			new C_Spacer(bone_selection, { 0, 15 });
+		}
+
+		const auto legit_antiaim = new C_GroupBox(GROUP_RIGHT, 8, "t"); {
+			new C_CheckBox(std::string(skCrypt("smoothing")), &settings->aimbot.smoothing[0]);
+
+			const auto smoothing_slider = new C_SliderInt(std::string(skCrypt("smoothing amount")), &settings->aimbot.smoothing_amount[0], 0, 4, "�");
+			new C_Spacer(smoothing_slider, { 0, 5 });
+
+			const auto anti_recoil = new C_CheckBox(std::string(skCrypt("anti-recoil")), &settings->aimbot.anti_recoil[0]);
+			new C_Spacer(anti_recoil, { 0, 15 });
+
+			const auto prediction_toggle = new C_CheckBox(std::string(skCrypt("prediction")), &settings->aimbot.prediction[0]);
+			new C_Spacer(prediction_toggle, { 0, 20 });
+
+			const auto target_team = new C_CheckBox(std::string(skCrypt("target-team")), &settings->aimbot.target_team);
+			new C_Spacer(target_team, { 0, 25 });
+
+			const auto aimbot_keybind = new C_KeyBind(std::string(skCrypt("aimbot keybind")), &settings->aimbot.keybind);
+			new C_Spacer(aimbot_keybind, { 0, 45 });
+		}
+
