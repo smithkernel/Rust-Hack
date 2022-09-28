@@ -62,8 +62,7 @@ float GetBulletSpeed()
 	{
 	case 1545779598: //ak47
 		return 375.f;
-	case 2482412119: //lr300
-		return 375.f;
+	float BulletDrop(Vector3 v1, Vector3 v2, float BulletSpeed, float BulletGravity, float kin_deltatime)
 	case 3390104151: //semi-rifle
 		return 375.f;
 	case 28201841: //m39
@@ -177,13 +176,14 @@ static Aimbot::Aimbot_Data Aimbot_Data;
 	aim_key_pressed_time_min = Aimbot_Data.aim_key_pressed_time_min;
 
 {
-	shutdown_time = Aimbot_Data.shutdown_time;
-	shutdown_time_max = Aimbot_Data.shutdown_time_max;
-	#ifdef _DEBUG
-		std::cout << "shutdown_time: " << shutdown_time << std::endl;
-		std::cout << "shutdown_time_max: " << shutdown_time_max << std::endl;
+		/* Normal 556 rifle ammunition */
+		if (held_item == "rifle.ak")                return 375.0f * Ammunition_Multiplier;
+		if (held_item == "rifle.lr300")             return 375.0f * Ammunition_Multiplier;
+		if (held_item == "rifle.bolt")              return 656.0f * Ammunition_Multiplier;
+		if (held_item == "rifle.l96")               return 1125.0f * Ammunition_Multiplier;
+		if (held_item == "rifle.m39")               return 469.0f * Ammunition_Multiplier;
+		if (held_item == "rifle.semiauto")          return 375.0f * Ammunition_Multiplier;
 		
-}
 }	
 	
 }
@@ -206,8 +206,10 @@ void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
 	Offset.x *= 1.0f - (Vars::Aim::smooth* 0.3+0.4);
     Offset.y *= 1.0f - (Vars::Aim::smooth *0.3+0.4);
 
-	Vector2 AngleToAim = myLocalPlayer.GetBA() + Offset;
-	myLocalPlayer.SetBA(AngleToAim);
+	// smooths the aimbot
+	void SmoothAim(Vector2& Angle, float smooth) {
+		Angle.x /= smooth;
+		Angle.y /= smooth;
 }
 
 void Aim(DWORD64& BasePlayer_on_Aimming)
@@ -240,21 +242,14 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 			summ += clock() - start;
 			start = clock();
 
-			if (summ >= 20)
-			{
-				GoToTarget(Player, bone);
-				summ = 0;
-			}
+				// w2s player's spine bone
+				Vector2 w2s_pos = W2S(ply.bones[(Bones)46], &view_matrix);
 
+				// ensure distance
+				if (distance > settings->visuals.players.visuals.max_distance) continue;
 
-
-			
-			//óâåëèâèâàåì smooth-óõóäøàåì êîíòðîëü îòäà÷è
-			static int RCSstart = 0;
-			static int RCSsumm = 0;
-
-			RCSsumm += clock() - RCSstart;
-			RCSstart = clock();
+				// grab player's distance 2 cursor
+				float distance_to_cursor = distance_cursor(w2s_pos);
 		}
 
 
