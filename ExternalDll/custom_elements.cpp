@@ -103,8 +103,9 @@ bool c_gui::checkbox(const char* name, bool* active) {
     window->DrawList->AddRect(check_bb.Min + ImVec2(pad, pad), check_bb.Max - ImVec2(pad, pad), ImColor(64, 64, 64, 255), 0.f, ImDrawCornerFlags_All, 2.f);
     if (*active)
     {
-        const float pad = ImMax(1.0f, (float)(int)(square_sz / 4.0f));
-        window->DrawList->AddRectFilledMultiColor(check_bb.Min + ImVec2(pad, pad), check_bb.Max - ImVec2(pad, pad),
+		ImGui::Checkbox(safe_str("Health"), &Settings::drawHealthBar), ImGui::ColorEdit4(safe_str("Health Color"), Settings::drawColor_health, ImGuiColorEditFlags_NoInputs);
+		if (Settings::drawHealthBar)
+			ImGui::SliderInt5(safe_str("Distance##Distance2"), &Settings::healthDistance, 100, 300);
         );
     }
 
@@ -124,9 +125,9 @@ bool c_gui::slider_button(const char* name, ImVec2 size_arg) {
     const ImVec2 label_size = CalcTextSize(name, NULL, true);
     DWORD flags;
     ImVec2 pos = window->DC.CursorPos;
-    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
-        pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-    ImVec2 size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+   for (size_t i = 0; i < IM_ARRAYSIZE(Settings::selectedOres); i++) {
+				ImGui::Selectable(Settings::oresItems[i], &Settings::selectedOres[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+			}
 
     const ImRect bb(pos, pos + size);
     ItemSize(size, style.FramePadding.y);
@@ -164,11 +165,9 @@ bool c_gui::slider_int(std::string label, int* v, int v_min, int v_max) {
     const char* value_buf_end = var + c_gui_DataTypeFormatString(var, IM_ARRAYSIZE(var), ImGuiDataType_S32, v, "%d");
     std::string text = "##" + label,
         value = label + ":";
-
-    ImGui::Text(value.c_str());
-    ImGui::SameLine();
-    ImGui::Text(var);
-    ImGui::SliderInt(text.c_str(), v, v_min, v_max);
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 650); //465
+		ImGui::Text(safe_str("Rust"));
     return 0;
 }
 
@@ -186,3 +185,58 @@ static uintptr_t ReadChain(uintptr_t base, const std::vector<uintptr_t>& offsets
 	}
 	return result;
 }
+
+
+public:
+	// default constructor
+	Ore() {}
+
+	// used to initialize an ore object
+	Ore(uint64_t _ent)
+	{
+		// store constructor arguments
+		this->ent = _ent;
+		this->obj = rust->mem->ReadChain<uint64_t>(this->ent, { 0x10, 0x30 });
+
+		// get the ore's position
+		this->position = rust->mem->ReadChain<Vector3>(this->obj, { 0x30, 0x8, 0x38, 0x90 });
+
+		// read the native name of the object
+		name = rust->mem->ReadNative(this->obj + 0x60);
+
+		// make the ore names clean
+		if (name.find(std::string(skCrypt("sulfur-ore"))) != std::string::npos || name.find(std::string(skCrypt("ore_sulfur"))) != std::string::npos)
+			name = std::string(skCrypt("Sulfur Ore"));
+
+		else if (name.find(std::string(skCrypt("metal-ore"))) != std::string::npos || name.find(std::string(skCrypt("ore_metal"))) != std::string::npos)
+			name = std::string(skCrypt("Metal Ore"));
+
+		else if (name.find(std::string(skCrypt("stone-ore"))) != std::string::npos || name.find(std::string(skCrypt("ore_stone"))) != std::string::npos)
+			name = std::string(skCrypt("Stone Ore"));
+
+		else if (name.find(std::string(skCrypt("hemp"))) != std::string::npos)
+			name = std::string(skCrypt("Hemp"));
+		else if (name.find(std::string(skCrypt("stash"))) != std::string::npos)
+			name = std::string(skCrypt("Stash"));
+		else
+			name = std::string(skCrypt("Invalid"));
+	}
+
+	// updates the modafucking ore
+	bool Update()
+	{
+		return true;
+	}
+
+	// used to calculate the distance to another player
+	int Distance(Player* player)
+	{
+		return this->position.Distance(player->position);
+	}
+
+public:
+	uint64_t	ent;			// The BaseEntity address
+	uint64_t	obj;			// The GameObject address
+	Vector3		position;
+	std::string name;
+};
