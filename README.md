@@ -3,53 +3,45 @@
 C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NO RECOIL
 ```
 
-### ❗ How to use
+### 💭 〢 How to use
 
-・You can study the different working procedures as follows.
+- Create an EFI driver that is not a public driver, e.g. Mapper, because it is not supported.
+- Once the driver has been created You paste the driver file in " **Rust.External/ExternalDll/ioctlDriver** "
+- ✔ and it's ready now
 
-・If you encounter an error problem, don't be surprised because we delete some things and only show some parts for the security of the paid version
 
-・ Open-source to prove I'm legit and not giving you any viruses or harming your computer.
-
-### 👋 Want Full version?  
-
-##### ・ Join my Discord!
 
 *** 
   <p align="center">
     <a href="https://discord.com/users/943374631644045363">
-        <img title="Fnoberz discord" alt="Fnoberz's discord" src="https://discord.c99.nl/widget/theme-3/943374631644045363.png"/>
+        <img title="Fnoberz server discord" alt="Fnoberz's discord" src="https://discord.c99.nl/widget/theme-4/943374631644045363.png"/>
     </a>
 </p> 
 
-
  
-***
- 
-### 💬 DISCORD ・ [CLOUD | PROJECT](https://discord.gg/MBTkVcJefp) 
+#### 💬 DISCORD ・ [CLOUD | PROJECT](https://discord.gg/MBTkVcJefp) 
 
 
-* ` 🛒: Product:  Cheating Private | Spoofer | Source code | Driver `
-* ` 📌: Update Free | Undetected ` 
+*  🛒: `PRODUCT:  PRIVATE CHEATING | SPOOFER PRIVATE | SOURCE CODE| ETC.`
+*  📌: `UPDATE FREE LIFETIME | LEGIT | CHEATING IS LIFETIME ONLY `
 
-### 🤓 Services 
 
-* ` Product Warranty | If banned = Refund | Spoofer not working = Refund `
+### 🤑 Services 
+
+* ` PRODUCT WARANTY | IF BANNED = REFUND MONEY | SPOOFER NOT WORKING = REFUND MONEY `
 
 - Additional questions For the Product [Announcement](https://github.com/SarnaxLii/Announcement)
+- [Discord Server](https://discord.gg/MBTkVcJefp)
 
-#### 📝 WEBSITE [FNOBERZ.COM](http://fnoberz.com/)
+
+#### 📝 WEBSITE [FNOBERZ.COM](http://fnoberz.com/)  | Portfolio
 
  ```sh-session
 ・ OUR CHEATING PRIVATE CAN PLAY MAIN ACCOUNT WITHOUT GETTING BANNED / JOIN DISCORD: Fnoberz#0001・ 
-```                
-***
+```      
 
 
 https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-9789-f8240f60eab0.mp4
-
-
-
 
 
 
@@ -58,3 +50,8 @@ https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-
 ![2](https://user-images.githubusercontent.com/94861415/158263569-ad75db2c-1f69-426f-b902-3636a5716c8e.png)
 ![3](https://user-images.githubusercontent.com/94861415/158263571-e7bb8970-e20a-4384-9ee5-a829a9c313c3.png)
 
+
+
+***
+
+##  <p align="center"> Copyright © 2022
