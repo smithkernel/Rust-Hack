@@ -2,30 +2,54 @@
 #include <future>
 using namespace std;
 
+namespace Aimbot {
+	std::map<std::string, float> BulletSpeeds = {
+		{ std::string("ammo.rifle"), 1.0f },
+		{ std::string("ammo.rifle.hv"), 1.2f },
+		{ std::string("ammo.rifle.explosive"), 0.6f },
+		{ std::string("ammo.rifle.incendiary"), 0.6f },
 
-//îáíîâëÿåò àäðåññà îáüåêòîâ (êàê ïðàâèëà îíè íå ìåíÿþòñÿ â ïðîöåññå èãðû)
-void GameObjectManager_loop(DWORD64 ObjMgr)
-{
-	/*
-	for (DWORD64 BaseObject = read(ObjMgr + 0x18, DWORD64);; BaseObject = read(BaseObject + 0x8, DWORD64))
-	{
-		
-		DWORD64 GameObject = read(BaseObject + 0x10, DWORD64);
-		WORD Tag = read(GameObject + 0x54, WORD);
+		{ std::string("ammo.pistol"), 1.0f },
+		{ std::string("ammo.pistol.hv"), 1.33333f },
+		{ std::string("ammo.pistol.incendiary"), 0.75f },
 
-		DWORD64 ObjectClass = read(GameObject + 0x30, DWORD64);
-		DWORD64	Entity = read(ObjectClass + 0x18, DWORD64);
+		{ std::string("arrow.wooden"), 1.0f },
+		{ std::string("arrow.hv"), 1.6f },
+		{ std::string("arrow.fire"), 0.8f },
+		{ std::string("arrow.bone"), 0.9f },
 
-		if (Tag == 5)
-		{
-			//std::cout << 5 << std::endl;
-			myLocalPlayer.ObjectClassCamera = ObjectClass;
-			myLocalPlayer.BaseEntityCamera = Entity;
-			break;
-		}
+		{ std::string("ammo.handmade.shell"), 1.0f },
+		{ std::string("ammo.shotgun.slug"), 2.25f },
+		{ std::string("ammo.shotgun.fire"), 1.0f },
+		{ std::string("ammo.shotgun"), 2.25f },
 
-	}
-	*/
+		{ std::string("ammo.nailgun.nails"), 1.0f }
+	};
+
+	std::map<std::string, float> BulletGravity = {
+		{ std::string("ammo.rifle"), 1.0f },
+		{ std::string("ammo.rifle.hv"), 1.0f },
+		{ std::string("ammo.rifle.explosive"), 1.25f },
+		{ std::string("ammo.rifle.incendiary"), 1.0f },
+
+		{ std::string("ammo.pistol"), 1.0f },
+		{ std::string("ammo.pistol.hv"), 1.0f },
+		{ std::string("ammo.pistol.incendiary"), 1.0f },
+
+		{ std::string("arrow.wooden"), 0.75f },
+		{ std::string("arrow.hv"), 0.5f },
+		{ std::string("arrow.fire"), 1.0f },
+		{ std::string("arrow.bone"), 0.75f },
+
+		{ std::string("ammo.handmade.shell"), 1.0f },
+		{ std::string("ammo.shotgun.slug"), 1.0f },
+		{ std::string("ammo.shotgun.fire"), 1.0f },
+		{ std::string("ammo.shotgun"), 1.0f },
+
+		{ std::string("ammo.nailgun.nails"), 0.75f }
+	};
+
+	
 	for (DWORD64 BaseObject = read(ObjMgr + 0x8, DWORD64); BaseObject && BaseObject != read(ObjMgr, DWORD64); BaseObject = read(BaseObject + 0x8, DWORD64))
 	{
 		DWORD64 GameObject = read(BaseObject + 0x10, DWORD64);

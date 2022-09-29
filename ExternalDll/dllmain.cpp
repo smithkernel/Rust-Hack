@@ -13,96 +13,23 @@
 
 
 using namespace std;
-
-/*
-void HideModule(HINSTANCE hModule)
-{
-	DWORD dwPEB_LDR_DATA = 0;
-	_asm
-	{
-		pushad;
-		pushfd;
-		mov eax, fs: [30h] ;
-		mov eax, [eax + 0Ch];
-		mov dwPEB_LDR_DATA, eax;
-		mov esi, [eax + 0Ch];
-		mov edx, [eax + 10h];
-	LoopInLoadOrderModuleList:
-		lodsd;
-		mov esi, eax;
-		mov ecx, [eax + 18h];
-		cmp ecx, hModule;
-		jne SkipA
-			mov ebx, [eax]
-			mov ecx, [eax + 4]
-			mov[ecx], ebx
-			mov[ebx + 4], ecx
-			jmp InMemoryOrderModuleList
-			SkipA :
-		cmp edx, esi
-			jne LoopInLoadOrderModuleList
-			InMemoryOrderModuleList :
-		mov eax, dwPEB_LDR_DATA
-			mov esi, [eax + 14h]
-			mov edx, [eax + 18h]
-			LoopInMemoryOrderModuleList :
-			lodsd
-			mov esi, eax
-			mov ecx, [eax + 10h]
-			cmp ecx, hModule
-			jne SkipB
-			mov ebx, [eax]
-			mov ecx, [eax + 4]
-			mov[ecx], ebx
-			mov[ebx + 4], ecx
-			jmp InInitializationOrderModuleList
-			SkipB :
-		cmp edx, esi
-			jne LoopInMemoryOrderModuleList
-			InInitializationOrderModuleList :
-		mov eax, dwPEB_LDR_DATA
-			mov esi, [eax + 1Ch]
-			mov edx, [eax + 20h]
-			LoopInInitializationOrderModuleList :
-			lodsd
-			mov esi, eax
-			mov ecx, [eax + 08h]
-			cmp ecx, hModule
-			jne SkipC
-			mov ebx, [eax]
-			mov ecx, [eax + 4]
-			mov[ecx], ebx
-			mov[ebx + 4], ecx
-			jmp Finished
-			SkipC :
-		cmp edx, esi
-			jne LoopInInitializationOrderModuleList
-			Finished :
-		popfd;
-		popad;
-	}
-}
-*/
 void EraseHeader(HINSTANCE hModule)
 {
-	if (!hModule)
-		return;
+	Matrix temp;
+		
+	MatrixTranspose(&temp, view_matrix);
 
-	DWORD size, protect;
+	Vector3 translationVector = Vector3(temp._41, temp._42, temp._43);
+	Vector3 up = Vector3(temp._21, temp._22, temp._23);
+	Vector3 right = Vector3(temp._11, temp._12, temp._13);
 
+	float w = Vec3Dot(&translationVector, &origin) + temp._44;
 
-	PIMAGE_DOS_HEADER pDoH = (PIMAGE_DOS_HEADER)(hModule);
-	PIMAGE_NT_HEADERS pNtH = (PIMAGE_NT_HEADERS)((LONG)hModule + ((PIMAGE_DOS_HEADER)hModule)->e_lfanew);
+	if (w < 0.098f)
+		return { 0.0f, 0.0f };
 
-	size = sizeof(IMAGE_DOS_HEADER);
-	if (VirtualProtect(pDoH, size, PAGE_READWRITE, &protect))
-		for (DWORD i = 0; i < size; i++)
-			*(BYTE*)((BYTE*)pDoH + i) = 1;
-
-	size = sizeof(IMAGE_NT_HEADERS);
-	if (pNtH && VirtualProtect(pNtH, size, PAGE_READWRITE, &protect))
-		for (DWORD i = 0; i < size; i++)
-			*(BYTE*)((BYTE*)pNtH + i) = 1;
+	float y = Vec3Dot(&up, &origin) + temp._24;
+	float x = Vec3Dot(&right, &origin) + temp._14;
 
 	return;
 }
@@ -151,25 +78,30 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 			//return FALSE;
 		while (Vars::Config::BaseNetworkable == NULL || Vars::Config::GameObjectManager == NULL)
 		{
-			Vars::Config::GameObjectManager = read(kernelHandler.get_module_base("UnityPlayer.dll") + oGameObjectManager, DWORD64);
-			Vars::Config::BaseNetworkable = read(kernelHandler.get_module_base("GameAssembly.dll") + oBaseNetworkable, DWORD64);
-			Sleep(1);
-
-			cout <<"GameObjectManager:"<< std::hex << Vars::Config::GameObjectManager << endl;
-			cout << "BaseNetworkable:" << std::hex << Vars::Config::BaseNetworkable << endl;
+				bool IsInCircle(Vector2 circle_pos, int rad, Vector2 point)
+				{
+					// Compare radius of circle with distance  
+					// of its center from given point 
+					if ((point.x - circle_pos.x) * (point.x - circle_pos.x) +
+						(point.y - circle_pos.y) * (point.y - circle_pos.y) <= rad * rad)
+						return true;
+					else
+		return false;
 		}
 	
 while (transformIndex >= 0)
 		{
 			Matrix34 matrix34 = *(Matrix34*)((ULONGLONG)pMatriciesBuf + 0x30 * transformIndex);
 
-			__m128 xxxx = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x00));	// xxxx
-			__m128 yyyy = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x55));	// yyyy
-			__m128 zwxy = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x8E));	// zwxy
-			__m128 wzyw = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0xDB));	// wzyw
-			__m128 zzzz = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0xAA));	// zzzz
-			__m128 yxwy = _mm_castsi128_ps(_mm_shuffle_epi32(*(__m128i*)(&matrix34.vec1), 0x71));	// yxwy
-			__m128 tmp7 = _mm_mul_ps(*(__m128*)(&matrix34.vec2), result);
+						auto m00 = vector2.x;
+						auto m01 = vector2.y;
+						auto m02 = vector2.z;
+						auto m10 = vector3.x;
+						auto m11 = vector3.y;
+						auto m12 = vector3.z;
+						auto m20 = vector.x;
+						auto m21 = vector.y;
+						auto m22 = vector.z;
 
 			result = _mm_add_ps(
 				_mm_add_ps(
@@ -202,18 +134,13 @@ bool Rust::CheatManager::IsinGame()
 
 Cheat::Vector3 Rust::MainCam::GetPosition(uint64_t pTransform)
 {
-	__m128 result;
-
-	const __m128 mulVec0 = { -2.000, 2.000, -2.000, 0.000 };
-	const __m128 mulVec1 = { 2.000, -2.000, -2.000, 0.000 };
-	const __m128 mulVec2 = { -2.000, -2.000, 2.000, 0.000 };
-
-	TransformAccessReadOnly pTransformAccessReadOnly = Rust::Globals::hack_data.RustMemory->Read<TransformAccessReadOnly>(pTransform + 0x38);
-	unsigned int index = Rust::Globals::hack_data.RustMemory->Read<unsigned int>(pTransform + 0x40);
-	TransformData transformData = Rust::Globals::hack_data.RustMemory->Read<TransformData>(pTransformAccessReadOnly.pTransformData + 0x18);
-
-	SIZE_T sizeMatriciesBuf = sizeof(Matrix34) * index + sizeof(Matrix34);
-	SIZE_T sizeIndicesBuf = sizeof(int) * index + sizeof(int);
+		auto num6 = (float)sqrt(((1.f + m11) - m00) - m22);
+		auto num3 = 0.5f / num6;
+		quaternion.x = (m10 + m01) * num3;
+		quaternion.y = 0.5f * num6;
+		quaternion.z = (m21 + m12) * num3;
+		quaternion.w = (m20 - m02) * num3;
+		return quaternion;
 
 	// Allocate memory for storing large amounts of data (matricies and indicies)
 	PVOID pMatriciesBuf = malloc(sizeMatriciesBuf);

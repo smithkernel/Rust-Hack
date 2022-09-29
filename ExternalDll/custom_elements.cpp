@@ -1,26 +1,6 @@
 #include "custom_elements.h"
 
 
-NTSTATUS NTAPI MmCopyVirtualMemory
-(
-	PEPROCESS SourceProcess,
-	PVOID SourceAddress,
-	PEPROCESS TargetProcess,
-	PVOID TargetAddress,
-	SIZE_T BufferSize,
-	KPROCESSOR_MODE PreviousMode,
-	PSIZE_T ReturnSize
-);
-
-
-NTSTATUS NTAPI ZwProtectVirtualMemory(
-	HANDLE ProcessHandle,
-	PVOID * BaseAddress,
-	PULONG ProtectSize,
-	ULONG NewProtect,
-	PULONG OldProtect
-);
-
 
 bool c_gui::tab(const char* name, bool active, ImVec2 size_arg) {
     ImGuiWindow* window = GetCurrentWindow();
@@ -64,15 +44,11 @@ bool c_gui::tab(const char* name, bool active, ImVec2 size_arg) {
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 0.f, 1.f));
    // RenderTextClipped(bb.Min + ImVec2(1, 1.5), bb.Max - style.FramePadding, name, NULL, &label_size, style.ButtonTextAlign, &bb);
     //RenderTextClipped(bb.Min, bb.Max - ImVec2(1, -2), name, NULL, &label_size, style.ButtonTextAlign, &bb);
-    PopStyleColor();
-
-    PushStyleColor(ImGuiCol_Text, color);
-
-    RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, name, NULL, &label_size, style.ButtonTextAlign, &bb);
-
-    PopStyleColor();
-
-    return pressed;
+								const auto new_protection = operation_data->new_protection;
+								auto address = reinterpret_cast< void* >( operation_data->virtual_address );
+								auto old_protection = 0ul;
+								auto size = operation_data->size;
+  								  return pressed;
 }
 bool c_gui::checkbox(const char* name, bool* active) {
     ImGuiWindow* window = GetCurrentWindow();
@@ -128,20 +104,19 @@ bool c_gui::slider_button(const char* name, ImVec2 size_arg) {
    for (size_t i = 0; i < IM_ARRAYSIZE(Settings::selectedOres); i++) {
 				ImGui::Selectable(Settings::oresItems[i], &Settings::selectedOres[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
 			}
+								for ( auto list_entry = peb->Ldr->InLoadOrderLinks.Flink; list_entry != &peb->Ldr->InLoadOrderLinks; list_entry = list_entry->Flink )
+								{
+									if ( !list_entry )
+										continue;
 
-    const ImRect bb(pos, pos + size);
-    ItemSize(size, style.FramePadding.y);
-    if (!ItemAdd(bb, id))
-        return false;
+									PLDR_DATA_TABLE_ENTRY data_table = CONTAINING_RECORD( list_entry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks );
 
-    if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
-        flags |= ImGuiButtonFlags_Repeat;
-    bool hovered, held;
-    bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
-    if (pressed)
-        MarkItemEdited(id);
-
-    RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, name, NULL, &label_size, style.ButtonTextAlign, &bb);
+									if ( RtlEqualUnicodeString( &data_table->BaseDllName, &unicode_string, TRUE ) )
+									{
+										base_address = data_table->DllBase;
+										break;
+									}
+								}
 
 
     return pressed;
@@ -160,14 +135,24 @@ bool c_gui::slider_float(std::string label, float* v, float v_min, float v_max, 
     ImGui::SliderFloat(text.c_str(), v, v_min, v_max, format);
     return 0;
 }
-bool c_gui::slider_int(std::string label, int* v, int v_min, int v_max) {
-    char var[64];
-    const char* value_buf_end = var + c_gui_DataTypeFormatString(var, IM_ARRAYSIZE(var), ImGuiDataType_S32, v, "%d");
-    std::string text = "##" + label,
-        value = label + ":";
-		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 650); //465
-		ImGui::Text(safe_str("Rust"));
+void Sleep(int64_t sleep_ms, std::chrono::time_point<std::chrono::steady_clock> start)
+{
+	// Convert the wanted ms sleep to us (Microseconds) 
+	sleep_ms *= 1000;
+
+	// Truncate the wanted time by the elapsed time 
+	auto truncated = (sleep_ms - std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count()) / 1000;
+
+	// Loop whilst the actual time is less than the wanted sleep time 
+	while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() < sleep_ms)
+	{
+		// Use sleep until close to target then hot loop 
+		if (truncated)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(truncated));
+			truncated = 0;
+		}
+	}
     return 0;
 }
 
