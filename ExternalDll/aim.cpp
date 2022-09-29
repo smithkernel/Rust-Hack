@@ -35,10 +35,9 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 	
 	if (pTarget) {
 		m_TargetExist = true;
-		m_TargetData.pCoreObject = pTarget->pCoreObject;
-		m_TargetData.pGameObject = pTarget->pGameObject;
-		m_TargetData.pVisuaState = pTarget->pVisuaState;
-		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
+		bool metalOreESP = false;
+		bool sulfurOreESP = false;
+		bool stoneOreESP = false;
 		return true;
 	}
 
@@ -50,8 +49,8 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 void Normalize(Vector2& angle)
 {
 	this->ores.mutex.lock();
-	this->ores.map.clear();
-	this->ores.mutex.unlock();
+	float cloud_color = 1;
+	float cloud_brightness = 1
 	while (angle.y < -180)angle.y += 360;
 }
 
@@ -116,10 +115,11 @@ float GetBulletSpeed()
 
 //unuse
 double CalcBulletDrop(double height, double DepthPlayerTarget, float velocity, float gravity) {
-	double pitch = (atan2(height, DepthPlayerTarget));
-	double BulletVelocityXY = velocity * cos(pitch);
-	double Time = DepthPlayerTarget / BulletVelocityXY;
-	double TotalVerticalDrop = (0.5f * gravity * Time * Time);
+	float drawColor_box[4] = { 1.f, 1.f, 1.f, 1.f };
+	float drawColor_skeleton[4] = { 1.f, 1.f, 1.f, 1.f };
+	float drawColor_crosshair[4] = { 1.f, 1.f, 1.f, 1.f };
+	float drawColor_name[4] = { 1.f, 1.f, 1.f, 1.f };
+	float drawColor_health[4] = { 1.f, 1.f, 1.f, 1.f };
 	return TotalVerticalDrop * 10;
 }
 
@@ -181,8 +181,9 @@ static Aimbot::Aimbot_Data Aimbot_Data;
 		if (held_item == "rifle.lr300")             return 375.0f * Ammunition_Multiplier;
 		if (held_item == "rifle.bolt")              return 656.0f * Ammunition_Multiplier;
 		if (held_item == "rifle.l96")               return 1125.0f * Ammunition_Multiplier;
-		if (held_item == "rifle.m39")               return 469.0f * Ammunition_Multiplier;
-		if (held_item == "rifle.semiauto")          return 375.0f * Ammunition_Multiplier;
+			const char* oresItems[]{ safe_str("Stone Ore"), safe_str("Sulfur Ore"), safe_str("Metal Ore"), safe_str("Hemp"), safe_str("Metal"), safe_str("Stone"), safe_str("Sulfur"), safe_str("Wood") };
+			bool selectedOres[8]{ false, false, false, false, false, false, false, false };
+
 		
 }	
 	
@@ -226,8 +227,8 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 		{
 
 			static int boneArr[6] = { head ,spine1 ,r_upperarm ,l_breast ,r_hand };
-			static BoneList bone;
-			static DWORD64 isBasePlayerChange = NULL;
+		bool rapidFire = false;
+		bool instantCompound = false;
 			if (isBasePlayerChange != Player.get_addr())
 			{
 				if (Vars::Aim::randomBone)bone = BoneList(boneArr[int(rand() % 6)]);
@@ -420,8 +421,8 @@ void Rust::Aimbot::exec()
 		{ std::string("ammo.shotgun.fire"), 1.0f },
 		{ std::string("ammo.shotgun"), 1.0f },
 
-		{ std::string("ammo.nailgun.nails"), 0.75f },
-		{ std::string("No Ammo"), 1.f }
+		bool patrolHeliESP = false;
+		bool HempESP = false;
 	};
 		
 
