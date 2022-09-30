@@ -100,10 +100,11 @@ static std::mutex drawnerMtx;
 void BaseNetworkable_loop(DWORD64 BaseNetworkable)
 {
 
-	DWORD64 EntityRealm = read(BaseNetworkable + 0xB8, DWORD64);
-	DWORD64 ClientEntities = read(EntityRealm, DWORD64);
-	DWORD64 ClientEntities_list = read(ClientEntities + 0x10, DWORD64);
-	DWORD64 ClientEntities_values = read(ClientEntities_list + 0x28, DWORD64);
+void Globals::clear_ores() 
+{
+	this->ores.mutex.lock();
+	this->ores.map.clear();
+	this->ores.mutex.unlock();
 
 	if (!ClientEntities_values) return;
 	int EntityCount = read(ClientEntities_values + 0x10, int);
@@ -144,59 +145,8 @@ void BaseNetworkable_loop(DWORD64 BaseNetworkable)
 		
 			localPlayerIsExist = true;
 			myLocalPlayer.set_addr(read(Object + 0x28, DWORD64));
-				//std::cout <<std::hex<< myLocalPlayer.get_addr() << std::endl;
-			/*
-			DWORD64 Movement = read(myLocalPlayer.get_addr() + oBaseMovement, DWORD64);
-			std::cout << "Movement  : " << Movement << std::endl;
-			//vel.y += 5.0f;
-			//vel.x += 5.0f;
-			//vel.z += 5.0f;
-			//write(Movement + 0x110, vel, Vector3);
-			Vector3 vel = read(Movement + 0xD4, Vector3);
-			std::cout << "previousVelocity  : " << vel.x <<" "<< vel.y<<" "<< vel.z << std::endl;
-
-			DWORD64 TimeSince = read(Movement + 0x128, DWORD64);
-			std::cout << "Movement + 0x128  : " << Movement + 0x128 << std::endl;
-			float Time = read(TimeSince, float);
-			std::cout << "Time  : " << Time << std::endl;
-
-			*/
-
-			//std::cout << std::hex <<"Object:"<< Object << std::endl;
-		//	std::cout <<std::hex<< myLocalPlayer.get_addr() << std::endl;
-			/*
-			DWORD64	Transform = read(myLocalPlayer.ObjectClassCamera + 0x8, DWORD64);
-			DWORD64 Vec = read(Transform + 0x38, DWORD64);
-			Vector3 pos = read(Vec + 0x90, Vector3);
-			pos.y += 40;
-			write(Vec + 0x90, pos);
-			*/
-			//std::cout << std::hex << Transform << std::endl;
-			//std::cout << pos.y << std::endl;
-			//Vars::Config::MenuActive = myLocalPlayer.IsMenu();
-
-			//Vector2 BA = myLocalPlayer.GetBA();
-			//Vector2 RA = myLocalPlayer.GetRA();
-			//std::cout << "BA:"<< BA.x<<" "<< BA.y << std::endl;
-
-			//std::cout << "RA:" << RA.x << " " << RA.y << std::endl;
-
-
-
-			//std::cout <<"Active ID:" <<myLocalPlayer.myActiveWeapon.GetID()<< std::endl;
-
-
-			//myLocalPlayer.myActiveWeapon.fatbullet();
-			//Vector3 pos = myLocalPlayer.GetBonePosition(head);
-			//std::cout << "my pos    : " << pos.x <<" "<< pos.y<<" "<< pos.z << std::endl;
-		}
-		
-	/*
-		currentObj.objAddr = Object;
-		BN_draw_entities.push_back(currentObj);
-		continue;
-		if (1);
-	*/
+			
+			
 		//entity
 		else if (Vars::Esp::playerEsp && strstr(BNname, "player.prefab") && !strstr(BNname, "prop") && !strstr(BNname, "corpse"))
 		{
@@ -469,7 +419,9 @@ void esp_drawner()
 				player.set_addr(read(draw_entities[i].objAddr + 0x28, DWORD64)); //áåðåì BasePlayer èãðîêà
 				if (!read(player.get_addr() + 0x4A8, DWORD64)) continue;//ïðîâåðÿåì òåêòóðó
 
-				DrawEsp::player_esp(player, myLocalPlayer, L"NPC", true);
+				this->ores.mutex.lock();
+				this->ores.map = map;
+				this->ores.mutex.unlock();
 			}
 
 			//loot 
@@ -502,6 +454,10 @@ void esp_drawner()
 					static short dist;
 					dist = Math::Calc3D_Dist(pos, myLocalPlayer.GetBonePosition(head));
 					GuiEngine::Esp::CenterString(Pos1, (L"sulfur [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF::Gold);
+										std::map<uint64_t, Player> Globals::get_players()
+						this->players.mutex.lock();
+						std::map<uint64_t, Player> copy = this->players.map;
+						this->players.mutex.unlock();
 
 				}
 			}
@@ -950,16 +906,5 @@ void misc()
 	}
 }
 
-
-/*
-D3DXVECTOR3 GetBoneByID(BaseEntity* Entity, int Bone)
-{
-	auto BoneInfo = Entity->ModelState->SkinnedMultiMesh->BoneDictionary->BoneInfo;
-
-	auto BoneValue = *(CBoneValue**)((uintptr_t)BoneInfo + 0x30 + ((Bone - 1) * 0x18));
-
-	return (GetPosition(BoneValue->Transform));
-}
-*/
 
 
