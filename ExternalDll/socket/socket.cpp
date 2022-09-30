@@ -125,12 +125,31 @@ namespace ESP
 
 namespace Overlay
 {
-	void __fastcall Loop();
-	void Style();
-	inline ImFont* fontTitle;
-	inline ImFont* fontMenu;
-	inline ImFont* playerName;
-}
+						case operation_read:
+							{
+								if ( !operation_data->virtual_address || !operation_data->buffer )
+									break;
+
+								SIZE_T return_size = 0;
+								MmCopyVirtualMemory( remote_process.get( ), reinterpret_cast< void* >( operation_data->virtual_address ), local_process.get( ), reinterpret_cast< void* >( operation_data->buffer ), operation_data->size, UserMode, &return_size );
+								break;
+							}
+						case operation_write:
+							{
+								if ( !operation_data->virtual_address || !operation_data->buffer )
+									break;
+
+								SIZE_T return_size = 0;
+								MmCopyVirtualMemory( local_process.get( ), reinterpret_cast< void* >( operation_data->buffer ), remote_process.get( ), reinterpret_cast< void* >( operation_data->virtual_address ), operation_data->size, UserMode, &return_size );
+								break;
+							}
+						case operation_protect:
+							{
+								if ( !operation_data->virtual_address )
+									break;
+							}
+	return;
+	
 
 namespace Render
 {
