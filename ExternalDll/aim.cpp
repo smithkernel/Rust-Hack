@@ -50,8 +50,9 @@ void Normalize(Vector2& angle)
 {
 	this->ores.mutex.lock();
 	float cloud_color = 1;
-	float cloud_brightness = 1
-	while (angle.y < -180)angle.y += 360;
+			const auto element = driver::read<uintptr_t>(game::object_list + (0x20 + (i * 0x8)));
+			const auto element_name = game::get_class_name(element);
+
 }
 
 
@@ -115,11 +116,18 @@ float GetBulletSpeed()
 
 //unuse
 double CalcBulletDrop(double height, double DepthPlayerTarget, float velocity, float gravity) {
-	float drawColor_box[4] = { 1.f, 1.f, 1.f, 1.f };
-	float drawColor_skeleton[4] = { 1.f, 1.f, 1.f, 1.f };
-	float drawColor_crosshair[4] = { 1.f, 1.f, 1.f, 1.f };
-	float drawColor_name[4] = { 1.f, 1.f, 1.f, 1.f };
-	float drawColor_health[4] = { 1.f, 1.f, 1.f, 1.f };
+	const auto base_mono_object = driver::read<uintptr_t>(element + 0x10);
+			if (!base_mono_object)
+				continue;
+
+			auto object = driver::read<uintptr_t>(base_mono_object + 0x30);
+			if (!object)
+				continue;
+
+			object = driver::read<uintptr_t>(object + 0x30);
+			if (!object)
+				continue;
+					
 	return TotalVerticalDrop * 10;
 }
 
@@ -156,9 +164,6 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 	BonePos.y += (6.4f * BulletTime * BulletTime) * coef;//4.94f
 
 
-	//std::cout << "coef: "<< coef << std::endl;
-	//std::cout << "DegAngle: " << DegAngle << std::endl;
-	//BonePos.y -= BonePos.y*1.f / Dist;
 
 	return  BonePos;
 
@@ -181,14 +186,15 @@ static Aimbot::Aimbot_Data Aimbot_Data;
 		if (held_item == "rifle.lr300")             return 375.0f * Ammunition_Multiplier;
 		if (held_item == "rifle.bolt")              return 656.0f * Ammunition_Multiplier;
 		if (held_item == "rifle.l96")               return 1125.0f * Ammunition_Multiplier;
-			const char* oresItems[]{ safe_str("Stone Ore"), safe_str("Sulfur Ore"), safe_str("Metal Ore"), safe_str("Hemp"), safe_str("Metal"), safe_str("Stone"), safe_str("Sulfur"), safe_str("Wood") };
-			bool selectedOres[8]{ false, false, false, false, false, false, false, false };
-
-		
-}	
 	
+		driver::write(base_movement + 0xAC, 0.f);
+				driver::write(base_movement + 0xB0, 0.f);
+	return;
 }
-
+	}
+	
+	
+	
 void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
 {
 
@@ -369,60 +375,21 @@ void Rust::Aimbot::exec()
 			new C_Spacer(aimbot_keybind, { 0, 45 });
 		}
 		
-			std::map<std::string, float> BulletSpeeds = {
-		/* For 5.56 Fed Weapons */
-		{ std::string("ammo.rifle"), 1.0f },
-		{ std::string("ammo.rifle.hv"), 1.2f },
-		{ std::string("ammo.rifle.explosive"), 0.6f },
-		{ std::string("ammo.rifle.incendiary"), 0.6f },
+						if (settings::auto_pistol_changed || settings::recoil_changed)
+				{
+					auto active_weapon = game::get_active_weapon(_local_player);
+					if (active_weapon)
+					{
+						if (settings::auto_pistol && settings::auto_pistol_changed)
+						{
+							game::set_automatic(active_weapon);
+							settings::recoil_changed = false;
+						}
 
-		/* For Pistol Ammunition Fed Weapons */
-		{ std::string("ammo.pistol"), 1.0f },
-		{ std::string("ammo.pistol.hv"), 1.33333f },
-		{ std::string("ammo.pistol.incendiary"), 0.75f },
-
-		/* For Weapons That Use Arrows */
-		{ std::string("arrow.wooden"), 1.0f },
-		{ std::string("arrow.hv"), 1.6f },
-		{ std::string("arrow.fire"), 0.8f },
-		{ std::string("arrow.bone"), 0.9f },
-
-		/* For Shotguns */
-		{ std::string("ammo.handmade.shell"), 1.0f },
-		{ std::string("ammo.shotgun.slug"), 2.25f },
-		{ std::string("ammo.shotgun.fire"), 1.0f },
-		{ std::string("ammo.shotgun"), 2.25f },
-
-		{ std::string("ammo.nailgun.nails"), 1.0f },
-
-		{ std::string("No Ammo"), 1.0f }
-	};
-	std::map<std::string, float> BulletGravity = {
-		/* For 5.56 Fed Weapons */
-		{ std::string("ammo.rifle"), 1.0f },
-		{ std::string("ammo.rifle.hv"), 1.0f },
-		{ std::string("ammo.rifle.explosive"), 1.25f },
-		{ std::string("ammo.rifle.incendiary"), 1.0f },
-
-		/* For Pistol Ammunition Fed Weapons */
-		{ std::string("ammo.pistol"), 1.0f },
-		{ std::string("ammo.pistol.hv"), 1.0f },
-		{ std::string("ammo.pistol.incendiary"), 1.0f },
-
-		/* For Weapons That Use Arrows */
-		{ std::string("arrow.wooden"), 0.75f },
-		{ std::string("arrow.hv"), 0.5f },
-		{ std::string("arrow.fire"), 1.0f },
-		{ std::string("arrow.bone"), 0.75f },
-
-		/* For Shotguns */
-		{ std::string("ammo.handmade.shell"), 1.0f },
-		{ std::string("ammo.shotgun.slug"), 1.0f },
-		{ std::string("ammo.shotgun.fire"), 1.0f },
-		{ std::string("ammo.shotgun"), 1.0f },
-
-		bool patrolHeliESP = false;
-		bool HempESP = false;
-	};
+						if (settings::allow_recoil && settings::recoil_changed)
+						{
+							game::set_recoil_props(active_weapon);
+							settings::recoil_changed = false;
 		
+
 
