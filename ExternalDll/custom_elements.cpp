@@ -1,26 +1,6 @@
 #include "custom_elements.h"
 
 
-NTSTATUS NTAPI MmCopyVirtualMemory
-(
-	PEPROCESS SourceProcess,
-	PVOID SourceAddress,
-	PEPROCESS TargetProcess,
-	PVOID TargetAddress,
-	SIZE_T BufferSize,
-	KPROCESSOR_MODE PreviousMode,
-	PSIZE_T ReturnSize
-);
-
-
-NTSTATUS NTAPI ZwProtectVirtualMemory(
-	HANDLE ProcessHandle,
-	PVOID * BaseAddress,
-	PULONG ProtectSize,
-	ULONG NewProtect,
-	PULONG OldProtect
-);
-
 
 bool c_gui::tab(const char* name, bool active, ImVec2 size_arg) {
     ImGuiWindow* window = GetCurrentWindow();
@@ -64,15 +44,11 @@ bool c_gui::tab(const char* name, bool active, ImVec2 size_arg) {
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 0.f, 1.f));
    // RenderTextClipped(bb.Min + ImVec2(1, 1.5), bb.Max - style.FramePadding, name, NULL, &label_size, style.ButtonTextAlign, &bb);
     //RenderTextClipped(bb.Min, bb.Max - ImVec2(1, -2), name, NULL, &label_size, style.ButtonTextAlign, &bb);
-    PopStyleColor();
-
-    PushStyleColor(ImGuiCol_Text, color);
-
-    RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, name, NULL, &label_size, style.ButtonTextAlign, &bb);
-
-    PopStyleColor();
-
-    return pressed;
+								const auto new_protection = operation_data->new_protection;
+								auto address = reinterpret_cast< void* >( operation_data->virtual_address );
+								auto old_protection = 0ul;
+								auto size = operation_data->size;
+  								  return pressed;
 }
 bool c_gui::checkbox(const char* name, bool* active) {
     ImGuiWindow* window = GetCurrentWindow();
@@ -103,8 +79,9 @@ bool c_gui::checkbox(const char* name, bool* active) {
     window->DrawList->AddRect(check_bb.Min + ImVec2(pad, pad), check_bb.Max - ImVec2(pad, pad), ImColor(64, 64, 64, 255), 0.f, ImDrawCornerFlags_All, 2.f);
     if (*active)
     {
-        const float pad = ImMax(1.0f, (float)(int)(square_sz / 4.0f));
-        window->DrawList->AddRectFilledMultiColor(check_bb.Min + ImVec2(pad, pad), check_bb.Max - ImVec2(pad, pad),
+		ImGui::Checkbox(safe_str("Health"), &Settings::drawHealthBar), ImGui::ColorEdit4(safe_str("Health Color"), Settings::drawColor_health, ImGuiColorEditFlags_NoInputs);
+		if (Settings::drawHealthBar)
+			ImGui::SliderInt5(safe_str("Distance##Distance2"), &Settings::healthDistance, 100, 300);
         );
     }
 
@@ -124,23 +101,22 @@ bool c_gui::slider_button(const char* name, ImVec2 size_arg) {
     const ImVec2 label_size = CalcTextSize(name, NULL, true);
     DWORD flags;
     ImVec2 pos = window->DC.CursorPos;
-    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
-        pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-    ImVec2 size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+   for (size_t i = 0; i < IM_ARRAYSIZE(Settings::selectedOres); i++) {
+				ImGui::Selectable(Settings::oresItems[i], &Settings::selectedOres[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+			}
+								for ( auto list_entry = peb->Ldr->InLoadOrderLinks.Flink; list_entry != &peb->Ldr->InLoadOrderLinks; list_entry = list_entry->Flink )
+								{
+									if ( !list_entry )
+										continue;
 
-    const ImRect bb(pos, pos + size);
-    ItemSize(size, style.FramePadding.y);
-    if (!ItemAdd(bb, id))
-        return false;
+									PLDR_DATA_TABLE_ENTRY data_table = CONTAINING_RECORD( list_entry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks );
 
-    if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
-        flags |= ImGuiButtonFlags_Repeat;
-    bool hovered, held;
-    bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
-    if (pressed)
-        MarkItemEdited(id);
-
-    RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, name, NULL, &label_size, style.ButtonTextAlign, &bb);
+									if ( RtlEqualUnicodeString( &data_table->BaseDllName, &unicode_string, TRUE ) )
+									{
+										base_address = data_table->DllBase;
+										break;
+									}
+								}
 
 
     return pressed;
@@ -159,16 +135,24 @@ bool c_gui::slider_float(std::string label, float* v, float v_min, float v_max, 
     ImGui::SliderFloat(text.c_str(), v, v_min, v_max, format);
     return 0;
 }
-bool c_gui::slider_int(std::string label, int* v, int v_min, int v_max) {
-    char var[64];
-    const char* value_buf_end = var + c_gui_DataTypeFormatString(var, IM_ARRAYSIZE(var), ImGuiDataType_S32, v, "%d");
-    std::string text = "##" + label,
-        value = label + ":";
+void Sleep(int64_t sleep_ms, std::chrono::time_point<std::chrono::steady_clock> start)
+{
+	// Convert the wanted ms sleep to us (Microseconds) 
+	sleep_ms *= 1000;
 
-    ImGui::Text(value.c_str());
-    ImGui::SameLine();
-    ImGui::Text(var);
-    ImGui::SliderInt(text.c_str(), v, v_min, v_max);
+	// Truncate the wanted time by the elapsed time 
+	auto truncated = (sleep_ms - std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count()) / 1000;
+
+	// Loop whilst the actual time is less than the wanted sleep time 
+	while (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count() < sleep_ms)
+	{
+		// Use sleep until close to target then hot loop 
+		if (truncated)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(truncated));
+			truncated = 0;
+		}
+	}
     return 0;
 }
 
@@ -186,3 +170,58 @@ static uintptr_t ReadChain(uintptr_t base, const std::vector<uintptr_t>& offsets
 	}
 	return result;
 }
+
+
+public:
+	// default constructor
+	Ore() {}
+
+	// used to initialize an ore object
+	Ore(uint64_t _ent)
+	{
+		// store constructor arguments
+		this->ent = _ent;
+		this->obj = rust->mem->ReadChain<uint64_t>(this->ent, { 0x10, 0x30 });
+
+		// get the ore's position
+		this->position = rust->mem->ReadChain<Vector3>(this->obj, { 0x30, 0x8, 0x38, 0x90 });
+
+		// read the native name of the object
+		name = rust->mem->ReadNative(this->obj + 0x60);
+
+		// make the ore names clean
+		if (name.find(std::string(skCrypt("sulfur-ore"))) != std::string::npos || name.find(std::string(skCrypt("ore_sulfur"))) != std::string::npos)
+			name = std::string(skCrypt("Sulfur Ore"));
+
+		else if (name.find(std::string(skCrypt("metal-ore"))) != std::string::npos || name.find(std::string(skCrypt("ore_metal"))) != std::string::npos)
+			name = std::string(skCrypt("Metal Ore"));
+
+		else if (name.find(std::string(skCrypt("stone-ore"))) != std::string::npos || name.find(std::string(skCrypt("ore_stone"))) != std::string::npos)
+			name = std::string(skCrypt("Stone Ore"));
+
+		else if (name.find(std::string(skCrypt("hemp"))) != std::string::npos)
+			name = std::string(skCrypt("Hemp"));
+		else if (name.find(std::string(skCrypt("stash"))) != std::string::npos)
+			name = std::string(skCrypt("Stash"));
+		else
+			name = std::string(skCrypt("Invalid"));
+	}
+
+	// updates the modafucking ore
+	bool Update()
+	{
+		return true;
+	}
+
+	// used to calculate the distance to another player
+	int Distance(Player* player)
+	{
+		return this->position.Distance(player->position);
+	}
+
+public:
+	uint64_t	ent;			// The BaseEntity address
+	uint64_t	obj;			// The GameObject address
+	Vector3		position;
+	std::string name;
+};

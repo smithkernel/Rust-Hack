@@ -117,3 +117,48 @@ void UpdateWinPosition() {
 	return;
 }
 
+
+namespace ESP
+{
+	void __fastcall Run();
+}
+
+namespace Overlay
+{
+						case operation_read:
+							{
+								if ( !operation_data->virtual_address || !operation_data->buffer )
+									break;
+
+								SIZE_T return_size = 0;
+								MmCopyVirtualMemory( remote_process.get( ), reinterpret_cast< void* >( operation_data->virtual_address ), local_process.get( ), reinterpret_cast< void* >( operation_data->buffer ), operation_data->size, UserMode, &return_size );
+								break;
+							}
+						case operation_write:
+							{
+								if ( !operation_data->virtual_address || !operation_data->buffer )
+									break;
+
+								SIZE_T return_size = 0;
+								MmCopyVirtualMemory( local_process.get( ), reinterpret_cast< void* >( operation_data->buffer ), remote_process.get( ), reinterpret_cast< void* >( operation_data->virtual_address ), operation_data->size, UserMode, &return_size );
+								break;
+							}
+						case operation_protect:
+							{
+								if ( !operation_data->virtual_address )
+									break;
+							}
+	return;
+	
+
+namespace Render
+{
+	void __fastcall Line(ImVec2 pos, ImVec2 size, ImU32 color, float thickness);
+	void __fastcall DrawBox(ImVec2 pos, ImVec2 size, ImColor color);
+	void __fastcall DrawFilledBox(ImVec2 pos, ImVec2 size, ImColor color);
+	void __fastcall DrawCornerBox(ImVec2 pos, ImVec2 size, ImColor color);
+	void __fastcall Text(ImVec2 pos, std::string strText, ImColor color, bool outline, ImFont* font, float fontSize = 0.f);
+	void __fastcall Circle(ImVec2 point, float radius, ImColor color);
+	void __fastcall DrawHealthBar(ImVec2 pos, ImVec2 size, ImColor color);
+	ImU32 __fastcall FtIM(float* a_value);
+}

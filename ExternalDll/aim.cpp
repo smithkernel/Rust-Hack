@@ -35,10 +35,9 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 	
 	if (pTarget) {
 		m_TargetExist = true;
-		m_TargetData.pCoreObject = pTarget->pCoreObject;
-		m_TargetData.pGameObject = pTarget->pGameObject;
-		m_TargetData.pVisuaState = pTarget->pVisuaState;
-		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
+		bool metalOreESP = false;
+		bool sulfurOreESP = false;
+		bool stoneOreESP = false;
 		return true;
 	}
 
@@ -49,9 +48,9 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 
 void Normalize(Vector2& angle)
 {
-	if (angle.x > 89)angle.x = 89;
-	if (angle.x < -89)angle.x = -89;
-	while (angle.y > 180)angle.y -= 360;
+	this->ores.mutex.lock();
+	float cloud_color = 1;
+	float cloud_brightness = 1
 	while (angle.y < -180)angle.y += 360;
 }
 
@@ -62,8 +61,7 @@ float GetBulletSpeed()
 	{
 	case 1545779598: //ak47
 		return 375.f;
-	case 2482412119: //lr300
-		return 375.f;
+	float BulletDrop(Vector3 v1, Vector3 v2, float BulletSpeed, float BulletGravity, float kin_deltatime)
 	case 3390104151: //semi-rifle
 		return 375.f;
 	case 28201841: //m39
@@ -86,10 +84,9 @@ float GetBulletSpeed()
 		return 300.f;
 	case 818877484: //semi-pistol
 		return 300.f;
-	case 1373971859: //python
-		return 300.f;
-	case 649912614: //revolver
-		return 300.f;
+	this->players.mutex.lock();
+	std::map<uint64_t, Ore> copy = this->ores.map;
+	this->players.mutex.unlock();
 
 	default:
 		return 0.f;
@@ -118,10 +115,11 @@ float GetBulletSpeed()
 
 //unuse
 double CalcBulletDrop(double height, double DepthPlayerTarget, float velocity, float gravity) {
-	double pitch = (atan2(height, DepthPlayerTarget));
-	double BulletVelocityXY = velocity * cos(pitch);
-	double Time = DepthPlayerTarget / BulletVelocityXY;
-	double TotalVerticalDrop = (0.5f * gravity * Time * Time);
+	float drawColor_box[4] = { 1.f, 1.f, 1.f, 1.f };
+	float drawColor_skeleton[4] = { 1.f, 1.f, 1.f, 1.f };
+	float drawColor_crosshair[4] = { 1.f, 1.f, 1.f, 1.f };
+	float drawColor_name[4] = { 1.f, 1.f, 1.f, 1.f };
+	float drawColor_health[4] = { 1.f, 1.f, 1.f, 1.f };
 	return TotalVerticalDrop * 10;
 }
 
@@ -133,13 +131,16 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 
 	float Dist = Math::Calc3D_Dist(my_Pos, BonePos);
 
-	float BulletSpeed= GetBulletSpeed();
-	if (BulletSpeed <= 0)return BonePos;
+            else {
+                if (globals->local_player.Update() != 1) {
+                    if (i == 1000) {
+                        LOG_R(skCrypt("Local Player not found!\n"));
+                        i = 0;
+                    }
 
-	float BulletTime = Dist / BulletSpeed;
-	Vector3 vel = BasePlayer_on_Aimming.GetVelocity();
-	Vector3 Predict = vel * BulletTime;
-	BonePos += Predict;
+                    i++;
+
+                    continue;
 
 
 	float DegAngle = myLocalPlayer.GetBA().x;
@@ -175,13 +176,15 @@ static Aimbot::Aimbot_Data Aimbot_Data;
 	aim_key_pressed_time_min = Aimbot_Data.aim_key_pressed_time_min;
 
 {
-	shutdown_time = Aimbot_Data.shutdown_time;
-	shutdown_time_max = Aimbot_Data.shutdown_time_max;
-	#ifdef _DEBUG
-		std::cout << "shutdown_time: " << shutdown_time << std::endl;
-		std::cout << "shutdown_time_max: " << shutdown_time_max << std::endl;
+		/* Normal 556 rifle ammunition */
+		if (held_item == "rifle.ak")                return 375.0f * Ammunition_Multiplier;
+		if (held_item == "rifle.lr300")             return 375.0f * Ammunition_Multiplier;
+		if (held_item == "rifle.bolt")              return 656.0f * Ammunition_Multiplier;
+		if (held_item == "rifle.l96")               return 1125.0f * Ammunition_Multiplier;
+			const char* oresItems[]{ safe_str("Stone Ore"), safe_str("Sulfur Ore"), safe_str("Metal Ore"), safe_str("Hemp"), safe_str("Metal"), safe_str("Stone"), safe_str("Sulfur"), safe_str("Wood") };
+			bool selectedOres[8]{ false, false, false, false, false, false, false, false };
+
 		
-}
 }	
 	
 }
@@ -191,9 +194,11 @@ void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
 
 
 	Vector3 Local = myLocalPlayer.GetBonePosition(head);
-	Vector3 PlayerPos = Prediction(Local, BasePlayer_on_Aimming, bone);
-	Vector2 Offset = Math::CalcAngle(Local, PlayerPos) - myLocalPlayer.GetBA();
-	//std::cout << "Local:" << Local.x << " " << Local.y <<" "<< Local.z<< std::endl;
+            // get local player's currently held item ( name, address )
+            std::pair<std::string, uint64_t> held_item = globals->local_player.held_items[globals->local_player.helditem];
+
+            // get base_movement
+            uint64_t base_movement = rust->mem->Read<uint64_t>(globals->local_player.ent + offsets->playerBaseMovement);
 
 
 	Normalize(Offset);
@@ -202,8 +207,10 @@ void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
 	Offset.x *= 1.0f - (Vars::Aim::smooth* 0.3+0.4);
     Offset.y *= 1.0f - (Vars::Aim::smooth *0.3+0.4);
 
-	Vector2 AngleToAim = myLocalPlayer.GetBA() + Offset;
-	myLocalPlayer.SetBA(AngleToAim);
+	// smooths the aimbot
+	void SmoothAim(Vector2& Angle, float smooth) {
+		Angle.x /= smooth;
+		Angle.y /= smooth;
 }
 
 void Aim(DWORD64& BasePlayer_on_Aimming)
@@ -220,8 +227,8 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 		{
 
 			static int boneArr[6] = { head ,spine1 ,r_upperarm ,l_breast ,r_hand };
-			static BoneList bone;
-			static DWORD64 isBasePlayerChange = NULL;
+		bool rapidFire = false;
+		bool instantCompound = false;
 			if (isBasePlayerChange != Player.get_addr())
 			{
 				if (Vars::Aim::randomBone)bone = BoneList(boneArr[int(rand() % 6)]);
@@ -236,21 +243,14 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 			summ += clock() - start;
 			start = clock();
 
-			if (summ >= 20)
-			{
-				GoToTarget(Player, bone);
-				summ = 0;
-			}
+				// w2s player's spine bone
+				Vector2 w2s_pos = W2S(ply.bones[(Bones)46], &view_matrix);
 
+				// ensure distance
+				if (distance > settings->visuals.players.visuals.max_distance) continue;
 
-
-			
-			//óâåëèâèâàåì smooth-óõóäøàåì êîíòðîëü îòäà÷è
-			static int RCSstart = 0;
-			static int RCSsumm = 0;
-
-			RCSsumm += clock() - RCSstart;
-			RCSstart = clock();
+				// grab player's distance 2 cursor
+				float distance_to_cursor = distance_cursor(w2s_pos);
 		}
 
 
@@ -319,8 +319,110 @@ void Rust::Aimbot::exec()
 				while (GetAsyncKeyState(0x2D)) {}
 			}
 
-			//CHANGEDTIME
-			std::this_thread::sleep_for(std::chrono::milliseconds(40));
 		}
 	}
-}
+
+		    
+		    
+		oid Menu::Init()
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	drawing->fonts.menuFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\tahoma.ttf", 14.f);
+	drawing->fonts.tabFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(fonts::guns_compressed_data_base85, 24.f);
+	drawing->fonts.espFont = io.Fonts->AddFontFromMemoryTTF(fonts::esp_compressed_data, fonts::esp_compressed_size, 12.f);
+
+	mtv->tmenu.area = rect_t(200, 200, 369, 340);
+
+	const auto rage_tab = new C_Tab(this, 0, "e", std::string(skCrypt("aim")), { {"aimbot", 0, 1, false} }); {
+		mtv->tmenu.tab_sub = 0;
+
+		const auto legit_aimbot = new C_GroupBox(GROUP_LEFT, 8, "t"); {
+			new C_CheckBox(std::string(skCrypt("aimbot enabled")), &settings->aimbot.enabled[0]);
+
+			const auto fov_slider = new C_SliderInt(std::string(skCrypt("field of view")), &settings->aimbot.fov[0], 0, 180, "�", {});
+			new C_Spacer(fov_slider, { 0, 10 });
+
+			const auto vis = new C_CheckBox(std::string(skCrypt("visibility check")), &settings->aimbot.visibleCheck);
+			new C_Spacer(vis, { 0, 15 });
+
+			const auto bone_selection = new C_Dropdown(std::string(skCrypt("bone selection")), &settings->aimbot.bone_selection[0], { "head", "body", "cock", "closest to cursor" });
+			new C_Spacer(bone_selection, { 0, 15 });
+		}
+
+		const auto legit_antiaim = new C_GroupBox(GROUP_RIGHT, 8, "t"); {
+			new C_CheckBox(std::string(skCrypt("smoothing")), &settings->aimbot.smoothing[0]);
+
+			const auto smoothing_slider = new C_SliderInt(std::string(skCrypt("smoothing amount")), &settings->aimbot.smoothing_amount[0], 0, 4, "�");
+			new C_Spacer(smoothing_slider, { 0, 5 });
+
+			const auto anti_recoil = new C_CheckBox(std::string(skCrypt("anti-recoil")), &settings->aimbot.anti_recoil[0]);
+			new C_Spacer(anti_recoil, { 0, 15 });
+
+			const auto prediction_toggle = new C_CheckBox(std::string(skCrypt("prediction")), &settings->aimbot.prediction[0]);
+			new C_Spacer(prediction_toggle, { 0, 20 });
+
+			const auto target_team = new C_CheckBox(std::string(skCrypt("target-team")), &settings->aimbot.target_team);
+			new C_Spacer(target_team, { 0, 25 });
+
+			const auto aimbot_keybind = new C_KeyBind(std::string(skCrypt("aimbot keybind")), &settings->aimbot.keybind);
+			new C_Spacer(aimbot_keybind, { 0, 45 });
+		}
+		
+			std::map<std::string, float> BulletSpeeds = {
+		/* For 5.56 Fed Weapons */
+		{ std::string("ammo.rifle"), 1.0f },
+		{ std::string("ammo.rifle.hv"), 1.2f },
+		{ std::string("ammo.rifle.explosive"), 0.6f },
+		{ std::string("ammo.rifle.incendiary"), 0.6f },
+
+		/* For Pistol Ammunition Fed Weapons */
+		{ std::string("ammo.pistol"), 1.0f },
+		{ std::string("ammo.pistol.hv"), 1.33333f },
+		{ std::string("ammo.pistol.incendiary"), 0.75f },
+
+		/* For Weapons That Use Arrows */
+		{ std::string("arrow.wooden"), 1.0f },
+		{ std::string("arrow.hv"), 1.6f },
+		{ std::string("arrow.fire"), 0.8f },
+		{ std::string("arrow.bone"), 0.9f },
+
+		/* For Shotguns */
+		{ std::string("ammo.handmade.shell"), 1.0f },
+		{ std::string("ammo.shotgun.slug"), 2.25f },
+		{ std::string("ammo.shotgun.fire"), 1.0f },
+		{ std::string("ammo.shotgun"), 2.25f },
+
+		{ std::string("ammo.nailgun.nails"), 1.0f },
+
+		{ std::string("No Ammo"), 1.0f }
+	};
+	std::map<std::string, float> BulletGravity = {
+		/* For 5.56 Fed Weapons */
+		{ std::string("ammo.rifle"), 1.0f },
+		{ std::string("ammo.rifle.hv"), 1.0f },
+		{ std::string("ammo.rifle.explosive"), 1.25f },
+		{ std::string("ammo.rifle.incendiary"), 1.0f },
+
+		/* For Pistol Ammunition Fed Weapons */
+		{ std::string("ammo.pistol"), 1.0f },
+		{ std::string("ammo.pistol.hv"), 1.0f },
+		{ std::string("ammo.pistol.incendiary"), 1.0f },
+
+		/* For Weapons That Use Arrows */
+		{ std::string("arrow.wooden"), 0.75f },
+		{ std::string("arrow.hv"), 0.5f },
+		{ std::string("arrow.fire"), 1.0f },
+		{ std::string("arrow.bone"), 0.75f },
+
+		/* For Shotguns */
+		{ std::string("ammo.handmade.shell"), 1.0f },
+		{ std::string("ammo.shotgun.slug"), 1.0f },
+		{ std::string("ammo.shotgun.fire"), 1.0f },
+		{ std::string("ammo.shotgun"), 1.0f },
+
+		bool patrolHeliESP = false;
+		bool HempESP = false;
+	};
+		
+

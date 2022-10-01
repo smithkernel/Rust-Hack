@@ -423,16 +423,20 @@ void menu_thread()
 					ImGui::SetCursorPos({ 10, 35 });
 					ImGui::BeginChild("Vehicle", ImVec2(225, 200));
 					{
-						ImGui::Text("Movement");
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("Walk Watter", (bool*)&Vars::Misc::walkWatter);	if (Vars::Misc::walkWatter) { Vars::Misc::HigthJump = false; }
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("Spider", (bool*)&Vars::Misc::spider);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("HigthJump", (bool*)&Vars::Misc::HigthJump);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("Sp33dhack", (bool*)&Vars::Misc::speedhack);
-						if (Vars::Misc::speedhack)
+							// bind render targets
+							g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
+
+							// fade menu in/out
+							float clear_color[4] = { 0.f, 0.f, 0.f, fade };
+							g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color);
+
+							// render imgui 
+							ImGui::Render();
+							ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+							g_pSwapChain->Present(1, 0); // Present w/o vsync
+
+							std::this_thread::sleep_for(std::chrono::milliseconds(3));
 						{
 							gui.move_item({ 10,0 });
 							ImGui::SliderFloat("speed+", &Vars::Misc::speedBonus, 0.f, 10.0f, "%0.005f", ImGuiSliderFlags_NoInput);
@@ -442,31 +446,28 @@ void menu_thread()
 						gui.move_item({ 10,0 });
 						ImGui::Checkbox("Wall Walk", (bool*)&Vars::Misc::WallWalk);
 					}
-					ImGui::EndChild();
-
-
-					ImGui::SetCursorPos({ 225,35 });
-					ImGui::BeginChild("Other", ImVec2(225, 200));
-					{
-						ImGui::Text("Other");
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("always day", (bool*)&Vars::Misc::alwaysDay);// Vars::Misc::alwaysDay = false;
-						if (Vars::Misc::alwaysDay)
-						{
-							gui.move_item({ 10,0 });
-							ImGui::SliderFloat("time", &Vars::Misc::alwaysDay_float, 0.f, 24.f, "%1.f", ImGuiSliderFlags_NoInput);
+								    }
+						else {
+						    if (fade > 0.f)
+							fade -= 0.05f;
 						}
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("Super melee[MAY BE CRASH]", (bool*)&Vars::Misc::superMelee);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("Super eoka[MAY BE CRASH]", (bool*)&Vars::Misc::superEoka);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("ThirdPerson mode", (bool*)&Vars::Misc::ThirdPersonMode); //Vars::Misc::ThirdPersonMode = false;
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("Admin mode", (bool*)&Vars::Misc::AdminMode);// Vars::Misc::AdminMode = false;
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("Crosshair", (bool*)&Vars::Misc::crosshair);
-						gui.move_item({ 10,0 });
+
+						// isDown = IsKeyDown || isClicked == Key Was Clicked
+						static bool isDown = false;
+						static bool isClicked = false;
+						bool key = GetAsyncKeyState(VK_INSERT);
+						if (key) {
+						    isClicked = false;
+						    isDown = true;
+						}
+						else if (!key && isDown) {
+						    isClicked = true;
+						    isDown = false;
+						}
+						else {
+						    isClicked = false;
+						    isDown = false;
+						}
 					}
 					ImGui::EndChild();
 					ImVec2 winSize = ImGui::GetWindowSize();
@@ -558,4 +559,39 @@ void socket_checker()
 	}
 }
 
+bool Renderer::Initialize()
+{
+    WINDOWPLACEMENT g_wpPrev;
+    DWORD dwStyle = GetWindowLong(this->h_Game, GWL_STYLE);
+    MONITORINFO mi = { sizeof(mi) };
+
+    if (GetWindowPlacement(this->h_Game, &g_wpPrev) && GetMonitorInfo(MonitorFromWindow(this->h_Game, MONITOR_DEFAULTTOPRIMARY), &mi)) {
+        SetWindowLong(this->h_Game, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
+        SetWindowPos(this->h_Game, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+    }
+
+    // create application window
+    WNDCLASSEX wc = { sizeof(WNDCLASSEX), ACS_TRANSPARENT, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("Windows Task Assistant"), NULL };
+    ::RegisterClassEx(&wc);
+    this->h_hWnd = ::CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE, wc.lpszClassName, _T(""), WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, wc.hInstance, NULL);
+
+    globals->screen_size.x = GetSystemMetrics(SM_CXSCREEN);
+    globals->screen_size.y = GetSystemMetrics(SM_CYSCREEN);
+
+    // extend window to take the whole screen
+    MARGINS margins = { -1 };
+    DwmExtendFrameIntoClientArea(this->h_hWnd, &margins);
+
+    // set Alpha and ColorKey attributes
+    SetLayeredWindowAttributes(this->h_hWnd, 0, 1.0f, LWA_ALPHA);
+    SetLayeredWindowAttributes(this->h_hWnd, 0, RGB(0, 0, 0), LWA_COLORKEY);
+
+    // initialize Direct3D
+    if (!CreateDeviceD3D(this->h_hWnd))
+    {
+        CleanupDeviceD3D();
+        ::UnregisterClass(wc.lpszClassName, wc.hInstance);
+        return 1;
+    }
+	
 
