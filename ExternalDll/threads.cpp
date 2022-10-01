@@ -1,597 +1,264 @@
-#include "threads.h"
-#include "custom_elements.h"
+#include "game.h"
 
-using namespace std;
-
-	void Update() {
-		while (true) {
-
-			if (Globals::tWnd == GetForegroundWindow()) {
-
-			}
-
-			if (GetAsyncKeyState(0x2D)) {
-				if (!Globals::bShowMenu) {
-					long winlong = GetWindowLong(Globals::hWnd, GWL_EXSTYLE);
-
-					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST)
-						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST);
-					std::this_thread::sleep_for(std::chrono::milliseconds(50));
-				}
-
-				if (Globals::bShowMenu) {
-					long winlong = GetWindowLong(Globals::hWnd, GWL_EXSTYLE);
-
-					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT)
-						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT);
-				}
-				Globals::bShowMenu = !Globals::bShowMenu;
-
-				while (GetAsyncKeyState(0x2D)) {}
-			}
-
-			//CHANGEDTIME
-			std::this_thread::sleep_for(std::chrono::milliseconds(40));
-		}
-	}
-}
-
-
-void GOM_thread()
+namespace game
 {
-	while (!Vars::Config::panic)
+	uintptr_t game_assembly, unity_player, camera_instance;
+	uintptr_t base_networkable, local_player, local_pos_component;
+
+	uintptr_t buffer_list = NULL, object_list = NULL;
+	std::mutex entity_mutex, draw_mutex, local_mutex;
+	std::vector<std::pair<uintptr_t, entity_type>> draw_list;
+
+	bool get_networkable()
 	{
-	//	std::cout << Vars::Config::LocalPlayerIsValid << std::endl;
-	//	std::cout << myLocalPlayer.BaseEntityCamera << std::endl;
-	//	std::cout << myLocalPlayer.TodCycle << std::endl;
-
-
-		if (Vars::Config::LocalPlayerIsValid && (!myLocalPlayer.BaseEntityCamera || !myLocalPlayer.TodCycle) && FindWindow("UnityWndClass", "Rust"))
-		{
-			Beep(500, 200);
-			Beep(500, 200);
-			GameObjectManager_loop(Vars::Config::GameObjectManager);
-		}
-		Sleep(5'000);
+		base_networkable = driver::read<uintptr_t>(game_assembly + networkable);
+		return base_networkable ? true : false;
 	}
 
-
-}
-
-//Ïðîâåðêà íà âàëèäíîñòü èãðîêà ïðîâåðÿåòñÿ â BaseNetworkable_loop
-void BN_thread()
-{
-	while (!Vars::Config::panic)
+	bool get_buffer_list()
 	{
-		if (!FindWindow("UnityWndClass", "Rust"))
-		{
-			std::cout << "not find rust" << std::endl;
-			Vars::Config::LocalPlayerIsValid = false;
-			Vars::Config::MenuActive = false;
-			Vars::Config::panic = true;
-			break;
-		}
-		BaseNetworkable_loop(Vars::Config::BaseNetworkable);
-		Sleep(100);
-	}
-}
+		auto unk1 = driver::read<uintptr_t>(base_networkable + 0xB8);
+		if (!unk1)
+			return false;
 
-void ESP_thread()
-{
-	while (!FindWindow("UnityWndClass", "Rust"))Sleep(1000);
-	if (!GuiEngine::Esp::init_window_Esp("Rust", "UnityWndClass"))
-	{
-		Vars::Config::panic = true;
-		return;
+		auto client_entities = driver::read<uintptr_t>(unk1);
+		auto entity_realm = driver::read<uintptr_t>(client_entities + 0x10);
+		buffer_list = driver::read<uintptr_t>(entity_realm + 0x28);
+		return buffer_list ? true : false;
 	}
 
-	MSG msg;
-	ZeroMemory(&msg, sizeof(msg));
-	while (msg.message != WM_QUIT && !Vars::Config::panic)
+	bool get_object_list()
 	{
-		if (!FindWindow("UnityWndClass", "Rust"))continue;
-
-		update_cheat_windows_size_and_move(gameHWND, cheatEspHWND); //âûðîâíÿòü îêíî ïî èãðå
-
-
-		if (PeekMessage(&msg, cheatEspHWND, 0U, 0U, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-			continue;
-		}
-
-		if (GetForegroundWindow() == gameHWND || GetForegroundWindow() == cheatMenuHWND)
-		{
-			GuiEngine::Esp::begin_draw_esp();
-
-
-			frame_rate(&Vars::Config::espFPS);
-			GuiEngine::Esp::String({ 10, 10 }, (L"UP base:" + to_wstring(Vars::Config::GameObjectManager)).c_str());
-			GuiEngine::Esp::String({ 10, 25 }, (L"GA base:" + to_wstring(Vars::Config::BaseNetworkable)).c_str());
-		    GuiEngine::Esp::String({ 10, 40 }, (L"FPS:" + to_wstring(Vars::Config::espFPS)).c_str());
-
-			esp_drawner();
-			misc();
-
-			GuiEngine::Esp::end_draw_esp();
-
-
-		}
-		else GuiEngine::Esp::clear_window();
-
-		Sleep(1);
-
+		object_list = driver::read<uintptr_t>(buffer_list + 0x18);
+		return object_list ? true : false;
 	}
 
-	GuiEngine::Esp::shutdown();
-}
-
-
-void aim_thread()
-{
-	while (!Vars::Config::panic && FindWindow("UnityWndClass", "Rust"))
+	int get_object_list_size()
 	{
-
-		if (Vars::Config::LocalPlayerIsValid)
-		{
-			myLocalPlayer.set_active_weapon();
-			//cout << hex << read(myLocalPlayer.myActiveWeapon.get_addr() + oHeldEntity, DWORD64) << endl;
-			if (myLocalPlayer.myActiveWeapon.get_addr())
-			{
-				if (Vars::Aim::aim)Aim(Vars::Aim::addr_BasePlayer_on_Aimming);
-
-				DWORD64 Held = read(myLocalPlayer.myActiveWeapon.get_addr() + oHeldEntity, DWORD64);
-				//cout << Held << endl;
-				DWORD64 Magazine = NULL;
-				if (Held && read(Held + oRecoil, DWORD64) && (Magazine = read(Held + 0x2A8, DWORD64)) && (read(Magazine + 0x1c, DWORD) >= 2))
-				{
-					//cout << "firearms" << endl;
-					if (Vars::Aim::ModifyBullet)myLocalPlayer.myActiveWeapon.fatbullet();
-					if (Vars::Aim::NoSpread)myLocalPlayer.myActiveWeapon.NoSpread();
-
-					static bool trigger_no_recoil = false;
-					if (Vars::Aim::recoil != 1.0f)
-					{
-						myLocalPlayer.myActiveWeapon.no_recoil(Vars::Aim::recoil);
-						trigger_no_recoil = true;
-					}
-					else if (trigger_no_recoil == true)
-					{
-						myLocalPlayer.myActiveWeapon.no_recoil(Vars::Aim::recoil);
-						trigger_no_recoil = false;
-					}
-
-				}
-				else
-				{
-				
-					if (read(Held + 0x48, DWORD) == 2176761593)//eoka
-					{
-						//cout << "eoka" << endl;
-						if (Vars::Misc::superEoka)myLocalPlayer.myActiveWeapon.super_eoka();
-					}
-					else if (read(Held + 0x2A8, float) >0.f)//BaseMelee
-					{
-						//cout << "melee" << endl;
-						if (Vars::Misc::superMelee)myLocalPlayer.myActiveWeapon.super_melee();
-					}
-				
-					
-				}
-			}
-		}
-		Sleep(2);
+		return driver::read<int>(buffer_list + 0x10);
 	}
 
-}
-
-void menu_thread()
-{
-
-	while (!FindWindow("UnityWndClass", "Rust"))Sleep(1000);
-	if (!GuiEngine::Menu::init_window_Menu("Rust", "UnityWndClass"))
+	uintptr_t get_base_player(uintptr_t object)
 	{
-		Vars::Config::panic = true;
-		return;
+		auto object_unk = driver::read<uintptr_t>(object + 0x18);
+		if (!object_unk)
+			return {};
+
+		return driver::read<uintptr_t>(object_unk + 0x28);
 	}
 
-
-	c_gui gui;//äëÿ êàñòîìà
-
-
-	MSG msg;
-	ZeroMemory(&msg, sizeof(msg));
-	while (msg.message != WM_QUIT && !Vars::Config::panic)
+	std::string get_class_name(uintptr_t object)
 	{
+		auto object_unk = driver::read<uintptr_t>(object);
+		if (!object_unk)
+			return {};
 
-		update_cheat_windows_size(gameHWND, &Vars::Config::ScreenWidth, &Vars::Config::ScreenHigh);
-		update_cheat_windows_size_and_move(gameHWND, cheatMenuHWND); //âûðîâíÿòü îêíî ïî èãðå
-
-
-
-		if (PeekMessage(&msg, cheatMenuHWND, 0U, 0U, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-			continue;
-		}
-
-
-
-		bool isWait = 0;
-		if (isWait)
-		{
-
-		}
-
-		if (GetAsyncKeyState(VK_INSERT) & 0x8000)
-		{
-			Vars::Config::MenuActive = !Vars::Config::MenuActive;
-			if (Vars::Config::MenuActive)
-			{
-				ShowWindow(cheatMenuHWND, SW_SHOWDEFAULT);
-				SetForegroundWindow(cheatMenuHWND);
-				SetActiveWindow(cheatMenuHWND);
-			}
-			else
-			{
-				ShowWindow(cheatMenuHWND, SW_HIDE);
-				SetForegroundWindow(gameHWND);
-				SetActiveWindow(gameHWND);
-			}
-			Sleep(400);
-		}
-
-		if (Vars::Config::MenuActive)
-		{
-			ShowWindow(cheatMenuHWND, SW_SHOWDEFAULT);
-
-
-		}
-		else
-		{
-			ShowWindow(cheatMenuHWND, SW_HIDE);
-
-
-		}
-
-		if (Vars::Config::MenuActive && Vars::Config::LocalPlayerIsValid && (GetForegroundWindow() == gameHWND || GetForegroundWindow() == cheatMenuHWND))
-		{
-
-			GuiEngine::Menu::begin_draw_menu();
-
-			ImGui::Begin("Asddd", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings);
-
-			static int MENUtab = 0;
-			static int ESPtab = 0;
-
-			ImGui::BeginGroup();
-			{
-				if (gui.tab("A1M", MENUtab == 0, ImVec2(136, 20)))	MENUtab = 0;
-				ImGui::SameLine(0, 0);
-				if (gui.tab("E7P", MENUtab == 1, ImVec2(136, 20)))	MENUtab = 1;
-				ImGui::SameLine(0, 0);
-				if (gui.tab("M1SC", MENUtab == 2, ImVec2(136, 20)))	MENUtab = 2;
-			}
-			ImGui::EndGroup();
-
-			ImGui::BeginGroup();
-			{
-			
-				switch (MENUtab) {
-				case 0:
-				
-					
-					ImGui::Checkbox("Draw fov", (bool*)&Vars::Aim::drawFov);
-					if (Vars::Aim::drawFov)	ImGui::SliderFloat("Fov", &Vars::Aim::fov, 10.f, 50.f, "%1.f", ImGuiSliderFlags_NoInput);
-
-				    ImGui::Checkbox("A1m[UNSAFE]", (bool*)&Vars::Aim::aim);
-					if (Vars::Aim::aim)
-					{
-						ImGui::Checkbox("Rand0m bone hit[LEGIT AIM]", (bool*)&Vars::Aim::randomBone);
-						ImGui::SliderFloat("Sm00th", &Vars::Aim::smooth, 0.f, 2.f, "%0.05f", ImGuiSliderFlags_NoInput);
-						ImGui::SetCursorPos({ ImGui::GetCursorPos().x + 5, ImGui::GetCursorPos().y - 23 });
-						ImGui::Text("Rage");
-						ImGui::SetCursorPos({ ImGui::GetCursorPos().x + 239, ImGui::GetCursorPos().y - 20 });
-						ImGui::Text("Leg1t");
-						ImGui::Spacing();
-						
-
-						Vars::Esp::playerEsp = true;
-					}
-
-					ImGui::Text("Reco1l");
-					ImGui::SliderFloat("", &Vars::Aim::recoil, 0.0f, 1.0f, "%.1f", ImGuiSliderFlags_NoInput); //Vars::Aim::recoil = 1.0f;
-
-					/*if (ImGui::Button(("Discord"), ImVec2(200, 20)))
-					{
-						ShellExecute(NULL, ("open"), ("https://discord.gg/er35czRxYs%22"), NULL, NULL, SW_SHOWNORMAL);
-					}
-					if (ImGui::Button(("FastChill"), ImVec2(200, 20)))
-					{
-						ShellExecute(NULL, ("open"), ("https://discord.gg/er35czRxYs%22"), NULL, NULL, SW_SHOWNORMAL);
-					}*/
-			     	//ImGui::Checkbox("RCS[UNSAFE]", (bool*)&Vars::Aim::rcs);
-
-				ImGui::Checkbox("[UNSAFE]Fat Bullet(CRASH)", (bool*)&Vars::Aim::ModifyBullet); //Vars::Aim::ModifyBullet = false;
-					if (Vars::Aim::ModifyBullet)
-						ImGui::SliderFloat("fat", &Vars::Aim::fat, 0.1f, 1.5f, "%.1f", ImGuiSliderFlags_NoInput);
-
-					ImGui::Checkbox("N0Spread[MAY BE CRASH]", (bool*)&Vars::Aim::NoSpread);// Vars::Aim::NoSpread = false;
-					ImGui::Checkbox("N0Sway", (bool*)&Vars::Aim::NoSway);// Vars::Aim::NoSway = false;
-
-
-					break;
-				case 1:
-
-					ImGui::BeginGroup();
-					{
-						if (gui.tab("ENT1TY", ESPtab == 0, ImVec2(136, 20)))ESPtab = 0;
-						ImGui::SameLine(0, 0);
-						if (gui.tab("L00T", ESPtab == 1, ImVec2(136, 20)))ESPtab = 1;
-						ImGui::SameLine(0, 0);
-						if (gui.tab("E.T.C", ESPtab == 2, ImVec2(136, 20)))ESPtab = 2;
-					}
-					ImGui::EndGroup();
-
-					switch (ESPtab) {
-					case 0:
-						ImGui::Checkbox("Player esp", (bool*)&Vars::Esp::playerEsp);
-						if (Vars::Esp::playerEsp)
-						{
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("Draw b0xes", (bool*)&Vars::Esp::drawBox);
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("Draw health bar", (bool*)&Vars::Esp::drawHealthBar);
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("Draw active weapon", (bool*)&Vars::Esp::drawActiveWeapons);
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("Draw skeleton[LOW FPS]", (bool*)&Vars::Esp::drawSkeleton);
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("Corpse", (bool*)&Vars::Esp::playerCorpse);
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("Sleepers", (bool*)&Vars::Esp::playerSleepers);
-						}
-						else Vars::Esp::playerCorpse = Vars::Esp::playerSleepers = false;
-
-						ImGui::Checkbox("Npc esp", (bool*)&Vars::Esp::npcEsp);
-						break;
-					case 1:
-						ImGui::Checkbox("stone", (bool*)&Vars::Esp::stone);
-						ImGui::Checkbox("sulphur", (bool*)&Vars::Esp::sulphur);
-						ImGui::Checkbox("metal", (bool*)&Vars::Esp::metal);
-						ImGui::Checkbox("hemp", (bool*)&Vars::Esp::hemp);
-						ImGui::Checkbox("drop items", (bool*)&Vars::Esp::dropItems);
-						ImGui::Checkbox("airdrop", (bool*)&Vars::Esp::airdrop);
-						break;
-					case 2:
-						ImGui::Text("Traps");
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("landAirTurret", (bool*)&Vars::Esp::landAirTurret);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("autoTurret", (bool*)&Vars::Esp::autoTurret);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("guntrap", (bool*)&Vars::Esp::guntrap);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("flameturret", (bool*)&Vars::Esp::flameturret);
-
-						ImGui::Text("Buildings");
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("cupboard", (bool*)&Vars::Esp::cupboard);
-						gui.move_item({ 10,0 });
-						if (Vars::Esp::cupboard)
-						{
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("Show autorized player", (bool*)&Vars::Esp::cupboardPlayer);
-							gui.move_item({ 10,0 }); 
-						}
-						else Vars::Esp::cupboardPlayer = false;
-						ImGui::Checkbox("large Box", (bool*)&Vars::Esp::largeBox);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("small Box", (bool*)&Vars::Esp::smallBox);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("stash", (bool*)&Vars::Esp::stash);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("sleeping bag", (bool*)&Vars::Esp::sleepingbag);
-
-
-
-						ImGui::SetCursorPos({ 190, 57 });
-						ImGui::BeginChild("Vehicle", ImVec2(200, 150));
-						{
-							ImGui::Text("Vehicle");
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("minicopter", (bool*)&Vars::Esp::minicopter);
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("begemot", (bool*)&Vars::Esp::cow);
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("boats", (bool*)&Vars::Esp::boat);
-							gui.move_item({ 10,0 });
-							ImGui::Checkbox("big boats", (bool*)&Vars::Esp::bigBoat);
-						}
-						ImGui::EndChild();
-
-						break;
-
-
-					}
-
-					break;
-				case 2:
-
-					ImGui::SetCursorPos({ 10, 35 });
-					ImGui::BeginChild("Vehicle", ImVec2(225, 200));
-					{
-							// bind render targets
-							g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
-
-							// fade menu in/out
-							float clear_color[4] = { 0.f, 0.f, 0.f, fade };
-							g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color);
-
-							// render imgui 
-							ImGui::Render();
-							ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-							g_pSwapChain->Present(1, 0); // Present w/o vsync
-
-							std::this_thread::sleep_for(std::chrono::milliseconds(3));
-						{
-							gui.move_item({ 10,0 });
-							ImGui::SliderFloat("speed+", &Vars::Misc::speedBonus, 0.f, 10.0f, "%0.005f", ImGuiSliderFlags_NoInput);
-						}
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("WatterBoost", (bool*)&Vars::Misc::WatterBoost);
-						gui.move_item({ 10,0 });
-						ImGui::Checkbox("Wall Walk", (bool*)&Vars::Misc::WallWalk);
-					}
-								    }
-						else {
-						    if (fade > 0.f)
-							fade -= 0.05f;
-						}
-
-						// isDown = IsKeyDown || isClicked == Key Was Clicked
-						static bool isDown = false;
-						static bool isClicked = false;
-						bool key = GetAsyncKeyState(VK_INSERT);
-						if (key) {
-						    isClicked = false;
-						    isDown = true;
-						}
-						else if (!key && isDown) {
-						    isClicked = true;
-						    isDown = false;
-						}
-						else {
-						    isClicked = false;
-						    isDown = false;
-						}
-					}
-					ImGui::EndChild();
-					ImVec2 winSize = ImGui::GetWindowSize();
-					ImGui::SetCursorPos({ winSize.x - 70,winSize.y - 30 });
-
-					ImGui::Checkbox("Panic", (bool*)&Vars::Config::panic);
-			
-					break;
-
-				}
-			}
-			ImGui::EndGroup();
-
-			//frame_rate(&Vars::Config::menuFPS);
-
-			ImGui::End();
-			GuiEngine::Menu::end_draw_menu();
-
-		}
-		else if (!Vars::Config::LocalPlayerIsValid)
-		{
-			if (Vars::Config::MenuActive) //åñëè ìåíþ àêòèâíî
-			{
-				ShowWindow(cheatMenuHWND, SW_HIDE);
-				GuiEngine::Menu::clear_window();
-
-			}
-		}
-		Sleep(1);
+		return driver::read_string(driver::read<uintptr_t>(object_unk + 0x10), 13);
 	}
 
-	GuiEngine::Menu::shutdown();
-}
-
-
-
-#define SERVER_PORT 27007
-#define SERVER_IP "0.0.0.0" // 127.0.0.1     
-
-void socket_checker()
-{
-	MYsocket sck(SERVER_PORT, SERVER_IP);
-
-	if (!sck.MYconnect())
+	uintptr_t get_object_pos_component(uintptr_t entity, bool esp_driver)
 	{
-		Vars::Config::panic = true;
-		MessageBox(0, "[connection ] cant first connect", "ERROR", MB_OK | MB_ICONERROR);
-		return;
-	}
+		auto player_visual = driver::read<uintptr_t>(entity + 0x8);
+		if (!player_visual)
+			return NULL;
 
-	char key = 0;
-	if (sck.MYrecv_simple((unsigned char*)&key, 1) <= 0)
-	{
-		Vars::Config::panic = true;
-		MessageBox(0, "[connection ] cant recv in start", "ERROR", MB_OK | MB_ICONERROR);
-		sck.MYdisconnect();
-		return;
-	}
-
-
-	while (!Vars::Config::panic)
-	{
-		if (sck.MYsend_simple((char*)&key, 1) <= 0)
-		{
-			Vars::Config::panic = true;
-			MessageBox(0, "[connection ]send buff<=0 in loop", "ERROR", MB_OK | MB_ICONERROR);
-			sck.MYdisconnect();
-			break;
-		}
-
-		char recv_key = 0;
-		if (sck.MYrecv_simple((unsigned char*)&recv_key, 1) <= 0)
-		{
-			Vars::Config::panic = true;
-			MessageBox(0, "[connection ]recv buff<=0 in loop", "ERROR", MB_OK | MB_ICONERROR);
-			sck.MYdisconnect();
-			return;
-		}
-
-		if(recv_key!= key)
-		{
-			Vars::Config::panic = true;
-			MessageBox(0, "[connection ]recv_key!= key", "ERROR", MB_OK | MB_ICONERROR);
-			sck.MYdisconnect();
-			return;
-		}
-
-		Sleep(60000);
-	}
-}
-
-bool Renderer::Initialize()
-{
-    WINDOWPLACEMENT g_wpPrev;
-    DWORD dwStyle = GetWindowLong(this->h_Game, GWL_STYLE);
-    MONITORINFO mi = { sizeof(mi) };
-
-    if (GetWindowPlacement(this->h_Game, &g_wpPrev) && GetMonitorInfo(MonitorFromWindow(this->h_Game, MONITOR_DEFAULTTOPRIMARY), &mi)) {
-        SetWindowLong(this->h_Game, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
-        SetWindowPos(this->h_Game, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
-    }
-
-    // create application window
-    WNDCLASSEX wc = { sizeof(WNDCLASSEX), ACS_TRANSPARENT, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("Windows Task Assistant"), NULL };
-    ::RegisterClassEx(&wc);
-    this->h_hWnd = ::CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE, wc.lpszClassName, _T(""), WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, wc.hInstance, NULL);
-
-    globals->screen_size.x = GetSystemMetrics(SM_CXSCREEN);
-    globals->screen_size.y = GetSystemMetrics(SM_CYSCREEN);
-
-    // extend window to take the whole screen
-    MARGINS margins = { -1 };
-    DwmExtendFrameIntoClientArea(this->h_hWnd, &margins);
-
-    // set Alpha and ColorKey attributes
-    SetLayeredWindowAttributes(this->h_hWnd, 0, 1.0f, LWA_ALPHA);
-    SetLayeredWindowAttributes(this->h_hWnd, 0, RGB(0, 0, 0), LWA_COLORKEY);
-
-    // initialize Direct3D
-    if (!CreateDeviceD3D(this->h_hWnd))
-    {
-        CleanupDeviceD3D();
-        ::UnregisterClass(wc.lpszClassName, wc.hInstance);
-        return 1;
-    }
+		return driver::read<uintptr_t>(player_visual + 0x38);
+	}	
 	
+	vec3_t get_object_pos(uintptr_t entity, bool esp_driver)
+	{
+		auto player_visual = driver::read<uintptr_t>(entity + 0x8);
+		if (!player_visual)
+			return { -1, -1, -1 };
 
+		auto visual_state = driver::read<uintptr_t>(player_visual + 0x38);
+		if (!visual_state)
+			return { -1, -1, -1 };
+
+		return driver::read<vec3_t>(visual_state + 0x90, esp_driver);
+	}
+
+	matrix4x4 get_view_matrix(bool esp_driver)
+	{
+		if (!camera_instance)
+		{
+			auto gom_ = driver::read<uintptr_t>(unity_player + gom, esp_driver);
+			if (!gom_)
+				return {};
+
+			auto tagged_objects = driver::read<uintptr_t>(gom_ + 0x8, esp_driver);
+			if (!tagged_objects)
+				return {};
+
+			auto game_object = driver::read<uintptr_t>(tagged_objects + 0x10, esp_driver);
+			if (!tagged_objects)
+				return {};
+
+			auto object_class = driver::read<uintptr_t>(game_object + 0x30, esp_driver);
+			if (!tagged_objects)
+				return {};
+
+			camera_instance = driver::read<uintptr_t>(object_class + 0x18, esp_driver);
+		}
+
+		if (camera_instance)
+			return driver::read<matrix4x4>(camera_instance + 0xDC, esp_driver);
+		else
+			return {};
+	}
+
+	bool world_to_screen(const vec3_t& entity_pos, vec_t& screen_pos, bool esp_driver)
+	{
+		auto view_matrix = get_view_matrix(esp_driver);
+		vec3_t trans_vec{ view_matrix._14, view_matrix._24, view_matrix._34 };
+		vec3_t right_vec{ view_matrix._11, view_matrix._21, view_matrix._31 };
+		vec3_t up_vec{ view_matrix._12, view_matrix._22, view_matrix._32 };
+
+		float w = trans_vec.Dot(entity_pos) + view_matrix._44;
+		if (w < 0.098f)
+			return false;
+		float y = up_vec.Dot(entity_pos) + view_matrix._42;
+		float x = right_vec.Dot(entity_pos) + view_matrix._41;
+		screen_pos = vec_t((1920 / 2) * (1.f + x / w), (1080 / 2) * (1.f - y / w));
+		return true;
+	}
+
+	bool set_admin()
+	{
+		mtx.lock();
+		auto _local_player = local_player;
+		mtx.unlock();
+
+		if (!_local_player)
+			return false;
+
+		auto player_flags = driver::read<uintptr_t>(_local_player + 0x5B8);
+		if (!player_flags)
+			return {};
+
+		player_flags |= 4;
+
+		driver::write(_local_player + 0x5B8, player_flags);
+		return true;
+	}
+
+	uintptr_t get_active_item(uintptr_t _local_player)
+	{
+		return  driver::read<uintptr_t>(_local_player + 0x530);
+	}
+
+	int get_item_id(uintptr_t item)
+	{
+		return  driver::read<uintptr_t>(item + 0x28);
+	}
+
+	std::wstring get_item_name(uintptr_t item)
+	{
+		auto unk = driver::read<uintptr_t>(item + 0x20);
+		unk = driver::read<uintptr_t>(unk + 0x20);
+		return driver::read_wstring(unk + 0x14, 14);
+	}
+
+	bool get_recoil_properties(uintptr_t weapon, std::string name)
+	{
+		auto base_projectile = driver::read<uintptr_t>(weapon + 0x98);
+		if (!base_projectile)
+			return false;
+
+		auto recoil_prop = driver::read<uintptr_t>(base_projectile + 0x2C0);
+		if (!recoil_prop)
+			return false;
+
+		int yaw_min = driver::read<float>(recoil_prop + 0x18);
+		int yaw_max = driver::read<float>(recoil_prop + 0x1C);
+
+		int pitch_min = driver::read<float>(recoil_prop + 0x20);
+		int pitch_max = driver::read<float>(recoil_prop + 0x24);
+
+		settings::yaw_min = yaw_min; settings::yaw_max = yaw_max; settings::pitch_min = pitch_min; settings::pitch_max = pitch_max;
+
+		std::lock_guard guard(settings::recoil_mutex);
+		settings::recoil_map[name] = { yaw_min, yaw_max, pitch_min, pitch_max };
+	}
+
+	uintptr_t get_active_weapon(uintptr_t _local_player)
+	{
+		if (!_local_player)
+			return false;
+
+		auto inventory = driver::read<uintptr_t>(_local_player + 0x5C8);
+		if (!inventory)
+			return {};
+
+		auto contianer_belt = driver::read<uintptr_t>(inventory + 0x28);
+		auto contents = driver::read<uintptr_t>(contianer_belt + 0x38);
+		auto size = driver::read<int>(contents + 0x18);
+		contents = driver::read<uintptr_t>(contents + 0x10);
+
+		try {
+			for (int i = 0; i < size; i++)
+			{
+				static std::vector<std::wstring>recorded{};
+				auto item = driver::read<uintptr_t>(contents + (0x20 + (i * 0x8)));
+				if (get_item_id(item) == get_active_item(_local_player))
+				{
+					static const auto weps = { L"shotgun", L"pistol", L"rifle", L"smg" };
+					const auto item_name = get_item_name(item);
+					for (auto wep : weps)
+					{
+						if (item_name.find(wep) != std::string::npos)
+						{
+							settings::current_weapon = to_string(item_name);
+
+							// check if we've iterated over this weapon already
+							try {
+								if (std::find(recorded.begin(), recorded.end(), item_name) == recorded.end())
+								{
+									get_recoil_properties(item, settings::current_weapon);
+									recorded.push_back(item_name);
+								}
+							}
+							catch (const std::exception& exc) {
+								std::cout << exc.what() << std::endl;
+							}
+
+							return item;
+						}
+					}
+				}
+			}
+		}
+		catch (const std::exception& exc) {
+			std::cout << exc.what() << std::endl;
+		}
+
+		return {};
+	}
+
+	bool set_automatic(uintptr_t weapon)
+	{
+		auto base_projectile = driver::read<uintptr_t>(weapon + 0x98);
+		if (!base_projectile)
+			return false;
+
+		return driver::write<bool>(base_projectile + 0x270, settings::auto_pistol);
+	}
+
+	bool set_recoil_props(uintptr_t weapon)
+	{
+		auto base_projectile = driver::read<uintptr_t>(weapon + 0x98);
+		if (!base_projectile)
+			return false;
+
+		auto recoil_prop = driver::read<uintptr_t>(base_projectile + 0x2C0);
+		if (!recoil_prop)
+			return false;
+
+		driver::write<float>(recoil_prop + 0x18, int(settings::yaw_min));
+		driver::write<float>(recoil_prop + 0x1C, int(settings::yaw_max));
+
+		driver::write<float>(recoil_prop + 0x20, int(settings::pitch_min));
+		driver::write<float>(recoil_prop + 0x24, int(settings::pitch_max));
+		return true;
+	}
+}
