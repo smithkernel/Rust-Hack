@@ -17,32 +17,19 @@ catch (std::exception& ex) {
 
 void GetProcess("Rust.exe")
 	
-	GetWindowThreadProcessId(Globals::tWnd, &procID);
-	Globals::hGame = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID);
+		static uint32_t cnt = 0;
+	float freq = .005f;
 
-	Globals::hWnd = InitializeWin((HINSTANCE)hInst);
-	MSG uMessage;
+	clr _clr = clr(
+		std::sin(freq * cnt + 0) * 127 + 128,
+		std::sin(freq * cnt + 2) * 127 + 128,
+		std::sin(freq * cnt + 4) * 127 + 128,
+		255);
 
-	if (Globals::hWnd == NULL) { exit(1); }
+	// Probably redundant
+	if (cnt++ >= (uint32_t)-1) cnt = 0;
 
-	ShowWindow(Globals::hWnd, SW_SHOW);
-
-	INITIALIZED = TRUE;
-
-	while (!UNLOADING) {
-		if (PeekMessage(&uMessage, Globals::hWnd, 0, 0, PM_REMOVE)) {
-			DispatchMessage(&uMessage);
-			TranslateMessage(&uMessage);
-		}
-
-		if (UNLOADING) {
-			HWND hMsg = FindWindow(NULL, "Info");
-
-			if (hMsg) {
-				std::this_thread::sleep_for(std::chrono::seconds(3));
-				SendMessageA(hMsg, WM_CLOSE, 0, 0);
-			}
-		}
+	clr_ = _clr;
 	}
 
 
