@@ -59,13 +59,10 @@ void Rust::Globals::Init()
 
 	auto hwnd = Cheat::System::GetHWND((PWCHAR)XorWString(Rust));
 
-	RECT rect = { 0 };
-	GetWindowRect(hwnd, &rect);
-	system_data.GameWindowRect = rect;
-	system_data.width = rect.right - rect.left;
-	system_data.height = rect.bottom - rect.top;
-
-	Rust::Globals::game_state.inGame = true;
+	game::local_player = object;
+	game::local_pos_component = game::get_object_pos_component(object);
+	std::cout << "[-] Local player: " << std::hex << game::local_player << std::endl;
+				}
 }
 
 
@@ -78,26 +75,12 @@ ULONGLONG get_module_handle(ULONG pid, LPCWSTR module_name);
 
 NTSTATUS init(PDRIVER_OBJECT driver, PUNICODE_STRING path) {
 	
-	RtlInitUnicodeString(&dev, drv_device);
-	RtlInitUnicodeString(&dos, drv_dos_device);
+						std::lock_guard guard(game::draw_mutex);
+						game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), BasePlayer));
+						//DbgPrint("[DRIVER] DriverIntit");
 
 
-	IoCreateDevice(driver, 0, &dev, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &device_object);
-	IoCreateSymbolicLink(&dos, &dev);
-
-	driver->MajorFunction[IRP_MJ_CLOSE] = ioctl_close;
-	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = io_device_control;
-	driver->MajorFunction[IRP_MJ_CREATE] = ioctl_create;
-
-	//	driver->DriverUnload = unload_driver;
-
-	device_object->Flags |= DO_DIRECT_IO;
-	device_object->Flags &= ~DO_DEVICE_INITIALIZING;
-
-	//DbgPrint("[DRIVER] DriverIntit");
-
-
-	return STATUS_SUCCESS;
+			return STATUS_SUCCESS;
 }
 
 NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path) 
@@ -165,14 +148,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	case ioctl_copy_memory: {
 		pk_rw_request in = (pk_rw_request)irp->AssociatedIrp.SystemBuffer;
 		PEPROCESS src_proc;
-		PEPROCESS dst_proc;
-		status = PsLookupProcessByProcessId((HANDLE)in->src_pid, &src_proc);
-		status |= PsLookupProcessByProcessId((HANDLE)in->dst_pid, &dst_proc);
-		if (NT_SUCCESS(status)) {
-			status = copy_memory(src_proc, dst_proc, (PVOID)in->src_addr, (PVOID)in->dst_addr, in->size);
-			ObfDereferenceObject(dst_proc);
-			ObfDereferenceObject(src_proc);
-			//	if (!NT_SUCCESS(status))DbgPrint("[DRIVER] copy_memory error");
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 		info_size = sizeof(k_rw_request);
 	} break;
