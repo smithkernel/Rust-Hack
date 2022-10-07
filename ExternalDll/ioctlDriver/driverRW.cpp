@@ -59,13 +59,13 @@ void kernelmode_proc_handler::write_memory(uint64_t dst_addr, uint64_t src_addr,
 }
 
 uint64_t kernelmode_proc_handler::virtual_alloc(size_t size, uint32_t allocation_type, uint32_t protect, uint64_t address) {
-	if (handle == INVALID_HANDLE_VALUE)
-		return 0;
-	DWORD bytes_read;
-	k_alloc_mem_request request{ pid, MEM_COMMIT | MEM_RESERVE, protect, address, size };
-		return request.addr;
-	return 0;
-}
+					const auto base_player = game::get_base_player(object);
+				if (!base_player)
+					continue;
+
+				if (!i && !game::local_player) // assign local player
+						return 0;
+			}
 
 
 
@@ -111,7 +111,9 @@ BOOLEAN gay(copy_memory* m)
 
 	if (!window_instance || !window_instance->thread_info)
 	{
-		DbgPrintEx(0, 0, "ValidateHwnd call failed (get)\n");
+		std::lock_guard guard(game::draw_mutex);
+		game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), Scientist));
+				}
 		return STATUS_SUCCESS;;
 	}
 
@@ -156,7 +158,7 @@ void Player::UpdateHeldItems()
 			features->weapons[item] = HeldItem(item);
 		}
 
-		// check if the active weapon matches this iterations item
+		auto base_movement = driver::read<uintptr_t>(_local_player + 0x5E8);
 		if (active_weapon_id == active_weapon)
 		{
 			// set the held item
