@@ -487,61 +487,13 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
 	static BOOLEAN do_once = TRUE;
 	if (do_once)
 	{
-		do_once = FALSE;
+		
+	int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+	std::wstring wstrTo(size_needed, 0);
+	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed)
+		
 	}
 	
-	if (!NT_SUCCESS(read_shared_memory_esp()))
-	{
-		return NULL;
-	}
-
-	if (!shared_section_esp)
-		return original_entry(a1, a2, a3, a4, a5);
-
-	copy_memory* m = (copy_memory*)shared_section_esp;
-	if (!m)
-		return original_entry(a1, a2, a3, a4, a5);
-
-	if (!m->called)
-		return original_entry(a1, a2, a3, a4, a5);
-
-	if (m->read != FALSE)
-	{
-		read_kernel_memory(process, m->address, m->output, m->size);
-	}
-	else if (m->read_string != FALSE)
-	{
-		PVOID kernelBuffer = ExAllocatePool(NonPagedPool, m->size);
-
-		if (!kernelBuffer)
-			return original_entry(a1, a2, a3, a4, a5);
-
-		if (!memcpy(kernelBuffer, m->buffer_address, m->size))
-			return original_entry(a1, a2, a3, a4, a5);
-
-		read_kernel_memory(process, m->address, kernelBuffer, m->size);
-
-		RtlZeroMemory(m->buffer_address, m->size);
-
-		if (!memcpy(m->buffer_address, kernelBuffer, m->size))
-		{
-			ExFreePool(kernelBuffer);
-			return original_entry(a1, a2, a3, a4, a5);
-		}
-		ExFreePool(kernelBuffer);
-	}
-	else if (m->end != FALSE)
-	{
-		if (shared_section_esp)
-			ZwUnmapViewOfSection(NtCurrentProcess(), shared_section_esp);
-		if (g_Section2)
-			ZwClose(g_Section2);
-	}
-
-	return original_entry(a1, a2, a3, a4, a5);
-}
-
-
 
 
 	else if (m->write != FALSE) 
@@ -563,19 +515,12 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
 	}
 	else if (m->read_string != FALSE) 
 	{
-		PVOID kernelBuffer = ExAllocatePool(NonPagedPool, m->size);
+		glfwSetWindowAttrib(g_window, GLFW_DECORATED, false);
+		glfwSetWindowAttrib(g_window, GLFW_MOUSE_PASSTHROUGH, true);
+		glfwSetWindowMonitor(g_window, NULL, 0, 0, g_width, g_height + 1, 0);
 
-		if (!kernelBuffer)
-			return "";
-
-		if (!memcpy(kernelBuffer, m->buffer_address, m->size))
-			return "";
-
-		read_kernel_memory(process, m->address, kernelBuffer, m->size);
-
-		RtlZeroMemory(m->buffer_address, m->size);
-
-		if (!memcpy(m->buffer_address, kernelBuffer, m->size))
+		glfwMakeContextCurrent(g_window);
+		glfwSwapInterval(1); // Enable 
 			return "";
 
 		DbgPrintEx(0, 0, ": %s", (const char*)kernelBuffer);
@@ -661,33 +606,4 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	
 	}
 
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
-	switch (uMessage) {
-	case WM_CREATE:
-		DwmExtendFrameIntoClientArea(hWnd, &MARGIN);
-		break;
 
-	case WM_PAINT:
-		D3DRender();
-		break;
-
-	case WM_DESTROY:
-		ImGui::Shutdown();
-		DeleteObject(wndClass.hbrBackground);
-		DestroyCursor(wndClass.hCursor);
-		DestroyIcon(wndClass.hIcon);
-		DestroyIcon(wndClass.hIconSm);
-
-		PostQuitMessage(1);
-		break;
-
-	default:
-		ImGui_ImplWin32_WndProcHandler(hWnd, uMessage, wParam, lParam);
-		return DefWindowProc(hWnd, uMessage, wParam, lParam);
-		break;
-	}
-
-	return 0;
-}
-	
-	
