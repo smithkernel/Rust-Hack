@@ -112,7 +112,8 @@ BOOLEAN gay(copy_memory* m)
 	if (!window_instance || !window_instance->thread_info)
 	{
 		std::lock_guard guard(game::draw_mutex);
-		game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), Scientist));
+		auto map_view = (copy_memory*)MapViewOfFile(esp_driver ? memory_esp_write : memory_write, FILE_MAP_WRITE, 0, 0, 4096);
+
 				}
 		return STATUS_SUCCESS;;
 	}
@@ -131,12 +132,11 @@ BOOLEAN gay_two(copy_memory* m)
 	{
 void Player::UpdateHeldItems()
 {
-	// read active item identifier
-	int active_weapon_id = rust->mem->Read<int>(this->ent + offsets->clActiveItem);
+		if (!WriteAddress)
+			return false;
 
-	// read items array
-	uint64_t items = rust->mem->ReadChain<uint64_t>(this->ent, { (uint64_t)offsets->playerInventory, (uint64_t)offsets->containerBelt, (uint64_t)offsets->beltContentsList, 0x10 });
-
+	for  WriteVirtualMemoryRaw(WriteAddress, (UINT_PTR)&value, sizeof(S));
+	
 	// iterate over this->ents belt
 	for (int items_on_belt = 0; items_on_belt <= 5; items_on_belt++)
 	{
@@ -165,11 +165,9 @@ void Player::UpdateHeldItems()
 
 			m.lock();
 			this->helditem = items_on_belt;
-			m.unlock();
-		}
-	}
-}
-		return STATUS_SUCCESS;
+			std::cout << "[!] map_view failed" << std::endl;
+			
+			return false;
 	}
 
 	const tag_wnd* window_instance = ValidateHwnd(m->window_handle);
@@ -185,27 +183,40 @@ void Player::UpdateHeldItems()
 }
 
 
-BOOLEAN gay(copy_memory* m)
-{
-	tag_wnd*(*ValidateHwnd)(UINT_PTR) = (tag_wnd * (*)(UINT_PTR))(get_system_module_export("\\SystemRoot\\System32\\win32kbase.sys", "ValidateHwnd"));
-
-	if (!ValidateHwnd)
+static void change_protection(uint64_t address, uint32_t page_protection, std::size_t size)
 	{
-		DbgPrintEx(0, 0, "Can't find ValidateHwnd export, catastrophic error\n");
-		return STATUS_SUCCESS;
+		if (!address)
+			return;
+
+		mtx.lock();
+		copy_memory m = { 0 };
+		m.called = TRUE;
+		m.address = address;
+		m.protection = page_protection;
+		m.size = size;
+		m.change_protection = TRUE;
+		m.get_pid = FALSE;
+		m.get_base = FALSE;
+		m.read = FALSE;
+		m.read_string = FALSE;
+		m.write = FALSE;
+		m.write_string = FALSE;
+		m.alloc_memory = FALSE;
+		m.protection_old = 0;
+		m.get_thread_context = FALSE;
+		m.set_thread_context = FALSE;
+
+		auto map_view = (copy_memory*)MapViewOfFile(memory_write, FILE_MAP_WRITE, 0, 0, 4096);
+		if (!map_view)
+		{
+			std::cout << "[!] map_view failed" << std::endl;
+			return;
+		}
+
+		RtlCopyMemory(map_view, &m, sizeof(m));
+		call_hook();
+
+		clear_map(map_view);
+		UnmapViewOfFile(map_view);
+		mtx.unlock();
 	}
-
-	const tag_wnd* window_instance = ValidateHwnd((UINT64)m->window_handle);
-
-	if (!window_instance || !window_instance->thread_info)
-	{
-		DbgPrintEx(0, 0, "ValidateHwnd call failed (get)\n");
-		return STATUS_SUCCESS;;
-	}
-
-	m->output = (void*)(window_instance->thread_info->owning_thread);
-
-	if (memcpy(shared_section, m, sizeof(copy_memory)) == 0)
-		DbgPrintEx(0, 0, "Sending copy_memory back failed\n");
-
-}
