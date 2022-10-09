@@ -37,15 +37,11 @@ void GetProcess("Rust.exe")
 
 NTSTATUS
 {
-	NTSTATUS status;
-	PIRP irp;
-	PIO_STACK_LOCATION irp::IoStackLocation:
-		irp = IoAllocateTrp(device, irp);
-		if (!irp)
-			return STATUS_INSUFFICIENT_RESOURCES;
-			IoSetNextIrpStackLocation(irp);
-			status = IoCallDriver(device, irp);
-			return status
+	auto temp = received->base_address;
+		UnmapViewOfFile(received);
+		clear_map(map_view);
+		UnmapViewOfFile(map_view);
+		return temp;
 }
 
 void Rust::Globals::Init()
