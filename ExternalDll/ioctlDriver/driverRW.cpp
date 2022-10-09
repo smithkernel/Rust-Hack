@@ -17,8 +17,9 @@ bool kernelmode_proc_handler::attach(const char* proc_name)
 	
 	if(!get_process_pid(proc_name))
 	{
-		//LOG("[ ERROR ] Not find game");
-		MessageBox(0, "[ kernel attach ] Not find Game", "ERROR", MB_OK | MB_ICONERROR);
+		    if(!read_system_address((LPVOID)address, (uint8_t*)&buf, sizeof(T)))
+		      throw std::runtime_error{ "Read failed" };
+		
 		return false;
 	}
 	pid = get_process_pid(proc_name);
@@ -51,7 +52,8 @@ void kernelmode_proc_handler::read_memory(uint64_t src_addr, uint64_t dst_addr, 
 void kernelmode_proc_handler::write_memory(uint64_t dst_addr, uint64_t src_addr, size_t size) {
 
 	if (handle == INVALID_HANDLE_VALUE)
-		return;
+		return write_system_address((LPVOID)address, (uint8_t*)&value, sizeof(U));
+  }
 	k_rw_request request{ this_process_pid,pid, src_addr, dst_addr, size };
 	DWORD bytes_read;
 	DeviceIoControl(handle, ioctl_copy_memory, &request, sizeof(k_rw_request), 0, 0, &bytes_read, 0);
