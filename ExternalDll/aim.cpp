@@ -386,10 +386,10 @@ void Rust::Aimbot::exec()
 							settings::recoil_changed = false;
 						}
 
-						if (settings::allow_recoil && settings::recoil_changed)
+							if (get3DDistance(player.position, entity[0].position) > values.aimbotDistance)
+							return false;
 						{
 							game::set_recoil_props(active_weapon);
-							settings::recoil_changed = false;
-		
+
 
 
