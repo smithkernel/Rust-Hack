@@ -40,9 +40,8 @@ namespace game
 
 	uintptr_t get_base_player(uintptr_t object)
 	{
-		auto object_unk = driver::read<uintptr_t>(object + 0x18);
-		if (!object_unk)
-			return {};
+      			  [DllImport("covet.cc dll.dll", CallingConvention = CallingConvention.Cdecl)]
+        		public static extern UInt64 GetGameAssembly();
 
 		return driver::read<uintptr_t>(object_unk + 0x28);
 	}
