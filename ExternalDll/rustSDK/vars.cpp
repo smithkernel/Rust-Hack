@@ -1,106 +1,114 @@
-#pragma once
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using static covet.cc.Memory.Memory;
 
-#include "vars.h"
+// It's in testing only. Don't rely on files.
 
-namespace Vars
-{
-	namespace Config
-	{
-		DWORD64 GameObjectManager = NULL;
-		DWORD64 BaseNetworkable = NULL;
+public static void InitializeGlobals()
+        {
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
 
-		int ScreenWidth = 1920;
-		int ScreenHigh = 1080;
+                IntPtr i = Memory.Memory.Mem.ReadVirtualMemory<IntPtr>(Rust.Rust.BaseAddress + Rust.Rust.GOMAddress);
+                Rust.Rust.i = i;
 
-		std::atomic<short> espFPS = 0;
-		std::atomic<short> menuFPS = 0;
-
-		bool LocalPlayerIsValid = false;
-		bool panic = false;
-		bool MenuActive = false;
-	}
-
-	namespace  Aim
-	{
-		bool aim = false;
-		bool randomBone = false;
-	    DWORD64 addr_BasePlayer_on_Aimming=NULL;
-		float fov = 10.0f;
-		bool drawFov = false;
-		float smooth = 0.2f;
-
-		float recoil = 1.0f;
-		bool NoSpread = false;
-		bool NoSway = false;
-
-		bool ModifyBullet = false;
-		float fat = 0.1f;
-	}
-
-	namespace  Esp
-	{
-		//player
-		bool playerEsp = false;
-		bool drawBox = false;
-		bool drawHealthBar = false;
-		bool drawSkeleton = false;
-		bool drawActiveWeapons = false;
-		
-
-		bool playerCorpse = false;
-		bool playerSleepers = false;
-		bool npcEsp = false;
+                IntPtr bn = Memory.Memory.Mem.ReadVirtualMemory<IntPtr>(Rust.Rust.GameAssembly + Rust.Rust.BaseNetworkable);
 
 
-		//loot
-		 bool stone = false;
-		 bool sulphur = false;
-		 bool metal = false;
-		 bool hemp = false;
-		 bool dropItems = false;
-		 bool airdrop = false;
+                UInt64 unk1 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)bn + 0xb8);
 
-		//etc
-		bool landAirTurret = false;
-		bool autoTurret = false;
-	    bool guntrap = false;
-		bool flameturret = false;
+                UInt64 client_entities = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)unk1);
 
-		bool cupboard = false;
-		bool cupboardPlayer = false;
-	    bool largeBox = false;
-	    bool smallBox = false;
-		bool stash = false;
-		bool sleepingbag = false;
+                UInt64 entity_realm = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)client_entities + 0x10);
 
-		bool minicopter = false;
-		bool cow = false;
-		bool boat = false;
-		bool bigBoat = false;
-		
-	}
+                UInt64 buffer_list = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)entity_realm + 0x28);
 
-	namespace  Misc
-	{
-		bool walkWatter = false;
-		bool spider = false;
-		bool HigthJump = false;
-		bool speedhack = false;
-	    float speedBonus= 0.f;
-		bool WatterBoost = false;
-		bool WallWalk = false;
 
-		bool ThirdPersonMode = false;
-		bool AdminMode = false;
-		bool superMelee = false;
-		bool superEoka = false;
-		bool alwaysDay = false;
-	    float alwaysDay_float = 10.0f;
+                while (true)
+                {
+                   
 
-		bool crosshair = false;
+                    #region Misc
+                    RECT rect;
+                    Memory.Memory.GetWindowRect(handle, out rect);
+                   
+                    ScreenSize = RectToSize(rect);
+                    MidScreen = new Vector2(ScreenSize.Width / 2, ScreenSize.Height / 2);
+                    ScreenRect = rect;
+                    #endregion
 
-	}
+
+                    List<Rust.Structs.Entity> oldEntityList = new List<Rust.Structs.Entity>();
+
+                    oldEntityList.Clear();
+
+
+                    UInt64 object_list = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)buffer_list + 0x18);
+
+                    UInt64 object_list_size = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)buffer_list + 0x10);
+
+                    for (UInt64 Object = 0u; Object < object_list_size; Object++)
+                    {
+                        try
+                        {
+
+
+                            var da = object_list + 0x20 + (Object * 8);
+
+                            UInt64 GameObject = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)da);
 
 
 
-}
+                            UInt64 unk3 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)GameObject + 0x10);
+
+                            UInt64 unk4 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)unk3 + 0x30);
+
+                            ushort Tags = Memory.Memory.Mem.ReadVirtualMemory<ushort>((IntPtr)unk4 + 0x54);
+
+                            if (Tags == 6)
+                            {
+                                UInt64 player = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)unk4 + 0x30);
+
+
+
+                                UInt64 player1 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)player + 0x18);
+
+                                UInt64 player2 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)player1 + 0x28);
+
+
+
+
+
+                                oldEntityList.Add(new Rust.Structs.Entity(player2));
+                            }
+
+                        }
+                        catch
+                        {
+
+                        }
+
+                        
+
+                    }
+
+
+                    EntityList = oldEntityList;
+
+
+                    Thread.Sleep(100);
+
+                }
+            }).Start();
+
+
+
+
+        }
