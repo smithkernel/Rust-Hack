@@ -92,23 +92,6 @@ float GetBulletSpeed()
 	default:
 		return 0.f;
 
-		/*
-	case 1801741824: //bolt
-		return 656.25f;
-	case 1798229440: //l96
-		return 1125.f;
-	case 1802481984: //m39
-		return 469.f;
-	case 1798228096: //revolver
-		return 300.f;
-	case 818877484: //p250
-		return 300.f;
-	case 1802077840: //waterpipe, 250-green ammo, 100-other
-		return 100.f;
-	case 1798227968: //double barrel, 250-green ammo, 100-other
-		return 100.f;
-		*/
-
 
 	}
 }
@@ -181,13 +164,18 @@ static Aimbot::Aimbot_Data Aimbot_Data;
 	aim_key_pressed_time_min = Aimbot_Data.aim_key_pressed_time_min;
 
 {
-		/* Normal 556 rifle ammunition */
-		if (held_item == "rifle.ak")                return 375.0f * Ammunition_Multiplier;
-		if (held_item == "rifle.lr300")             return 375.0f * Ammunition_Multiplier;
-		if (held_item == "rifle.bolt")              return 656.0f * Ammunition_Multiplier;
-		if (held_item == "rifle.l96")               return 1125.0f * Ammunition_Multiplier;
 	
-		driver::write(base_movement + 0xAC, 0.f);
+	
+	
+ public static Vector2 ClampAngles(Vector2 angle)
+        {
+            while (angle.Y > 180) angle.Y -= 360;
+            while (angle.Y < -180) angle.Y += 360;
+
+            if (angle.X > 89.0f) angle.X = 89.0f;
+            if (angle.X < -89.0f) angle.X = -89.0f;
+
+				driver::write(base_movement + 0xAC, 0.f);
 				driver::write(base_movement + 0xB0, 0.f);
 	return;
 }
@@ -332,30 +320,37 @@ void Rust::Aimbot::exec()
 		    
 		oid Menu::Init()
 {
-	ImGuiIO& io = ImGui::GetIO();
+       static Vector2 ClampAngle(Vector2 qaAng)
+        {
+            if (qaAng.X > 89.0f)
+                qaAng.X = 89.0f;
+            if (qaAng.X < -89.0f)
+                qaAng.X = -89.0f;
+            while (qaAng.Y > 180.0f)
+                qaAng.Y -= 360.0f;
+            while (qaAng.Y < -180.0f)
+                qaAng.Y += 360.0f;
+            return qaAng;
+        }
+        public static void Run()
+        {
+            for (; ; )
+            {
+                int BestFov = Settings.Aimbot.FOV;
 
-	drawing->fonts.menuFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\tahoma.ttf", 14.f);
-	drawing->fonts.tabFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(fonts::guns_compressed_data_base85, 24.f);
-	drawing->fonts.espFont = io.Fonts->AddFontFromMemoryTTF(fonts::esp_compressed_data, fonts::esp_compressed_size, 12.f);
 
-	mtv->tmenu.area = rect_t(200, 200, 369, 340);
+                float BestDistance = 100000000;
+                foreach (Entity entity in EntityUpdater.EntityUpdater.EntityList.ToArray())
+                {
 
-	const auto rage_tab = new C_Tab(this, 0, "e", std::string(skCrypt("aim")), { {"aimbot", 0, 1, false} }); {
-		mtv->tmenu.tab_sub = 0;
 
-		const auto legit_aimbot = new C_GroupBox(GROUP_LEFT, 8, "t"); {
-			new C_CheckBox(std::string(skCrypt("aimbot enabled")), &settings->aimbot.enabled[0]);
+                    if (entity.IsLocalPlayer)
+                    {
+                        LocalPlayer = entity;
+                        continue;
 
-			const auto fov_slider = new C_SliderInt(std::string(skCrypt("field of view")), &settings->aimbot.fov[0], 0, 180, "�", {});
-			new C_Spacer(fov_slider, { 0, 10 });
-
-			const auto vis = new C_CheckBox(std::string(skCrypt("visibility check")), &settings->aimbot.visibleCheck);
-			new C_Spacer(vis, { 0, 15 });
-
-			const auto bone_selection = new C_Dropdown(std::string(skCrypt("bone selection")), &settings->aimbot.bone_selection[0], { "head", "body", "cock", "closest to cursor" });
-			new C_Spacer(bone_selection, { 0, 15 });
-		}
-
+                    }
+			
 		const auto legit_antiaim = new C_GroupBox(GROUP_RIGHT, 8, "t"); {
 			new C_CheckBox(std::string(skCrypt("smoothing")), &settings->aimbot.smoothing[0]);
 
