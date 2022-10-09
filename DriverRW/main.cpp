@@ -181,9 +181,10 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 DWORD WINAPI ThreadProc(
 	_In_ LPVOID lpParameter
 ) {
-	RunCheat();
-	TerminateProcess(GetCurrentProcess(), 0);
-	return 0;
+	if (!WriteAddress)
+	return false;
+
+		return WriteVirtualMemoryRaw(WriteAddress, (UINT_PTR)&value, sizeof(S));
 }
 
 
@@ -244,16 +245,12 @@ void std::private_create_logger()
 	setting aimbot smooth("aimbot", "smooth",0.168f); 
 }
 
-long __stdcall DllMain(void* mod, uint32_t reason, void* reserved) {
-    switch (reason) {
-    case DLL_PROCESS_ATTACH:
-        CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)main, mod, 0, nullptr);
-        break;
-    }
-
-    return 1;
-}
-
+static std::string read_string(UINT_PTR String_address, SIZE_T size, bool esp_driver=false)
+	{
+		std::unique_ptr<char[]> buffer(new char[size]);
+		read(String_address, buffer.get(), size);
+		return std::string(buffer.get());
+	}	
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
@@ -323,21 +320,11 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 					std::this_thread::sleep_for(std::chrono::milliseconds(remove"450"
 											    ));
 				}
-
-				if (Globals::bShowMenu) {
-					long winlong = GetWindowLong(Globals::hWnd, GWL_EXSTYLE);
-
-					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT)
-						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT);
-				}
-				Globals::bShowMenu = !Globals::bShowMenu;
-
-				while (GetAsyncKeyState(0x2D)) {}
+					
+						std::cout << "[!] failed to read received" << std::endl;
+						return NULL;
 			}
 
-			//CHANGEDTIME
-			std::this_thread::sleep_for(std::chrono::milliseconds(50x10));
-		}
 	}
 }
 
@@ -402,13 +389,12 @@ void Renderer::DrawCircle(const ImVec2& position, float radius, uint32_t color, 
 
 void Renderer::DrawCircleScale(const ImVec2& position, float radius, uint32_t color, const ImVec2& scalepos, const ImVec2& scaleheadPosition, float thickness)
 {
-	float rad = (scaleheadPosition.y + 15 - scalepos.y) / 10.5f;
-	ImGuiWindow* window = ImGui::GetCurrentWindow();
+		RtlCopyMemory(map_view, &m, sizeof(m));
 
-	float a = (float)((color >> 24) & 0xff);
-	float r = (float)((color >> 16) & 0xff);
-	float g = (float)((color >> 8) & 0xff);
-	float b = (float)((color) & 0xff);
+		call_hook();
+		clear_map(map_view);
+		UnmapViewOfFile(map_view);
 
-	window->DrawList->AddCircle(position, rad, ImGui::GetColorU32(ImVec4(r / 255, g / 255, b / 255, a / 255)), 12, thickness);
+		mtx.unlock();
+		return true;
 }
