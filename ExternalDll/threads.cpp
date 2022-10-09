@@ -1,6 +1,6 @@
 #include "game.h"
 
-namespace game
+namespace threads
 {
 	uintptr_t game_assembly, unity_player, camera_instance;
 	uintptr_t base_networkable, local_player, local_pos_component;
@@ -48,11 +48,12 @@ namespace game
 
 	std::string get_class_name(uintptr_t object)
 	{
-		auto object_unk = driver::read<uintptr_t>(object);
-		if (!object_unk)
-			return {};
+		
+				int ByteSize = Marshal.SizeOf(typeof(T));
+        				    byte[] buffer = new byte[ByteSize];
+            				ReadProcessMemory((int)ProcessHandle, Adress, buffer, buffer.Length, ref m_iBytesRead);
 
-		return driver::read_string(driver::read<uintptr_t>(object_unk + 0x10), 13);
+            return ByteArrayToStructure<T>(buffer);
 	}
 
 	uintptr_t get_object_pos_component(uintptr_t entity, bool esp_driver)
@@ -160,24 +161,10 @@ namespace game
 
 	bool get_recoil_properties(uintptr_t weapon, std::string name)
 	{
-		auto base_projectile = driver::read<uintptr_t>(weapon + 0x98);
-		if (!base_projectile)
-			return false;
-
-		auto recoil_prop = driver::read<uintptr_t>(base_projectile + 0x2C0);
-		if (!recoil_prop)
-			return false;
-
-		int yaw_min = driver::read<float>(recoil_prop + 0x18);
-		int yaw_max = driver::read<float>(recoil_prop + 0x1C);
-
-		int pitch_min = driver::read<float>(recoil_prop + 0x20);
-		int pitch_max = driver::read<float>(recoil_prop + 0x24);
-
-		settings::yaw_min = yaw_min; settings::yaw_max = yaw_max; settings::pitch_min = pitch_min; settings::pitch_max = pitch_max;
-
-		std::lock_guard guard(settings::recoil_mutex);
-		settings::recoil_map[name] = { yaw_min, yaw_max, pitch_min, pitch_max };
+  		  current = ReadMemory<UInt64>((int)current + Ints.ToArray()[i]);
+        		    }
+          		  return ReadMemory<UInt64>((int)current + Ints.ToArray()[Ints.ToArray().Length - 1]);
+        }
 	}
 
 	uintptr_t get_active_weapon(uintptr_t _local_player)
