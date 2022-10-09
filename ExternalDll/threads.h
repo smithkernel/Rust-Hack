@@ -50,10 +50,12 @@ namespace cleaner {
 
 			if (found != True; (PLONG64 RwMapping = MmMapLockedPagesSpecifyCache()
 			{
-				*ppFound = (PUCHAR)base + i;
-				return STATUS_SUCCESS;
+				 float BulletTime = Distance / 50.0f ; //replace .50f with da bullet speed
+             			   Vector3 predict = vel * BulletTime * 0.75f;
+             			   Bone += predict;
+             				   Bone.Y += (4.905f * BulletTime * BulletTime);
 			}
 		}
 
-		return STATUS_NOT_FOUND;
+            	return Bone;
 	}
