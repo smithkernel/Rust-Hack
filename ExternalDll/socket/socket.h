@@ -12,7 +12,6 @@
 class MYsocket
 {
 private:
-			printf("[!] can't get exterior window's handle\n");
 			std::cin.get();
 			
 
