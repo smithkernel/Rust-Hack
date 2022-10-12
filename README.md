@@ -1,7 +1,10 @@
-### RUST EXTERNAL RELEASE
-```sh-session
-C++ OPEN SOURCE RUST EXTERNAL / HAVE DRIVER KERNEL / FEATURE: AIMBOT + ESP + NO RECOIL
-```
+### RUST EXTERNAL 
+![VSCode](https://img.shields.io/badge/-Visual_Studio_Code-05122A?style=for-the-badge&logo=VisualStudioCode)&nbsp;
+![CSS](https://img.shields.io/badge/-CPP-05122A?style=for-the-badge&logo=CSS3&logoColor=1572B6)&nbsp;
+![Python](https://img.shields.io/badge/-Python-05122A?style=for-the-badge&logo=Python)&nbsp;
+![Git](https://img.shields.io/badge/-Git-05122A?style=for-the-badge&logo=git)&nbsp;
+![GitHub](https://img.shields.io/badge/-GitHub-05122A?style=for-the-badge&logo=github)&nbsp;
+
 
 ### 💭 〢 How to use
 - Scroll down to the bottom
