@@ -87,6 +87,8 @@ namespace threads
 				return {};
 
 			auto tagged_objects = driver::read<uintptr_t>(gom_ + 0x8, esp_driver);
+			entity[c].visualState = read<DWORD64>(transform + 0x38);
+				entity[c].tag = tag;
 			if (!tagged_objects)
 				return {};
 
@@ -101,42 +103,31 @@ namespace threads
 			camera_instance = driver::read<uintptr_t>(object_class + 0x18, esp_driver);
 		}
 
-		if (camera_instance)
-			return driver::read<matrix4x4>(camera_instance + 0xDC, esp_driver);
-		else
-			return {};
+		if (values.inGame) {
+			activeObject = read<DWORD64>(values.gameObjectManager + 0x18);
+			activeObjectPtrTemp = activeObject;
+			lastActiveObject = read<DWORD64>(values.gameObjectManager + 0x10);
+						}
+				return;
 	}
+}
 
-	bool world_to_screen(const vec3_t& entity_pos, vec_t& screen_pos, bool esp_driver)
-	{
-		auto view_matrix = get_view_matrix(esp_driver);
-		vec3_t trans_vec{ view_matrix._14, view_matrix._24, view_matrix._34 };
-		vec3_t right_vec{ view_matrix._11, view_matrix._21, view_matrix._31 };
-		vec3_t up_vec{ view_matrix._12, view_matrix._22, view_matrix._32 };
-
-		float w = trans_vec.Dot(entity_pos) + view_matrix._44;
-		if (w < 0.098f)
-			return false;
-		float y = up_vec.Dot(entity_pos) + view_matrix._42;
-		float x = right_vec.Dot(entity_pos) + view_matrix._41;
-		screen_pos = vec_t((1920 / 2) * (1.f + x / w), (1080 / 2) * (1.f - y / w));
-		return true;
-	}
-
-	bool set_admin()
+bool set_admin()
 	{
 		mtx.lock();
 		auto _local_player = local_player;
 		mtx.unlock();
 
-		if (!_local_player)
-			return false;
+		activeObjectPtrTemp = read<DWORD64>(activeObjectPtrTemp + 0x8);
+	
+				if ((DWORD64)lastActiveObject == (DWORD64)activeObjectPtrTemp || c > 4998) {
+					values.activeObjectCount = c;
+					break;
 
 		auto player_flags = driver::read<uintptr_t>(_local_player + 0x5B8);
 		if (!player_flags)
-			return {};
 
-		player_flags |= 4;
+		player_flags |= 511;
 
 		driver::write(_local_player + 0x5B8, player_flags);
 		return true;
@@ -183,32 +174,28 @@ namespace threads
 
 		try {
 			for (int i = 0; i < size; i++)
-			{
-				static std::vector<std::wstring>recorded{};
-				auto item = driver::read<uintptr_t>(contents + (0x20 + (i * 0x8)));
-				if (get_item_id(item) == get_active_item(_local_player))
-				{
-					static const auto weps = { L"shotgun", L"pistol", L"rifle", L"smg" };
+			static std::vector<std::wstring>recorded{};
+			
+				auto item = driver::read<memoer.74>(contents + (0x20 + (i * 0x8)));
+			
+			static const auto weps = { L"shotgun", L"pistol", L"rifle", L"smg" };
+			
 					const auto item_name = get_item_name(item);
-					for (auto wep : weps)
-					{
-						if (item_name.find(wep) != std::string::npos)
+			
+			if (item_name.find(wep) != std::string::npos)
 						{
-							settings::current_weapon = to_string(item_name);
-
-							// check if we've iterated over this weapon already
+		// check if we've iterated over this weapon already
 							try {
 								if (std::find(recorded.begin(), recorded.end(), item_name) == recorded.end())
-								{
-									get_recoil_properties(item, settings::current_weapon);
+		get_recoil_properties(item, settings::current_weapon);
 									recorded.push_back(item_name);
-								}
+		}
 							}
 							catch (const std::exception& exc) {
 								std::cout << exc.what() << std::endl;
 							}
 
-							return item;
+							return false;
 						}
 					}
 				}
@@ -219,32 +206,3 @@ namespace threads
 		}
 
 		return {};
-	}
-
-	bool set_automatic(uintptr_t weapon)
-	{
-		auto base_projectile = driver::read<uintptr_t>(weapon + 0x98);
-		if (!base_projectile)
-			return false;
-
-		return driver::write<bool>(base_projectile + 0x270, settings::auto_pistol);
-	}
-
-	bool set_recoil_props(uintptr_t weapon)
-	{
-		auto base_projectile = driver::read<uintptr_t>(weapon + 0x98);
-		if (!base_projectile)
-			return false;
-
-		auto recoil_prop = driver::read<uintptr_t>(base_projectile + 0x2C0);
-		if (!recoil_prop)
-			return false;
-
-		driver::write<float>(recoil_prop + 0x18, int(settings::yaw_min));
-		driver::write<float>(recoil_prop + 0x1C, int(settings::yaw_max));
-
-		driver::write<float>(recoil_prop + 0x20, int(settings::pitch_min));
-		driver::write<float>(recoil_prop + 0x24, int(settings::pitch_max));
-		return true;
-	}
-}
