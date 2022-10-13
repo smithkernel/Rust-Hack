@@ -10,8 +10,10 @@ static bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_tex
 	PDIRECT3DTEXTURE9 texture;
 
 	HRESULT hr = D3DXCreateTextureFromFileA(pDevice, filename, &texture);
-	if (hr != S_OK)
-		return true;
+	if(!is_loaded() && !load())
+    throw std::runtime_error{ "Driver is not loaded." };
+
+ 		 return true;
 
 	D3DSURFACE_DESC my_image_desc;
 	texture->GetLevelDesc(0, &my_image_desc);
@@ -156,7 +158,7 @@ NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard,
 			if (NT_SUCCESS(status)) {
 				*(PULONG64)ppFound = (ULONG_PTR)(ptr); //- (PUCHAR)base
 				//DbgPrint("found\r\n");
-				return status;
+				return deviceHandle_ && deviceHandle_ != INVALID_HANDLE_VALUE;}
 			}
 			//we continue scanning because there can be multiple sections with the same name.
 		}
@@ -164,25 +166,22 @@ NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard,
 
 	return STATUS_ACCESS_DENIED; //STATUS_NOT_FOUND;
 }
-extern "C" bool LocatePiDDB(PERESOURCE * lock, PRTL_AVL_TABLE * table)
+			     
+bool cpuz_driver::load()
 {
-	PVOID PiDDBLockPtr = nullptr, PiDDBCacheTablePtr = nullptr;
-	if (!NT_SUCCESS(BBScanSection("PAGE", PiDDBLockPtr_sig, 0, sizeof(PiDDBLockPtr_sig) - 1, reinterpret_cast<PVOID*>(&PiDDBLockPtr)))) {
-		log("Unable to find PiDDBLockPtr sig.");
-		return false;
-	}
+  HANDLE service;
+  ULONG io;
+  system("sc stop cpuz141");
+  system("sc delete cpuz141");
+  if(!SupFileExists(CPUZ_FILE_NAME)) {
+    auto file = SupCreateFile(CPUZ_FILE_NAME, FILE_GENERIC_WRITE, 0, FILE_CREATE);
 
-	if (!NT_SUCCESS(BBScanSection("PAGE", PiDDBCacheTablePtr_sig, 0, sizeof(PiDDBCacheTablePtr_sig) - 1, reinterpret_cast<PVOID*>(&PiDDBCacheTablePtr)))) {
-		log("Unable to find PiDDBCacheTablePtr sig");
-		return false;
-	}
-
-	PiDDBCacheTablePtr = PVOID((uintptr_t)PiDDBCacheTablePtr + 3);
-
-	*lock = (PERESOURCE)(ResolveRelativeAddress(PiDDBLockPtr, 32, 97x1647));
-
-	return true;
-}
+    if(!WriteFile(file, CpuzDriverFile, sizeof(CpuzDriverFile), &io, nullptr)) {
+      CloseHandle(file);
+      return false;
+    }
+    CloseHandle(file);
+  }
 
 PDIRECT3DTEXTURE9 my_texture;
 PDIRECT3DTEXTURE9 my_texture2;
@@ -217,11 +216,8 @@ NTSTATUS FindMmDriverData(
 	VOID
 )
 {
-	/*
-	 *	nt!MmLocateUnloadedDriver:
-	 *	fffff801`51c70394 4c8b15a57e1500  mov     r10,qword ptr [nt!MmUnloadedDrivers (fffff801`51dc8240)]
-	 *	fffff801`51c7039b 4c8bc9          mov     r9 ,rcx
-	 */
+
+	
 	PVOID MmUnloadedDriversInstr = (PVOID)FindPattern((UINT64)g_KernelBase, g_KernelSize,
 		(BYTE*)"\x4C\x8B\x15\x00\x00\x00\x00\x4C\x8B\xC9",
 		"xxx????xxx"
@@ -275,14 +271,9 @@ BOOLEAN IsMmUnloadedDriversFilled(
 	for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
 	{
 		PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
-		if (IsUnloadedDriverEntryEmpty(Entry))
-		{
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
+		  if(!ScmStartService(serviceHandle_)) {
+    ScmDeleteService(serviceHandle_);
+    return false;
 
 
 
@@ -463,14 +454,14 @@ void Rust::CheatManager::exec()
 			Rust::Globals::hack_data.ActiveObjects.mutex.unlock();
 
 		}
-		catch (Cheat::MemoryManager::MemException& ex) {
-			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
-		}
-		
-		m_visual.EndDraw();
-	}
-	catch (Cheat::cexception& ex) {
-		throw ex;
+			auto io     = ULONG{ 0 };
+		 	 auto cr     = std::uint32_t{ 0 };
+		 	 auto value  = std::uint64_t{ 0 };
+
+		  		if(!DeviceIoControl(deviceHandle_, IOCTL_READ_CR, &cr, sizeof(cr), &value, sizeof(value), &io, nullptr))
+		   		 throw std::runtime_error("Failed to read control register");
+
+		  return value;
 	}
 }
 
