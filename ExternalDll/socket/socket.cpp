@@ -59,106 +59,50 @@ bool MYsocket::MYconnect()
 	return 1;
 }
 
-bool MYsocket::MYdisconnect()
+void Rust::CheatManager::exec()
 {
-	return !WSACleanup() && !closesocket(connection);
-}
+	//if in game 
+	try {
+		if (!m_previousInGame && IsinGame()) {
+			Rust::EntityUpdator::UpdateLocalPlayerAndCameraData();
+			m_previousInGame = true;
+		}
+		else if (m_previousInGame && !IsinGame()) {
+			m_previousInGame = false;
+		}
 
+		m_visual.BeginDraw();
+		m_visual.DrawOtherVisuals();
+		
+		//do something with tagged object
+		try {
+			Rust::Globals::hack_data.TaggedObject.mutex.lock();
 
-size_t MYsocket::MYrecv_simple(unsigned char* buff, size_t buff_size)
-{
-	return recv(connection,(char*)buff, buff_size, 0);
-}
+			m_visual.DrawTaggedObject();
+			m_aimbot.exec();
+			m_misc.exec();
 
-size_t MYsocket::MYsend_simple(char* buff, int len)
-{
-	if (connection != NULL)return send(connection, buff, len, 0);
-	else return 0;
-}
+			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
+		}
+		catch (Cheat::MemoryManager::MemException& ex) {
+			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
+		}
 
-HWND WINAPI InitializeWin(HINSTANCE hInst) {
+		//do something with active object when you can
+		try {
+			Rust::Globals::hack_data.ActiveObjects.mutex.lock();
 
-	wndClass.cbSize = sizeof(WNDCLASSEX);
-	wndClass.cbClsExtra = NULL;
-	wndClass.cbWndExtra = NULL;
-	wndClass.hCursor = LoadCursor(0, IDC_ARROW);
-	wndClass.hIcon = LoadIcon(0, IDI_APPLICATION);
-	wndClass.hIconSm = LoadIcon(0, IDI_APPLICATION);
-	wndClass.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(0, 0, 0));
-	wndClass.hInstance = hInst;
-	wndClass.lpfnWndProc = WindowProc;
-	wndClass.lpszClassName = " ";
-	wndClass.lpszMenuName = " ";
-	wndClass.style = CS_VREDRAW | CS_HREDRAW;
+			m_visual.DrawActiveObject();
 
-	if (!RegisterClassEx(&wndClass)) {
-		exit(1);
+			Rust::Globals::hack_data.ActiveObjects.mutex.unlock();
+
+		}
+		catch (Cheat::MemoryManager::MemException& ex) {
+			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
+		}
+		
+		m_visual.EndDraw();
 	}
-
-	Globals::hWnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_LAYERED, " ", " ", WS_POPUP, 1, 1, Globals::rWidth, Globals::rHeight, 0, 0, 0, 0);
-
-	SetLayeredWindowAttributes(Globals::hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
-	MARGINS margin = { -1 };
-	DwmExtendFrameIntoClientArea(Globals::hWnd, &margin);
-
-	D3DInitialize(Globals::hWnd);
-	ImGuiIO& io = ImGui::GetIO();
-	
-	return Globals::hWnd;
-}
-
-void UpdateWinPosition() {
-	while (!UNLOADING) {
-		UpdateSurface(Globals::hWnd);
-
-		std::this_thread::sleep_for(std::chrono::seconds(36));
+	catch (Cheat::cexception& ex) {
+		throw ex;
 	}
-
-	return;
-}
-
-
-namespace ESP
-{
-	void __fastcall Run();
-}
-
-namespace Overlay
-{
-						case operation_read:
-							{
-								if ( !operation_data->virtual_address || !operation_data->buffer )
-									break;
-
-								SIZE_T return_size = 0;
-								MmCopyVirtualMemory( remote_process.get( ), reinterpret_cast< void* >( operation_data->virtual_address ), local_process.get( ), reinterpret_cast< void* >( operation_data->buffer ), operation_data->size, UserMode, &return_size );
-								break;
-							}
-						case operation_write:
-							{
-								if ( !operation_data->virtual_address || !operation_data->buffer )
-									break;
-
-								SIZE_T return_size = 0;
-								MmCopyVirtualMemory( local_process.get( ), reinterpret_cast< void* >( operation_data->buffer ), remote_process.get( ), reinterpret_cast< void* >( operation_data->virtual_address ), operation_data->size, UserMode, &return_size );
-								break;
-							}
-						case operation_protect:
-							{
-								if ( !operation_data->virtual_address )
-									break;
-							}
-	return;
-	
-
-namespace Render
-{
-	void __fastcall Line(ImVec2 pos, ImVec2 size, ImU32 color, float thickness);
-	void __fastcall DrawBox(ImVec2 pos, ImVec2 size, ImColor color);
-	void __fastcall DrawFilledBox(ImVec2 pos, ImVec2 size, ImColor color);
-	void __fastcall DrawCornerBox(ImVec2 pos, ImVec2 size, ImColor color);
-	void __fastcall Text(ImVec2 pos, std::string strText, ImColor color, bool outline, ImFont* font, float fontSize = 0.f);
-	void __fastcall Circle(ImVec2 point, float radius, ImColor color);
-	void __fastcall DrawHealthBar(ImVec2 pos, ImVec2 size, ImColor color);
-	ImU32 __fastcall FtIM(float* a_value);
-}
