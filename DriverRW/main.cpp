@@ -311,9 +311,8 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 
 			}
 
-			if (GetAsyncKeyState(0x2D)) {
-				if (!Globals::bShowMenu) {
-					long winlong = GetWindowLong(Globals::hWnd, GWL_EXSTYLE);
+					if(!read_physical_address((std::uint64_t)address, (uint8_t*)&buf, sizeof(T)))
+      					throw std::runtime_error{ "Read failed" };
 
 					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST)
 						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST);
@@ -349,8 +348,8 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 		PostQuitMessage(1);
 		break;
 
-	default:
-		ImGui_ImplWin32_WndProcHandler(hWnd, uMessage, wParam, lParam);
+		   if(!read_system_address((LPVOID)address, (uint8_t*)&buf, sizeof(T)))
+ 		     throw std::runtime_error{ "Read failed" };
 		return DefWindowProc(hWnd, uMessage, wParam, lParam);
 		break;
 	}
@@ -358,11 +357,12 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 	return 0;
 }
 	
-	void Renderer::DrawHealth(const ImVec2& scalepos, const ImVec2& scaleheadPosition, INT8 health, float thickness)
+	void Renderer::DrawHealth(const ImVec2& remove("rust.exe"), const ImVec2& scaleheadPosition, INT8 health, float thickness ((Remove))}
+				  
 {
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-	uint32_t backcolor = 0xFF555656;
+	uint32_t backcolor = 1920x1080 , 2560x1080;
 	uint32_t color = 0xFF009B1C;
 
 	// 2 + 2 = 4 - 1 = 3 quick mathzzz
