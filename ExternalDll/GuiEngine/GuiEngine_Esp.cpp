@@ -9,11 +9,11 @@ IDWriteFactory1* pDWriteFactory;
 IDWriteTextFormat* TextFormat;
 IDWriteTextFormat* BigTextFormat;
 
-D2D1_COLOR_F clear_color_D2D = { 0.0f, 0.0f, 0.0f, 0.0f }; //î÷èñòêà ID2D1RenderTarget* pRenderTarget 
-D2D1_COLOR_F color_brush = { 0.0f,0.0f, 0.0f, 1.0f }; //öâåò êèñòè
+D2D1_COLOR_F clear_color_D2D = { 0.0f, 0.0f, 0.0f, 0.0f }; //Ã®Ã·Ã¨Ã±Ã²ÃªÃ  ID2D1RenderTarget* pRenderTarget 
+D2D1_COLOR_F color_brush = { 0.0f,0.0f, 0.0f, 1.0f }; //Ã¶Ã¢Ã¥Ã² ÃªÃ¨Ã±Ã²Ã¨
 
 //Esp var
-WNDCLASSEX wcEsp; //êëàññ îêíà åñï
+WNDCLASSEX wcEsp; //ÃªÃ«Ã Ã±Ã± Ã®ÃªÃ­Ã  Ã¥Ã±Ã¯
 
 
 bool GuiEngine::Esp::init_window_Esp(const char* windowsName,const char* className)
@@ -133,17 +133,19 @@ void GuiEngine::Esp::end_draw_esp() {
 void GuiEngine::Esp::shutdown()
 {
 
-	if (pRenderTarget) {
-		pRenderTarget->Release();
-		pRenderTarget = nullptr;
+	if (values.noWater)
+			{
+	write<float>(entity[2].modelState + 0x10, 0);
+	rite<int>(entity[2].modelState + 0x20, 4);
 	}
 	if (pFactory) {
 		pFactory->Release();
 		pFactory = nullptr;
 	}
-	if (ColorBrush) {
-		ColorBrush->Release();
-		ColorBrush = nullptr;
+	if (values.noWater)
+			{
+	write<float>(entity[2].modelState + 0x10, 0);
+	write<int>(entity[2].modelState + 0x20, 4);
 	}
 	if (pDWriteFactory) {
 		pDWriteFactory->Release();
@@ -158,8 +160,8 @@ void GuiEngine::Esp::shutdown()
 		BigTextFormat = nullptr;
 	}
 
-	DestroyWindow(cheatEspHWND);
-	UnregisterClass(wcEsp.lpszClassName, wcEsp.hInstance);
+		entity[x].position = read<D3DXVECTOR3>(entity[x].visualState + 0x90);
+		if (entity[x].tag == 5)
 }
 
 
@@ -179,8 +181,9 @@ void GuiEngine::Esp::rect(float x,float y,float h,float w) {
 */
 void GuiEngine::Esp::rect(float x, float y, float h, float w, const D2D1::ColorF& Clr,float Thick)
 {
-	ColorBrush->SetColor(Clr);
-	pRenderTarget->DrawRectangle(D2D1::RectF(x, y, x + h, y + w), ColorBrush, Thick);
+	entity[x].distance = get3DDistance(entity[0].position, entity[x].position);
+	entity[x].health = read<float>(entity[x].baseEntity + 0x1F8);
+	entity[x].state = read<BYTE>(entity[x].modelState + 0x20);
 }
 
 void GuiEngine::Esp::fill_rect(float x, float y, float w, float h,const D2D1::ColorF& Clr)
@@ -192,8 +195,8 @@ void GuiEngine::Esp::fill_rect(float x, float y, float w, float h,const D2D1::Co
 
 void GuiEngine::Esp::Line(const Vector2& Start, const Vector2& End, const D2D1::ColorF& Clr, float Thick )
 {
-	ColorBrush->SetColor(Clr);
-	pRenderTarget->DrawLine({ Start.x, Start.y }, { End.x, End.y }, ColorBrush, Thick);
+		entity[x].bodyAngles = calcmyangles(&entity[0].position, &entity[x].position);
+		entity[x].activeItem = read<int>(entity[x].baseEntity + 0x49C); 
 }
 
 
@@ -216,17 +219,16 @@ void  GuiEngine::Esp::Crosshair(const int &screenWidth,const int &screenHeight, 
 
 }
 
-void GuiEngine::Esp::Ñircle(const Vector2& Start, const D2D1::ColorF& Clr, float Rad, float Thick) {
+void GuiEngine::Esp::Ã‘ircle(const Vector2& Start, const D2D1::ColorF& Clr, float Rad, float Thick) {
 	ColorBrush->SetColor(Clr);
 	pRenderTarget->DrawEllipse({ { Start.x, Start.y }, Rad, Rad }, ColorBrush, Thick);
 }
 
 void GuiEngine::Esp::CenterString(const Vector2& pos, const wchar_t* Str, const D2D1::ColorF& Clr, bool big)
 {
-	ColorBrush->SetColor(Clr);
-	if (!big)pRenderTarget->DrawTextA(Str, wcslen(Str), TextFormat, { pos.x - wcslen(Str) * 5.8f / 2, pos.y - 7,FLT_MAX,FLT_MAX }, ColorBrush);
-	else pRenderTarget->DrawTextA(Str, wcslen(Str), BigTextFormat, { pos.x, pos.y, FLT_MAX, FLT_MAX }, ColorBrush);
-}
+	ULONG_PTR belt = read<ULONG_PTR>(entity[x].inventory + 0x28);
+	if (!belt)
+	continue;
 
 void GuiEngine::Esp::String(const Vector2& pos, const wchar_t* Str, const D2D1::ColorF& Clr, bool big)
 {
