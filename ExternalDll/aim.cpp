@@ -284,232 +284,33 @@ void Rust::Aimbot::exec()
 	else {
 		m_TargetExist = false;
 	}
+
 }
 
-	void Update() {
-		while (true) {
-
-			if (Globals::tWnd == GetForegroundWindow()) {
-
-			}
-
-			if (GetAsyncKeyState(0x2D)) {
-				if (!Globals::bShowMenu) {
-					long winlong = GetWindowLong(Globals::hWnd, GWL_EXSTYLE);
-
-					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST)
-						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST);
-					std::this_thread::sleep_for(std::chrono::milliseconds(50));
-				}
-
-				if (Globals::bShowMenu) {
-					long winlong = GetWindowLong(Globals::hWnd, GWL_EXSTYLE);
-
-					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT)
-						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT);
-				}
-				Globals::bShowMenu = !Globals::bShowMenu;
-
-				while (GetAsyncKeyState(0x2D)) {}
-			}
-
-		}
-	}
-
-		    
-		    
-		oid Menu::Init()
-{
-       static Vector2 ClampAngle(Vector2 qaAng)
-        {
-            if (qaAng.X > 89.0f)
-                qaAng.X = 89.0f;
-            if (qaAng.X < -89.0f)
-                qaAng.X = -89.0f;
-            while (qaAng.Y > 180.0f)
-                qaAng.Y -= 360.0f;
-            while (qaAng.Y < -180.0f)
-                qaAng.Y += 360.0f;
-            return qaAng;
-        }
-        public static void Run()
-        {
-            for (; ; )
-            {
-                int BestFov = Settings.Aimbot.FOV;
+	
+void aimAtPlayer(Entity player) {
+	D3DXVECTOR2 toWrite = { 0,0 };
+	D3DXVECTOR3 headPos = { 0,0,0 };
+	D3DXVECTOR3 bodyPos = { 0,0,0 };
 
 
-                float BestDistance = 100000000;
-                foreach (Entity entity in EntityUpdater.EntityUpdater.EntityList.ToArray())
-                {
-
-
-                    if (entity.IsLocalPlayer)
-                    {
-                        LocalPlayer = entity;
-                        continue;
-
-                    }
-			
-		const auto legit_antiaim = new C_GroupBox(GROUP_RIGHT, 8, "t"); {
-			new C_CheckBox(std::string(skCrypt("smoothing")), &settings->aimbot.smoothing[0]);
-
-			const auto smoothing_slider = new C_SliderInt(std::string(skCrypt("smoothing amount")), &settings->aimbot.smoothing_amount[0], 0, 4, "�");
-			new C_Spacer(smoothing_slider, { 0, 5 });
-
-			const auto anti_recoil = new C_CheckBox(std::string(skCrypt("anti-recoil")), &settings->aimbot.anti_recoil[0]);
-			new C_Spacer(anti_recoil, { 0, 15 });
-
-			const auto prediction_toggle = new C_CheckBox(std::string(skCrypt("prediction")), &settings->aimbot.prediction[0]);
-			new C_Spacer(prediction_toggle, { 0, 20 });
-
-			const auto target_team = new C_CheckBox(std::string(skCrypt("target-team")), &settings->aimbot.target_team);
-			new C_Spacer(target_team, { 0, 25 });
-
-			const auto aimbot_keybind = new C_KeyBind(std::string(skCrypt("aimbot keybind")), &settings->aimbot.keybind);
-			new C_Spacer(aimbot_keybind, { 0, 45 });
-		}
+	while ((GetAsyncKeyState(0x46) & 1 || GetAsyncKeyState(0x46)))
+	{
+		//getPosition((void*)player->getObjectClass()->getEntity()->getBaseEntity()->getPlayerModel()->getSkinnedMultiMesh()->getBoneDict()->getValues()->getBoneObject(48)->getTransform(), &headPos);
 		
-						if (settings::auto_pistol_changed || settings::recoil_changed)
-				{
-					auto active_weapon = game::get_active_weapon(_local_player);
-					if (active_weapon)
-					{
-						if (settings::auto_pistol && settings::auto_pistol_changed)
-						{
-							game::set_automatic(active_weapon);
-							settings::recoil_changed = false;
-						}
-
-							if (get3DDistance(player.position, entity[0].position) > values.aimbotDistance)
-							return false;
-						{
-							game::set_recoil_props(active_weapon);
-
-
-
-							
-void doRecoil()
-{
-
-	if (values.forceAutomatic || values.recoilEnabled || values.spreadEnabled || values.swayEnabled || values.fastGather) {
-		for (int x = 0; x <= values.numberOfTaggedObjects; x++)
-		{
-			if (isLocalPlayer(entity[x]))
-			{
-				inventory = entity[x].inventory;
-			}
+		headPos = read<D3DXVECTOR3>(player.visualState + 0x90);
+		BOOL ducking = HasFlag(1, player.state);
+		if (ducking)
+			headPos.y += 0.85;
+		else
+			headPos.y += 1.45;
+		toWrite = calcmyangles(&entity[0].position, &headPos);
+		write<D3DXVECTOR2>(entity[2].playerInput + 0x44, toWrite);
+		if (!isTargetableEntity(player)) {
+			Sleep(100);
+			break;
 		}
-		if (inventory)
-		{
-			ULONG_PTR belt = read<ULONG_PTR>(inventory + 0x28);
-			if (!belt)
-				return;
-			ULONG_PTR beltList = read<ULONG_PTR>(belt + 0x20);
-			if (!beltList)
-				return;
-			ULONG_PTR items = read<ULONG_PTR>(beltList + 0x10);
-			if (!items)
-				return;
-			for (int x = 0; x <= 6; x++)
-			{
-				ULONG_PTR item = read<ULONG_PTR>(items + 0x20 + (0x8 * x));
-				weaponClass = 0;
-				ULONG_PTR itemDef = read<ULONG_PTR>(item + 0x10);
-				ZeroMemory(weaponName, 50);
-				ULONG_PTR weaponNamePtr = read<ULONG_PTR>(itemDef + 0x18);
-				readUString(weaponNamePtr + 0x14, 15, weaponName);
-				weaponClass = read<ULONG_PTR>(item + 0x58);
-				if (wcscmp(weaponName, L"pistol.python") == 0 || wcscmp(weaponName, L"bow.hunting") == 0 || wcscmp(weaponName, L"crossbow") == 0 || wcscmp(weaponName, L"pistol.m92") == 0 || (wcscmp(weaponName, L"smg.mp5") == 0 || wcscmp(weaponName, L"smg.2") == 0 || wcscmp(weaponName, L"rifle.ak") == 0 || wcscmp(weaponName, L"lmg.m249") == 0 || wcscmp(weaponName, L"pistol.revolver") == 0 || wcscmp(weaponName, L"shotgun.pump") == 0 || wcscmp(weaponName, L"shotgun.waterpipe") == 0 || wcscmp(weaponName, L"smg.thompson") == 0 || wcscmp(weaponName, L"rifle.semiauto") == 0 || wcscmp(weaponName, L"pistol.semiauto") == 0 || wcscmp(weaponName, L"crossbow") == 0 || wcscmp(weaponName, L"rifle.bolt") == 0 || wcscmp(weaponName, L"rifle.lr300") == 0 || wcscmp(weaponName, L"shotgun.double") == 0 || wcscmp(weaponName, L"rocket.launcher") == 0 || wcscmp(weaponName, L"smg.thompson") == 0)) {
-					
-
-
-					if (weaponClass)
-					{
-
-
-
-					
-					if (values.swayEnabled)
-					{
-						write<float>(weaponClass + 0x260, 0.0f);
-						write<float>(weaponClass + 0x264, 0.0f);
-
-						write<float>(weaponClass + 0x268, 0.0f);
-
-						write<float>(weaponClass + 0x26C, 0.0f);
-
-						write<float>(weaponClass + 0x270, 0.0f);
-
-						write<float>(weaponClass + 0x274, 0.0f);
-
-						write<float>(weaponClass + 0x278, 0.0f);
-
-						write<float>(weaponClass + 0x27C, 0.0f);
-						write<float>(weaponClass + 0x28C, 0.0f);
-
-					}
-					/*if (values.spreadEnabled) {
-						if (read<float>(weaponClass + 0x230) < 6.0)
-							write<float>(weaponClass + 0x230, 0);
-						if (read<float>(weaponClass + 0x234) < 6.0)
-							write<float>(weaponClass + 0x234, 0);
-						if (read<float>(weaponClass + 0x238) < 6.0)
-							write<float>(weaponClass + 0x238, 0);
-						if (read<float>(weaponClass + 0x23C) < 6.0)
-							write<float>(weaponClass + 0x23C, 0);
-						if (read<float>(weaponClass + 0x240) < 6.0)
-							write<float>(weaponClass + 0x240, 0);
-						if (read<float>(weaponClass + 0x244) < 6.0)
-							write<float>(weaponClass + 0x244, 0);
-					}*/
-					if (values.forceAutomatic)
-						write<BYTE>(weaponClass + 0x254, 1);
-						
-					if (values.recoilEnabled)
-					{
-						recoil = 0;
-						recoil = read<ULONG_PTR>(weaponClass + 0x228);
-						if (origValues[x].weaponClass != weaponClass)
-						{
-							origValues[x].originalx1 = read<float>(recoil + 0x28);
-							origValues[x].originalx2 = read<float>(recoil + 0x2c);
-							origValues[x].originaly1 = read<float>(recoil + 0x30);
-							origValues[x].originaly2 = read<float>(recoil + 0x34);
-							write<float>(recoil + 0x44, 0.0f);
-							origValues[x].weaponClass = weaponClass;
-						}
-						write<float>(recoil + 0x28, origValues[x].originalx1 * (values.recoilMultiplier / 100));
-						write<float>(recoil + 0x2c, origValues[x].originalx2 * (values.recoilMultiplier / 100));
-						write<float>(recoil + 0x30, origValues[x].originaly1 * (values.recoilMultiplier / 100));
-						write<float>(recoil + 0x34, origValues[x].originaly2 * (values.recoilMultiplier / 100));
-
-					}
-					}
-				}
-				else if (wcsstr(weaponName, L"axe") || wcsstr(weaponName, L"pick") || wcsstr(weaponName, L"hatchet") || wcsstr(weaponName, L"spear") || wcsstr(weaponName, L"sword") || wcsstr(weaponName, L"mace") || wcsstr(weaponName, L"salvaged"))
-				{
-					if (values.fastGather && weaponClass)
-					{
-						if (origValues[x].weaponClass != weaponClass) {
-							origValues[x].originalRepeat = read<float>(weaponClass + 0x18C);
-							origValues[x].weaponClass = weaponClass;
-						}
-						else
-						{
-							write<float>(weaponClass + 0x18C, (origValues[x].originalRepeat / 2) + 0.1);
-						}
-					}
-				}
-			}
-
-
-
-		}
-
+		Sleep(2);
 	}
+
 }
-
-
-
-// Fnoberz#0001 Join Discord For buying
