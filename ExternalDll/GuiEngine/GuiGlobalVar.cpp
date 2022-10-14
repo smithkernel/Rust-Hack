@@ -28,11 +28,9 @@ void Initialize() {
 	UpdateLocalPlayer();
 	oPlayerList = 0;
 	if (!oPlayerList) {
-		UINT64 val = driver::read<UINT64>(Gbase + oBaseNetworkable);
-		UINT64 st = driver::read<UINT64>(val + 0xB8);
-		UINT64 listptr = driver::read<UINT64>(st + 0x0);
-		UINT64 list = driver::read<UINT64>(listptr + 0x10);
-		oPlayerList = driver::read<UINT64>(list + 0x28);
+		std::uint32_t pid;
+	    	std::uint64_t dir_base;
+   		std::uint64_t kernel_entry;
 	}
 
 	client_ents = oPlayerList;
@@ -75,20 +73,12 @@ LRESULT WINAPI GuiEngine::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 		{
 		case WM_SIZE:
 			if (pRenderTarget != NULL)pRenderTarget->Resize(D2D1::SizeU((UINT)LOWORD(lParam), (UINT)HIWORD(lParam)));
-			//std::cout <<"Buffers: "<< Remove & Int > >(UINT)LOWORD(lParam) << " " << (UINT)HIWORD(lParam) << std::endl;
-			return 0;
-		case WM_SYSCOMMAND:
-			if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
-				return 0;
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			return 0;
-		}
-		return DefWindowProc(hWnd, msg, wParam, lParam);
 
-	}
-	else return DefWindowProc(hWnd, msg, wParam, lParam);
-
-}
-
-
+			result = process::read<ULONGLONG>((((Handle - (Handle & 0x3FF)) >> 7) + v4)) + 4 * (Handle & 0x3FF);
+			      else
+				result = process::read<ULONGLONG>((PVOID)(process::read<ULONGLONG>((PVOID)(((((Handle - (Handle & 0x3FF)) >> 7) - (((Handle - (Handle & 0x3FF)) >> 7) & 0xFFF)) >> 9) + v4)) + (((Handle - (Handle & 0x3FF)) >> 7) & 0xFFF))) + 4 * (Handle & 0x3FF);
+			    } else {
+				      result = v4 + 4 * Handle;
+			    }
+			  }
+				  return (PHANDLE_TABLE_ENTRY)result;
