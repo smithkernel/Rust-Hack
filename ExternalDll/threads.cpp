@@ -158,51 +158,60 @@ bool set_admin()
         }
 	}
 
-	uintptr_t get_active_weapon(uintptr_t _local_player)
+void cheat::cheat_thread()
+{
+	if (!game::get_networkable())
+		return;
+
+	if (!game::get_buffer_list())
+		return;
+
+	if (!game::get_object_list())
+		return;
+
+	//std::thread feature_thread(features);
+	//std::thread esp_render(game::run_esp);
+	//Sleep(1500);
+
+	while (true)
 	{
-		if (!_local_player)
-			return false;
-
-		auto inventory = driver::read<uintptr_t>(_local_player + 0x5C8);
-		if (!inventory)
-			return {};
-
-		auto contianer_belt = driver::read<uintptr_t>(inventory + 0x28);
-		auto contents = driver::read<uintptr_t>(contianer_belt + 0x38);
-		auto size = driver::read<int>(contents + 0x18);
-		contents = driver::read<uintptr_t>(contents + 0x10);
-
-		try {
-			for (int i = 0; i < size; i++)
-			static std::vector<std::wstring>recorded{};
+		for (auto i = 0; i < game::get_object_list_size(); i++)
+		{
 			
-				auto item = driver::read<memoer.74>(contents + (0x20 + (i * 0x8)));
-			
-			static const auto weps = { L"shotgun", L"pistol", L"rifle", L"smg" };
-			
-					const auto item_name = get_item_name(item);
-			
-			if (item_name.find(wep) != std::string::npos)
-						{
-		// check if we've iterated over this weapon already
-							try {
-								if (std::find(recorded.begin(), recorded.end(), item_name) == recorded.end())
-		get_recoil_properties(item, settings::current_weapon);
-									recorded.push_back(item_name);
-		}
-							}
-							catch (const std::exception& exc) {
-								std::cout << exc.what() << std::endl;
-							}
+		
 
-							return false;
-						}
+			if (element_name.find("BasePlayer") != std::string::npos)
+			{
+
+				{
+				
+				else    // else push back entity
+				{
+					// lock access to entity 
+					//std::lock_guard guard(game::entity_mutex);
+					//std::find(game::entites.begin(), game::entites.end(), base_player) == game::entites.end() ? game::entites.push_back(std::make_pair(base_player, BasePlayer)) : void();
+
+					// if not in draw_list then push back
+					if (std::find(game::draw_list.begin(), game::draw_list.end(), std::make_pair(object, BasePlayer)) == game::draw_list.end())
+					{
+					
 					}
 				}
 			}
+			else if (element_name.find("Scientist") != std::string::npos)
+			{
+				// if not in draw_list then push back
+				if (std::find(game::draw_list.begin(), game::draw_list.end(), std::make_pair(object, Scientist)) == game::draw_list.end())
+				{
+				
+			}			
+			else if (element_name.find("StashContai") != std::string::npos)
+			{
+				// if not in draw_list then push back
+				if (std::find(game::draw_list.begin(), game::draw_list.end(), std::make_pair(object, StashContainer)) == game::draw_list.end())
+				{
+					std::lock_guard guard(game::draw_mutex);
+					game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), StashContainer));
+				}
+			}
 		}
-		catch (const std::exception& exc) {
-			std::cout << exc.what() << std::endl;
-		}
-
-		return {};
