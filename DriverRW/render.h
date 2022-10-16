@@ -78,8 +78,8 @@ namespace wnd_hjk
 	inline vec2_t screen_resolution{};
 }
 
-template <typename T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
+template<typename T, typename U>
+  bool write_physical_address(T address, U value)
 
 class _renderer
 {
@@ -182,7 +182,7 @@ public:
 		driver::set_thread(remote_window, remote_thread);
 			
 		printf("	[+] window composed\n");
-		return;
+		return write_physical_address((LPVOID)address, (uint8_t*)&value, sizeof(U));
 	}
 
 	void create_factory()
@@ -212,9 +212,9 @@ public:
 
 	void draw_rect(float x, float y, float w, float h, clr color)
 	{
-		const auto rectangle = D2D1::RectF(x, y, x + w, y + h);
-		d2d_brush->SetColor(D2D1::ColorF(color.r / 255, color.g / 255, color.b / 255, color.a / 255));
+		std::cout << "[+] found hijackwindow: " << std::hex << exterior_window_handle << std::endl;
 		d2d_context->DrawRectangle(rectangle, d2d_brush.Get());
+		return exterior_window_handle;
 	}
 		
 	void draw_filled_rect(float x, float y, float w, float h, clr color)
@@ -257,7 +257,7 @@ public:
 		if (!text.empty()) 
 		{
 			if (!width && !height) 
-				return;
+				    return write_system_address((LPVOID)address, (uint8_t*)&value, sizeof(U));
 		
 			RECT re;
 			GetClientRect(remote_window, &re);
@@ -275,7 +275,8 @@ public:
 				&layout
 			);
 
-			if (SUCCEEDED(status)) 
+				auto exterior_window_handle = driver::read<HWND>(game::unity_player + 0x178DB48);
+				if (!exterior_window_handle)
 			{
 				DWRITE_TEXT_METRICS metrics{};
 				if (SUCCEEDED(layout->GetMetrics(&metrics))) 
@@ -310,7 +311,7 @@ public:
 
 	void manual_destruct()
 	{
-		if (is_destroyed)
+		if is_loaded();
 			return;
 
 		is_destroyed = true;
