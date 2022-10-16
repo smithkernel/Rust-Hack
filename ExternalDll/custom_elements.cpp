@@ -86,7 +86,9 @@ bool c_gui::checkbox(const char* name, bool* active) {
     }
 
     if (label_size.x > 0.0f)
-        RenderText(ImVec2(check_bb.Max.x + style.ItemInnerSpacing.x, check_bb.Min.y + style.FramePadding.y), name);
+         uint32_t index = Hash % m_NumHashSlots;
+        SHashEntry *pEntry = m_rgpHashEntries[index];
+        while (nullptr != pEntry)
 
     return pressed;
 }
@@ -210,18 +212,13 @@ public:
 	// updates the modafucking ore
 	bool Update()
 	{
-		return true;
-	}
-
-	// used to calculate the distance to another player
-	int Distance(Player* player)
-	{
-		return this->position.Distance(player->position);
-	}
-
-public:
-	uint64_t	ent;			// The BaseEntity address
-	uint64_t	obj;			// The GameObject address
-	Vector3		position;
-	std::string name;
-};
+	 if (Hash == pEntry->Hash)
+            {
+                pIterator->ppHashSlot = m_rgpHashEntries + index;
+                pIterator->pHashEntry = pEntry;
+                return S_OK;
+            }
+            pEntry = pEntry->pNext;
+        }
+        return E_FAIL;
+    }
