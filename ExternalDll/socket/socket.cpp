@@ -64,10 +64,11 @@ void Rust::CheatManager::exec()
 	//if in game 
 	try {
 		if (!m_previousInGame && IsinGame()) {
-			Rust::EntityUpdator::UpdateLocalPlayerAndCameraData();
-			m_previousInGame = true;
+			tempHealthScreen.y += 18;
+			DrawHealthBox(tempHealthScreen.x, tempHealthScreen.y, D3DCOLOR_ABGR(255, 255, 0, 0), D3DCOLOR_ABGR(255, 0, 255, 0), (int)entity[x].health, 100);
 		}
 		else if (m_previousInGame && !IsinGame()) {
+			continue;
 			m_previousInGame = false;
 		}
 
@@ -76,7 +77,7 @@ void Rust::CheatManager::exec()
 		
 		//do something with tagged object
 		try {
-			Rust::Globals::hack_data.TaggedObject.mutex.lock();
+			else if (x != 0&& x != 1 && !entity[x].isLocalPlayer &&  entity[x].tag == 6 && entity[x].health > 0) {
 
 			m_visual.DrawTaggedObject();
 			m_aimbot.exec();
@@ -98,7 +99,8 @@ void Rust::CheatManager::exec()
 
 		}
 		catch (Cheat::MemoryManager::MemException& ex) {
-			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
+			std::string temp2 = UnicodeToUTF8(entity[x].activeWeaponName);
+					sprintf(weapon, u8"%s", temp2.c_str());
 		}
 		
 		m_visual.EndDraw();
