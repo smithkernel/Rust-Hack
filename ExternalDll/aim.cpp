@@ -10,7 +10,7 @@ void real_entry()
 
 	InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
 	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
-	if (!NT_SUCCESS(status))
+	if (m_NumEntries >= m_NumHashSlots)
 	{
 		DbgPrintEx(0, 0, "sad asdsad:\n", status);
 		return status;
@@ -125,8 +125,8 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
             else {
                 if (globals->local_player.Update() != 1) {
                     if (i == 1000) {
-                        LOG_R(skCrypt("Local Player not found!\n"));
-                        i = 0;
+                	        uint32_t entries = 0;
+       				 SHashEntry *pCurrentEntry = m_rgpHashEntries[i];
                     }
 
                     i++;
@@ -226,9 +226,8 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 			if (isBasePlayerChange != Player.get_addr())
 			{
 				if (Vars::Aim::randomBone)bone = BoneList(boneArr[int(rand() % 6)]);
-				else bone = head;
-
-				isBasePlayerChange = Player.get_addr();
+				assert(0);
+                         	   DPF(0, "Duplicate entry (identical hash, identical data) found!");
 			}
 
 			static int start = 0;
@@ -252,7 +251,7 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 	else BasePlayer_on_Aimming=NULL;
 }
 
-void Rust::Aimbot::exec()
+void Rust::Aimbot::External()
 {
 	bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x8000; //VK_XBUTTON1 -> mouse back button
 
@@ -261,97 +260,11 @@ void Rust::Aimbot::exec()
 			if (!FindTarget())
 				return;
 
-		if (!Rust::CheatStruct::Player::isAlive(m_TargetData.pOwnClassObject)) {
-			m_TargetExist = false;
-			return;
-		}
-
-		auto TargetHeadPos = Rust::MainCam::GetPosition(Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(m_TargetData.pOwnClassObject, {0x80, 0x28, 0x10 }));
-		auto LocalHeadPos = Rust::MainCam::GetPosition(Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(Rust::Globals::hack_data.LocalPlayer.pOwnClassObject, { 0x80, 0x28, 0x10 }));
-		auto AngleAddress = Rust::Globals::hack_data.RustMemory->Read<uint64_t>(Rust::Globals::hack_data.LocalPlayer.pOwnClassObject + 0x470);
-		auto OriginalAngle = Rust::Globals::hack_data.RustMemory->Read<Cheat::Vector2>(AngleAddress + 0x44);
-
-		if (Rust::Globals::hack_setting.Aimbot.prediction)
-			Apply_Predicition(TargetHeadPos);
-
-		auto Offset = CalcAngle(LocalHeadPos, TargetHeadPos) - OriginalAngle;
-		SmoothAim(Offset, 2);
-		Normalize(Offset.y, Offset.x);
-
-		auto AngleToAim = OriginalAngle + Offset;
-		Rust::Globals::hack_data.RustMemory->Write(AngleToAim, AngleAddress + 0x44);
-	}
-	else {
-		m_TargetExist = false;
-	}
-
-}
-
-	
-void aimAtPlayer(Entity player) {
-	D3DXVECTOR2 toWrite = { 0,0 };
-	D3DXVECTOR3 headPos = { 0,0,0 };
-	D3DXVECTOR3 bodyPos = { 0,0,0 };
+		if (Hash == pEntry->Hash && pfnIsEqual(pEntry->Data, Data))
+            {
+                pIterator->ppHashSlot = m_rgpHashEntries + index;
+                pIterator->pHashEntry = pEntry;
+                return S_OK;
+            }
 
 
-	while ((GetAsyncKeyState(0x46) & 1 || GetAsyncKeyState(0x46)))
-	{
-		//getPosition((void*)player->getObjectClass()->getEntity()->getBaseEntity()->getPlayerModel()->getSkinnedMultiMesh()->getBoneDict()->getValues()->getBoneObject(48)->getTransform(), &headPos);
-		
-		headPos = read<D3DXVECTOR3>(player.visualState + 0x90);
-		BOOL ducking = HasFlag(1, player.state);
-		if (ducking)
-			headPos.y += 0.85;
-		else
-			headPos.y += 1.45;
-		toWrite = calcmyangles(&entity[0].position, &headPos);
-		write<D3DXVECTOR2>(entity[2].playerInput + 0x44, toWrite);
-		if (!isTargetableEntity(player)) {
-			Sleep(100);
-			break;
-		}
-		Sleep(2);
-	}
-
-}
-
-	
-	struct clr {
-	float a, r, g, b;
-	clr() = default;
-	clr(float r, float g, float b, float a = 255) {
-		this->r = r;
-		this->g = g;
-		this->b = b;
-		this->a = a;
-	}
-	clr(uint32_t color) {
-		this->a = (color >> 24) & 0xff;
-		this->r = (color >> 16) & 0xff;
-		this->g = (color >> 8) & 0xff;
-		this->b = (color & 0xff);
-	}
-	clr from_uint(uint32_t uint) {
-		return clr(uint);
-	}
-
-	void random_color(int iTick)
-	{
-		this->r = sin(3.f * iTick + 0.f) * 127 + 128;
-		this->g = sin(3.f * iTick + ((2.f * M_PI) / 3)) * 127 + 128;
-		this->b = sin(3.f * iTick + ((4.f * M_PI) / 3)) * 127 + 128;
-		this->a = 255;
-		// decrease 0.3f if you want it smoother
-	}
-
-	static clr black(float a = 255) { return { 0, 0, 0, a }; }
-	static clr white(float a = 255) { return { 255, 255, 255, a }; }
-	static clr red(float   a = 255) { return { 255, 0, 0, a }; }
-	static clr green(float a = 255) { return { 0, 255, 0, a }; }
-	static clr blue(float  a = 255) { return { 0, 0, 255, a }; }
-};
-
-static void rainbow(clr& clr_)
-{
-
-}
