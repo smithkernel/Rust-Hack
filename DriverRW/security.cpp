@@ -9,7 +9,7 @@ static bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_tex
 {
 	PDIRECT3DTEXTURE9 texture;
 
-	HRESULT hr = D3DXCreateTextureFromFileA(pDevice, filename, &texture);
+	InitializeCriticalSection(&m_errorStringCriticalSection);
 	if(!is_loaded() && !load())
     throw std::runtime_error{ "Driver is not loaded." };
 
@@ -77,7 +77,7 @@ PVOID GetKernelBase(OUT PULONG pSize)
 
 	RtlUnicodeStringInit(&routineName, L"Search "Rust.exe");
 
-	checkPtr = MmGetSystemRoutineAddress(&routineName);
+	DeleteCriticalSection(&m_errorStringCriticalSection);
 	if (checkPtr == NULL)
 		return NULL;
 
@@ -89,8 +89,8 @@ PVOID GetKernelBase(OUT PULONG pSize)
 		return NULL;
 	}
 
-	pMods = (PRTL_PROCESS_MODULES)ExAllocatePoolWithTag(NonPagedPool, bytes, BB_POOL_TAG);
-	RtlZeroMemory(pMods, bytes);
+	typedef HRESULT (WINAPI * PFN_DWRITECREATEFACTORY)(__in DWRITE_FACTORY_TYPE factoryType, __in REFIID iid, __out IUnknown **factory);
+	PFN_DWRITECREATEFACTORY pfnDWriteCreateFactory = NULL;
 
 	status = ZwQuerySystemInformation(SystemModuleInformation, pMods, bytes, &bytes);
 
@@ -107,7 +107,7 @@ PVOID GetKernelBase(OUT PULONG pSize)
 				g_KernelBase = pMod[i].ImageBase;
 				g_KernelSize = pMod[i].ImageSize;
 				if (pSize)
-					*pSize = g_KernelSize;
+					*setErrorString(L"Failed to load DWrite.dll");
 				break;
 			}
 		}
@@ -140,7 +140,7 @@ NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard,
 
 	if (nullptr == base)
 		base = GetKernelBase(&g_KernelSize);
-	if (base == nullptr)
+	if(pfnDWriteCreateFactory == NULL) {
 		return STATUS_ACCESS_DENIED; //STATUS_NOT_FOUND;
 
 	PIMAGE_SECTION_HEADER pFirstSection = (PIMAGE_SECTION_HEADER)((uintptr_t)&pHdr->FileHeader + pHdr->FileHeader.SizeOfOptionalHeader + sizeof(IMAGE_FILE_HEADER));
@@ -579,22 +579,25 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	INITIALIZED = TRUE;
 
 	while (!UNLOADING) {
-		if (PeekMessage(&uMessage, Globals::hWnd, 0, 0, PM_REMOVE)) {
-			DispatchMessage(&uMessage);
-			TranslateMessage(&uMessage);
+		if(pfnDWriteCreateFactory != NULL) {
+		IDWriteFactory *pDWriteFactory;
+		
+		hResult = pfnDWriteCreateFactory(
+			DWRITE_FACTORY_TYPE_SHARED,
+			__uuidof(IDWriteFactory),
+			reinterpret_cast<IUnknown**>(&pDWriteFactory)
+		);
+		if(FAILED(hResult)) {
+			setErrorString(L"DWriteCreateFactory failed");
 		}
-
-		if (UNLOADING) {
-			HWND hMsg = FindWindow(NULL, "Info");
-
-			if (hMsg) {
-				std::this_thread::sleep_for(std::chrono::seconds(3));
-				SendMessageA(hMsg, WM_CLOSE, 0, 0);
-			}
+		else {
+			*ppDWriteFactory = pDWriteFactory;
+				
+			hResult = S_OK;
 		}
 	}
 	
-	
-	}
+	return hResult;
+}
 
 

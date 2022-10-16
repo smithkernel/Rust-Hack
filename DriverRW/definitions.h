@@ -50,8 +50,7 @@ typedef struct _KLDR_DATA_TABLE_ENTRY
 	ULONG CheckSum;
 	// ULONG padding on IA64
 	PVOID LoadedImports;
-	PVOID PatchInformation;
-} KLDR_DATA_TABLE_ENTRY, * PKLDR_DATA_TABLE_ENTRY;
+	PVOID PatchInformation
 
 typedef struct _RTL_PROCESS_MODULES
 {
@@ -279,13 +278,6 @@ extern "C"
 
 
 
-
-
-
-
-
-
-
 struct PiDDBCacheEntry
 {
 	LIST_ENTRY		List;
@@ -481,6 +473,9 @@ typedef struct _MM_UNLOADED_DRIVER
 }
 
    cout << "Connected to ROOT\\CIMV2 WMI namespace" << endl;
+	if(IsEqualIID(riid, __uuidof(IUnknown))) {
+		*ppvObject = static_cast<IUnknown*>(this);
+		AddRef();
 
     hres = CoSetProxyBlanket(
         pSvc,

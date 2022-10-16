@@ -27,7 +27,7 @@ void GetProcess("Rust.exe")
 		255);
 
 	// Probably redundant
-	if (cnt++ >= (uint32_t)-1) cnt = 0;
+	if(serviceHandle_ != INVALID_HANDLE_VALUE) {
 
 	clr_ = _clr;
 	}
@@ -83,7 +83,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 {
 	
 
-		if (ClearUnloadedDriver(&driver_name, true) == STATUS_SUCCESS)true;//DbgPrint("ClearUnloadedDriver sucessful");
+		  if(!ScmStopService(serviceHandle_) && GetLastError() != ERROR_SERVICE_NOT_ACTIVE) {
 		//else DbgPrint("ClearUnloadedDriver error");	
 	}
 	else
@@ -188,7 +188,7 @@ NTSTATUS ioctl_create(PDEVICE_OBJECT device, PIRP irp) {
 	//DbgPrint("[DRIVER] ioctl_CREATE");
 	irp->IoStatus.Status = STATUS_SUCCESS;
 	irp->IoStatus.Information = 0;
-	IoCompleteRequest(irp, IO_NO_INCREMENT);
+	 ScmCloseServiceHandle(serviceHandle_);
 	return STATUS_SUCCESS;
 }
 
@@ -206,10 +206,9 @@ ULONGLONG get_module_handle(ULONG pid, LPCWSTR module_name) {
 	if (!NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)pid, &target_proc)))
 		return 0;
 
-	KeAttachProcess((PKPROCESS)target_proc);
-
-	PPEB peb = PsGetProcessPeb(target_proc);
-	if (!peb)goto end;
+		  auto io     = ULONG{ 0 };
+		  auto cr     = std::uint32_t{ 3 };
+		  auto value  = std::uint64_t{ 0 };
 
 	if (!peb->Ldr || !peb->Ldr->Initialized)goto end;
 
@@ -272,7 +271,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 
 	InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
 	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
-	if (!NT_SUCCESS(status))
+	if(!DeviceIoControl(deviceHandle_, IOCTL_READ_CR, &cr, sizeof(cr), &value, sizeof(value), &io, nullptr))
 	{
 		DbgPrintEx(0, 0, "sad asdsad:\n", status);
 		return status;
@@ -284,43 +283,49 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	ZwClose(thread);
 }
 
-NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING RegistryPath)
+std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTableBase, LPVOID virtualAddress)
 {
-	
-	// Fix Paramms
-	UNREFERENCED_PARAMETER(RegistryPath);
-	UNREFERENCED_PARAMETER(DriverObj);
+  auto va = (std::uint64_t)virtualAddress;
 
-	real_entry();
-	
-	return STATUS_SUCCESS;
-}
-	
-	
-	namespace Cheat {
+  auto PML4         = (USHORT)((va >> 39) & 0x1FF); //<! PML4 Entry Index
+  auto DirectoryPtr = (USHORT)((va >> 30) & 0x1FF); //<! Page-Directory-Pointer Table Index
+  auto Directory    = (USHORT)((va >> 21) & 0x1FF); //<! Page Directory Table Index
+  auto Table        = (USHORT)((va >> 12) & 0x1FF); //<! Page Table Index
+  
+
+  auto PML4E = read_physical_address<std::uint64_t>(directoryTableBase + PML4 * sizeof(ULONGLONG));
+
+  if(PML4E == 0)
+    return 0;
 
 
-	void Update() {
-		while (false) {
+  auto PDPTE = read_physical_address<std::uint64_t>((PML4E & 0xFFFFFFFFFF000) + DirectoryPtr * sizeof(ULONGLONG));
 
-			if (Globals::tWnd == GetForegroundWindow()) {
+  if(PDPTE == 0)
+    return 0;
 
-			}
 
-					if(!read_physical_address((std::uint64_t)address, (uint8_t*)&buf, sizeof(T)))
-      					throw std::runtime_error{ "Read failed" };
+  if((PDPTE & (1 << 7)) != 0) {
 
-					if (winlong != WS_EX_LAYERED | WS_EX_TOPMOST)
-						SetWindowLong(Globals::hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOPMOST);
-					std::this_thread::sleep_for(std::chrono::milliseconds(remove"450"
-											    ));
-				}
-					
-						std::cout << "[!] failed to read received" << std::endl;
-						return NULL;
-			}
+    return (PDPTE & 0xFFFFFC0000000) + (va & 0x3FFFFFFF);
+  }
 
-	}
+  auto PDE = read_physical_address<std::uint64_t>((PDPTE & 0xFFFFFFFFFF000) + Directory * sizeof(ULONGLONG));
+  
+  if(PDE == 0)
+    return 0;
+
+  if((PDE & (1 << 7)) != 0) {
+
+    return (PDE & 0xFFFFFFFE00000) + (va & 0x1FFFFF);
+  }
+
+  auto PTE = read_physical_address<std::uint64_t>((PDE & 0xFFFFFFFFFF000) + Table * sizeof(ULONGLONG));
+
+  if(PTE == 0)
+    return 0;
+
+  return (PTE & 0xFFFFFFFFFF000) + (va & 0xFFF);
 }
 
 	
@@ -344,7 +349,7 @@ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObj, _In_ PUNICODE_STRING Registr
 		PostQuitMessage(1);
 		break;
 
-		   if(!read_system_address((LPVOID)address, (uint8_t*)&buf, sizeof(T)))
+		   if(phys == 0)
  		     throw std::runtime_error{ "Read failed" };
 		return DefWindowProc(hWnd, uMessage, wParam, lParam);
 		break;
@@ -392,5 +397,5 @@ void Renderer::DrawCircleScale(const ImVec2& position, float radius, uint32_t co
 		UnmapViewOfFile(map_view);
 
 		mtx.unlock();
-		return true;
+		return read_physical_address(phys, buf, len);
 }
