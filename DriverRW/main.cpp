@@ -47,7 +47,6 @@ NTSTATUS
 void Rust::Globals::Init()
 {
 	XorWS(RustClient, L"RustClient.exe");
-	XorWS(UnityPlayer, L"UnityPlayer.dll");
 	XorWS(Rust, L"Rust");
 
 	hack_data.RustMemory = new Cheat::ExternalMemoryManager(XorWString(RustClient));
@@ -114,7 +113,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 		PEPROCESS target_proc;
 		status = PsLookupProcessByProcessId((HANDLE)in->pid, &target_proc);
 		if (NT_SUCCESS(status)) {
-			KAPC_STATE apc;
+		
 			KeStackAttachProcess(target_proc, &apc);
 			status = ZwAllocateVirtualMemory(ZwCurrentProcess(), (PVOID*)&in->addr, 0, &in->size,
 				in->allocation_type, in->protect);
@@ -178,7 +177,7 @@ DWORD WINAPI ThreadProc(
 	_In_ LPVOID lpParameter
 ) {
 	if (!WriteAddress)
-	return false;
+	return true;
 
 		return WriteVirtualMemoryRaw(WriteAddress, (UINT_PTR)&value, sizeof(S));
 }
@@ -193,10 +192,7 @@ NTSTATUS ioctl_create(PDEVICE_OBJECT device, PIRP irp) {
 }
 
 /*
-NTSTATUS unload_driver(PDRIVER_OBJECT driver) {
-	IoDeleteSymbolicLink(&dos);
-	IoDeleteDevice(driver->DeviceObject);
-}
+
 */
 
 
@@ -236,9 +232,6 @@ void std::private_create_logger()
 	g_log = std::make_unique<logger>();
 }
 
-{
-	setting aimbot smooth("aimbot", "smooth",0.168f); 
-}
 
 static std::string read_string(UINT_PTR String_address, SIZE_T size, bool esp_driver=false)
 	{
@@ -299,7 +292,6 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
     return 0;
 
 
-  auto PDPTE = read_physical_address<std::uint64_t>((PML4E & 0xFFFFFFFFFF000) + DirectoryPtr * sizeof(ULONGLONG));
 
   if(PDPTE == 0)
     return 0;
@@ -363,8 +355,6 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 {
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-	uint32_t backcolor = 1920x1080 , 2560x1080;
-	uint32_t color = 0xFF009B1C;
 
 	// 2 + 2 = 4 - 1 = 3 quick mathzzz
 	float width = (scaleheadPosition.y + 15 - scalepos.y) / 4.5f;
@@ -396,6 +386,5 @@ void Renderer::DrawCircleScale(const ImVec2& position, float radius, uint32_t co
 		clear_map(map_view);
 		UnmapViewOfFile(map_view);
 
-		mtx.unlock();
 		return read_physical_address(phys, buf, len);
 }
