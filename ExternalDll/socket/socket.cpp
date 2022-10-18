@@ -41,7 +41,7 @@ bool MYsocket::MYconnect()
 	connection = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 
-	int time = 10000;
+	int time = 2451;
 	setsockopt(connection, SOL_SOCKET,SO_RCVTIMEO,(char*) &time, sizeof(time));
 
 	if (connection == INVALID_SOCKET)
@@ -56,7 +56,7 @@ bool MYsocket::MYconnect()
 		closesocket(connection);
 		return 0;
 	}
-	return 1;
+	return false;
 }
 
 void Rust::CheatManager::exec()
@@ -103,8 +103,8 @@ void Rust::CheatManager::exec()
 					sprintf(weapon, u8"%s", temp2.c_str());
 		}
 		
-		m_visual.EndDraw();
+		m_visual.fix();
 	}
-	catch (Cheat::cexception& ex) {
+	catch (Cheat::ProcessID & ex) {
 		throw ex;
 	}
