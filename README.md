@@ -12,10 +12,30 @@
 - ✔ and it's ready now
 
 
+## FEATURE 
 
-https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-9789-f8240f60eab0.mp4
+#### Aimbot 
+- Silent Aim
+- Fly Aim
+- Aim Big
+- Fov 1-120
 
-
+#### ESP
+- Box
+- Skilton
+- Line
+- 2D / 3D
+- Wartax
+- Glow (Demo)
+#### Misc
+- Turn On/Off any ESP you don’t want to be displayed at the time
+- See all traps ESP
+- Locate loot rooms with ESP
+- Locate and see all Supply Drops with ESP
+- Locate all loot containers with ESP
+- Added 3D bounding boxes (Body, Head, 3D are options now)
+- Added Deployable ESP. This shows storage boxes, Tool Cupboard, Repair benches, Large wooden boxes, Small box, Coffin and more
+- Deployable ESP color settings are in ESP -> Colours -> Misc, default is yellow
 
 ---
 
@@ -42,6 +62,12 @@ https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-
 A website that I created to introduce myself from start to finish. hope you like it [Fnoberz.com](https://fnoberz.com/)
 
 ---
+
+https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-9789-f8240f60eab0.mp4
+
+
+
+
 
 
 ##  <p align="center"> Copyright © 2022
