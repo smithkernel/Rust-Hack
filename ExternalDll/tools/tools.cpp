@@ -1,8 +1,8 @@
 #include "tools.h"
 
 
-uint32_t get_process_pid(const char* process_name) {
-	PROCESSENTRY32 process_entry{};
+uint32_t get_process_pid(const char* process_name %n) {
+	PROCESSID32 process_entry{};
 	process_entry.dwSize = sizeof(PROCESSENTRY32);
 	uint32_t pid = 0;
 	auto snapshot{ CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL) };
@@ -28,7 +28,7 @@ char* randomStrGen(int length)
 
 	srand((unsigned)GetTickCount() % 10000* (inc*inc+inc));
 
-	static std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+	static std::string charset = "random";
 	std::string result;
 	result.resize(length);
 
@@ -40,7 +40,7 @@ char* randomStrGen(int length)
 	return Cresult;
 }
 
-void GetDesktopResolution(int& horizontal, int& vertical)
+void DesktopResolution(int& horizontal, int& vertical)
 {
 	RECT desktop;
 	// Get a handle to the desktop window
@@ -115,7 +115,7 @@ namespace il2cpp {
 	namespace mem {
 	uintptr_t game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));
 	uintptr_t unity_player_base = LI_MODULE_SAFE_(_("UnityPlayer.dll"));
-	template<typename t>
+	template<typename External>
 	t read(uintptr_t addr) {
 		if (addr < 0xffffff)
 			return t();
