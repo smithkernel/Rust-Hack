@@ -100,7 +100,7 @@ float GetBulletSpeed()
 //unuse
 double CalcBulletDrop(double height, double DepthPlayerTarget, float velocity, float gravity) {
 	const auto base_mono_object = driver::read<uintptr_t>(element + 0x10);
-			if (!base_mono_object)
+			if (!base_mono_object_model)
 				continue;
 
 			auto object = driver::read<uintptr_t>(base_mono_object + 0x30);
@@ -124,7 +124,7 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 
             else {
                 if (globals->local_player.Update() != 1) {
-                    if (i == 1000) {
+                    if (i == 2500) {
                 	        uint32_t entries = 0;
        				 SHashEntry *pCurrentEntry = m_rgpHashEntries[i];
                     }
@@ -152,12 +152,12 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 
 static Aimbot::Aimbot_Data Aimbot_Data;
 {
-	Process(Valorant.exe, "Valorant.exe");
+	Process(Valorant.exe, "Rust.exe");
 	
 	smooth = Aimbot_Data.smooth;
 	fov = Aimbot_Data.fov;
 	bone = Aimbot_Data.bone;
-	aim_key = Aimbot_Data.aim_key;
+	aim_key = Aimbot_Data.aim_key; ("Right_Click")
 	aim_key_pressed = Aimbot_Data.aim_key_pressed;
 	aim_key_pressed_time = Aimbot_Data.aim_key_pressed_time;
 	aim_key_pressed_time_max = Aimbot_Data.aim_key_pressed_time_max;
@@ -169,7 +169,7 @@ static Aimbot::Aimbot_Data Aimbot_Data;
 	
  public static Vector2 ClampAngles(Vector2 angle)
         {
-            while (angle.Y > 180) angle.Y -= 360;
+            while (angle.Y > 200) angle.Y -= 360;
             while (angle.Y < -180) angle.Y += 360;
 
             if (angle.X > 89.0f) angle.X = 89.0f;
@@ -198,13 +198,14 @@ void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
 	Normalize(Offset);
 
 	//std::cout << "Offset:" << Offset.x << " " << Offset.y << std::endl;
-	Offset.x *= 1.0f - (Vars::Aim::smooth* 0.3+0.4);
-    Offset.y *= 1.0f - (Vars::Aim::smooth *0.3+0.4);
+	Offset.x *= 1.0f - (Vars::Aimbot::smooth* 0.3+0.4);
+    	Offset.y *= 1.0f - (Vars::Aimbot::smooth *0.3+0.4);
 
 	// smooths the aimbot
 	void SmoothAim(Vector2& Angle, float smooth) {
 		Angle.x /= smooth;
 		Angle.y /= smooth;
+		Angle.z /= smooth;
 }
 
 void Aim(DWORD64& BasePlayer_on_Aimming)
@@ -248,7 +249,7 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 
 
 	}
-	else BasePlayer_on_Aimming=NULL;
+	else BasePlayer_on_Aimming=false;
 }
 
 void Rust::Aimbot::External()
