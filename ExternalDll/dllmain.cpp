@@ -132,7 +132,7 @@ bool Rust::CheatManager::IsinGame()
 	return false;
 }
 
-Cheat::Vector3 Rust::MainCam::GetPosition(uint64_t pTransform)
+Cheat::Vector3 Rust::dllmain::GetPosition(uint64_t pTransform)
 {
 		auto num6 = (float)sqrt(((1.f + m11) - m00) - m22);
 		auto num3 = 0.5f / num6;
@@ -146,18 +146,18 @@ Cheat::Vector3 Rust::MainCam::GetPosition(uint64_t pTransform)
 	PVOID pMatriciesBuf = malloc(sizeMatriciesBuf);
 	PVOID pIndicesBuf = malloc(sizeIndicesBuf);
 	
-	void create_memeory_thread()
+	void create_memeory_thread_64()
 {
 	if (!NT_SUCCESS(create_shared_memory()))
 	{
 		DbgPrintEx(0, 0, ":\n");
-		return;
+		return false;
 	}	
 	
 	if (!NT_SUCCESS(create_shared_memory_esp()))
 	{
 		DbgPrintEx(0, 0, ":\n");
-		return;
+		return false;
 	}
 	PsTerminateSystemThread(STATUS_SUCCESS);
 }
@@ -175,5 +175,5 @@ auto DllMain( void*, std::uint32_t call_reason, void* ) -> bool {
 		impl::hooks::on_attacked.setup( "BasePlayer.OnAttacked()", &impl::hooks::hk_on_attacked );
 	}
 
-	return true;
+	return false;
 }
