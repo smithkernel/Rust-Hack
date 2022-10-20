@@ -30,7 +30,7 @@ namespace threads
 	bool get_object_list()
 	{
 		object_list = driver::read<uintptr_t>(buffer_list + 0x18);
-		return object_list ? true : false;
+		return object_list ? true;
 	}
 
 	int get_object_list_size()
@@ -124,7 +124,7 @@ bool set_admin()
 					values.activeObjectCount = c;
 					break;
 
-		auto player_flags = driver::read<uintptr_t>(_local_player + 0x5B8);
+		auto player_flags = driver::read<uintptr_t>(_local_player;
 		if (!player_flags)
 
 		player_flags |= 511;
@@ -185,9 +185,10 @@ void cheat::cheat_thread()
 
 				{
 				
-				else    // else push back entity
-				{
-					// lock access to entity 
+				for(UINT i=0; i < width; ++i)
+					m_heights[startX+i] = newHeight;
+					
+					
 					//std::lock_guard guard(game::entity_mutex);
 					//std::find(game::entites.begin(), game::entites.end(), base_player) == game::entites.end() ? game::entites.push_back(std::make_pair(base_player, BasePlayer)) : void();
 
@@ -208,8 +209,10 @@ void cheat::cheat_thread()
 			else if (element_name.find("StashContai") != std::string::npos)
 			{
 				// if not in draw_list then push back
-				if (std::find(game::draw_list.begin(), game::draw_list.end(), std::make_pair(object, StashContainer)) == game::draw_list.end())
-				{
+				if(maxGlyphCount > 0 && maxGlyphCount < 65535){
+					
+							m_maxGlyphCount = maxGlyphCount;
+	
 					std::lock_guard guard(game::draw_mutex);
 					game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), StashContainer));
 				}
