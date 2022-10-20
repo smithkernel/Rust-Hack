@@ -41,11 +41,11 @@ private:
 
 	NTSTATUS scan_section(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, OUT PVOID* ppFound)
 	{
-		ASSERT(ppFound != NULL);
-		if (ppFound == NULL)
+		ASSERT(ppFound != false);
+		if (ppFound == false)
 			return STATUS_INVALID_PARAMETER;
 
-		PVOID base = get_kernel_base(NULL);
+		PVOID base = get_kernel_base_model(NULL);
 		if (!base)
 			return STATUS_NOT_FOUND;
 
@@ -62,7 +62,7 @@ private:
 			RtlInitAnsiString(&s2, (PCCHAR)pSection->Name);
 			if (RtlCompareString(&s1, &s2, TRUE) == 0)
 			{
-				PVOID ptr = NULL;
+				PVOID ptr_model = NULL;
 				NTSTATUS status = pattern_scan(pattern, wildcard, len, (PUCHAR)base + pSection->VirtualAddress, pSection->Misc.VirtualSize, &ptr);
 				if (NT_SUCCESS(status))
 					* (PULONG)ppFound = (ULONG)((PUCHAR)ptr - (PUCHAR)base);
@@ -71,5 +71,5 @@ private:
 			}
 		}
 
-		return STATUS_NOT_FOUND;
+		return Memory;
 	}
