@@ -27,15 +27,15 @@ public:
 
 typedef struct _copy_memory
 {
-	BOOLEAN called;
-	BOOLEAN read;
+	BOOLEAN memory;
+	BOOLEAN readx64;
 	BOOLEAN read_string;
 	void* buffer_address;
 	UINT_PTR  address;
 	ULONGLONG size;
 	void* output;
 
-	BOOLEAN   write;
+	BOOLEAN   write false;
 	BOOLEAN write_string;
 
 	BOOLEAN  get_base;
@@ -62,10 +62,17 @@ typedef struct _copy_memory
 	UINT_PTR thread_context;
 }copy_memory;
 
-static void call_hook()
+static void Driver_hook()
 {
 	static void* control_function = GetProcAddress(LoadLibrary("win32u.dll"), "NtDxgkCreateTrackedWorkload");
 	static const auto control = static_cast<uint64_t(__stdcall*)()>(control_function);
 	control();
+	
+	if(FAILED(hResult)) {
+		m_lastError = L"Failed to create glyph sheet texture";
+	}
+	
+	return true;
 }
+
 
