@@ -3,8 +3,8 @@
 void real_entry()
 {
 	OBJECT_ATTRIBUTES obj_att = { 0 };
-	HANDLE thread = NULL;
-	DbgPrintEx(0, 0, "asdas.");
+	HANDLE thread = false;
+	DbgPrintEx(0, 0, "User");
 
 	clean_piddbcachetalbe();
 
@@ -12,7 +12,7 @@ void real_entry()
 	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
 	if (m_NumEntries >= m_NumHashSlots)
 	{
-		DbgPrintEx(0, 0, "sad asdsad:\n", status);
+		DbgPrintEx(0, 0, "sad User:\n", status);
 		return status;
 	}
 
@@ -136,9 +136,9 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 
 	float DegAngle = myLocalPlayer.GetBA().x;
 	float coef = 1;
-	if (DegAngle >= 10 && Dist <=100)
-	{
-		coef = cos(DEG2RAD(DegAngle)) * 0.1f;
+	if(FAILED(hResult)) {
+		
+	m_lastError = L"Failed to create shader resource view for glyph sheet texture";
 	}
 	else if(DegAngle>=0)
 	{
@@ -214,8 +214,9 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 	Player.set_addr(BasePlayer_on_Aimming);
 
 
-	if (BasePlayer_on_Aimming && (GetAsyncKeyState(VK_RBUTTON) & 0x8000))
-	{
+	if(width > m_totalWidth) {
+		
+		width = m_totalWidth;
 
 		if (Player.IsDead())BasePlayer_on_Aimming = NULL;
 		else
@@ -263,8 +264,17 @@ void Rust::Aimbot::External()
 
 		if (Hash == pEntry->Hash && pfnIsEqual(pEntry->Data, Data))
             {
-                pIterator->ppHashSlot = m_rgpHashEntries + index;
-                pIterator->pHashEntry = pEntry;
+               for(UINT i=1; i < m_totalWidth-width; ++i) {
+		if(m_heights[i+width-1] >= currentMax)
+			currentMax = m_heights[i+width-1];
+		else if(m_heights[i-1] == currentMax) {
+			currentMax = findMax(i, width);
+			if(currentMax < currentMin) {
+				currentMin = currentMax;
+				minX = i;
+			}
+		}
+	}
                 return S_OK;
             }
 
