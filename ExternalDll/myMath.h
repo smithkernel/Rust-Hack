@@ -1,111 +1,38 @@
 #pragma once
 #include <cmath>
 
-class Vector3
-{
-public:
-	float x, y, z;
+namespace rust {
+	template<typename T>
+	class list {
+	public:
+		T get(uint32_t idx)
+		{
+			const auto internal_list = reinterpret_cast<uintptr_t>(this + 0x20);
+			return *reinterpret_cast<T*>(internal_list + idx * sizeof(T));
+		}
+		
+		T get_value(uint32_t idx)
+		{
+			const auto list = *reinterpret_cast<uintptr_t*>((uintptr_t)this + 0x10);
+			const auto internal_list = list + 0x20;
+			return *reinterpret_cast<T*>(internal_list + idx * sizeof(T));
+		}
 
-	inline Vector3() {
-		x = y = z = 0.0f;
-	}
+		T operator[](uint32_t idx) { return get(idx); }
 
-	inline Vector3(float var) {
-		x = y = z = var;
-	}
+		const uint32_t get_size() { return *reinterpret_cast<uint32_t*>((uintptr_t)this + 0x18); }
 
-	inline Vector3(float X, float Y, float Z) {
-		x = X; y = Y; z = Z;
-	}
-
-	inline float operator[](int i) const {
-		return ((float*)this)[i];
-	}
-
-	inline Vector3& operator-=(float v) {
-		x -= v; y -= v; z -= v; return *this;
-	}
-
-	inline Vector3 operator*(float v) const {
-		return Vector3(x * v, y * v, z * v);
-	}
-
-	inline Vector3 operator/(float v) const
-	{
-		return Vector3(x / v, y / v, z / v);
-	}
-
-	inline Vector3& operator+=(const Vector3& v) {
-		x += v.x; y += v.y; z += v.z; return *this;
-	}
-
-	inline Vector3 operator-(const Vector3& v) const {
-		return Vector3(x - v.x, y - v.y, z - v.z);
-	}
-
-	inline Vector3 operator+(const Vector3& v) const {
-		return Vector3(x + v.x, y + v.y, z + v.z);
-	}
-
-	inline float Length() {
-		return sqrtf(x * x + y * y + z * z);
-	}
-
-	inline float dot(Vector3 input) const
-	{
-		return (x * input.x) + (y * input.y) + (z * input.z);
-	}
-};
-
-class Vector2 {
-public:
-	float x, y;
-
-	inline Vector2() {
-		x = y = 0.0f;
-	}
-
-	inline Vector2 operator/(float v) const {
-		return Vector2(x / v, y / v);
-	}
-	inline Vector2(float X, float Y) {
-		x = X; y = Y;
-	}
-
-	inline Vector2 operator-(const Vector2& v) const {
-		return Vector2(x - v.x, y - v.y);
-	}
-
-	inline Vector2 operator+(const Vector2& v) const {
-		return Vector2(x + v.x, y + v.y);
-	}
-
-	inline Vector2& operator+=(const Vector2& v) {
-		x += v.x; y += v.y; return *this;
-	}
-
-	inline bool Zero() const {
-		return (x > -0.1f && x < 0.1f && y > -0.1f && y < 0.1f);
-	}
-};
-
-class Vector4 {
-public:
-	float x, y, z, w;
-};
-
-struct Matrix4x4 {
-	union {
-		struct {
-			float        _11, _12, _13, _14;
-			float        _21, _22, _23, _24;
-			float        _31, _32, _33, _34;
-			float        _41, _42, _43, _44;
-
-		};
-		float m[4][4];
+		template<typename F>
+		void for_each(const F callback)
+		{
+			for (auto i = 0; i < get_size(); i++) {
+				auto object = this->get(i);
+				if (!object)
+					continue;
+				callback(object, i);
+			}
+		}
 	};
-};
 
 namespace Math
 {

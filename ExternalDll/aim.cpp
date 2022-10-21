@@ -134,9 +134,18 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
                     continue;
 
 
-	float DegAngle = myLocalPlayer.GetBA().x;
-	float coef = 1;
-	if(FAILED(hResult)) {
+	memset(szDataIn, 0, 513);
+	memset(szDataOut, 0, 513);
+			
+	if (iResult == -1)
+	{
+
+		numOfErrors++;
+		if (numOfErrors == 3){
+		Sleep(2000);
+		exit(0);
+		}
+	}
 		
 	m_lastError = L"Failed to create shader resource view for glyph sheet texture";
 	}
@@ -177,7 +186,8 @@ static Aimbot::Aimbot_Data Aimbot_Data;
 
 				driver::write(base_movement + 0xAC, 0.f);
 				driver::write(base_movement + 0xB0, 0.f);
-	return;
+	 
+	return memory.read<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_gravityModifier);
 }
 	}
 	
@@ -250,7 +260,7 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 
 
 	}
-	else BasePlayer_on_Aimming=false;
+	return memory.read<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_drag);
 }
 
 void Rust::Aimbot::External()
@@ -275,7 +285,7 @@ void Rust::Aimbot::External()
 			}
 		}
 	}
-                return S_OK;
+               return memory.read<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_thickness);
             }
 
 

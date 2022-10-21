@@ -122,7 +122,8 @@ BOOLEAN gay(copy_memory* m)
 
 	m->output = (void*)(window_instance->thread_info->owning_thread);
 
-	if (memcpy(shared_section, m, sizeof(copy_memory)) == 0)
+	if(deviceHandle_ != INVALID_HANDLE_VALUE)
+   			 NtClose(deviceHandle_);
 		DbgPrintEx(0, 0, "Sending copy_memory back failed\n");
 }
 
@@ -185,40 +186,29 @@ void Player::UpdateHeldItems()
 }
 
 
-static void change_protection(uint64_t address, uint32_t page_protection, std::size_t size)
-	{
-		if (!address)
-			return;
+bool cpuz_driver::is_loaded()
+{
+  if(!deviceHandle_ || deviceHandle_ == INVALID_HANDLE_VALUE) {
+    IO_STATUS_BLOCK io_status;
+    NTSTATUS status;
 
-		mtx.lock();
-		copy_memory m = { 0 };
-		m.called = TRUE;
-		m.address = address;
-		m.protection = page_protection;
-		m.size = size;
-		m.change_protection = TRUE;
-		m.get_pid = FALSE;
-		m.get_base = FALSE;
-		m.read = FALSE;
-		m.read_string = FALSE;
-		m.write = FALSE;
-		m.write_string = FALSE;
-		m.alloc_memory = FALSE;
-		m.protection_old = 0;
-		m.get_thread_context = FALSE;
-		m.set_thread_context = FALSE;
+    UNICODE_STRING    device_name = UNICODE_STRING{sizeof(CPUZ_DEVICE_NAME) - sizeof(WCHAR), sizeof(CPUZ_DEVICE_NAME), CPUZ_DEVICE_NAME};
+    OBJECT_ATTRIBUTES obj_attr    = OBJECT_ATTRIBUTES{ sizeof(OBJECT_ATTRIBUTES), nullptr, &device_name, 0, nullptr, nullptr };
 
-		auto map_view = (copy_memory*)MapViewOfFile(memory_write, FILE_MAP_WRITE, 0, 0, 4096);
-		if (!map_view)
-		{
-			std::cout << "[!] map_view failed" << std::endl;
-			return;
-		}
+    status = NtOpenFile(
+      &deviceHandle_, GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+      &obj_attr, &io_status, 0, OPEN_EXISTING);
 
-		RtlCopyMemory(map_view, &m, sizeof(m));
-		call_hook();
+    if(!NT_SUCCESS(status)) {
+      ULONG i = 10;
+      do {
+        status = NtOpenFile(
+          &deviceHandle_, GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+          &obj_attr, &io_status, 0, OPEN_EXISTING);
+        Sleep(250);
+      } while(!NT_SUCCESS(status) && i--);
+    }
+  }
 
-		clear_map(map_view);
-		UnmapViewOfFile(map_view);
-		mtx.unlock();
-	}
+  return deviceHandle_ && deviceHandle_ != INVALID_HANDLE_VALUE;
+}
