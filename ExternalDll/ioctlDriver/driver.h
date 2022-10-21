@@ -25,46 +25,23 @@ public:
 	}
 };
 
-typedef struct _copy_memory
-{
-	BOOLEAN memory;
-	BOOLEAN readx64;
-	BOOLEAN read_string;
-	void* buffer_address;
-	UINT_PTR  address;
-	ULONGLONG size;
-	void* output;
+namespace mem {
+	uintptr_t game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));
+	uintptr_t unity_player_base = LI_MODULE_SAFE_(_("UnityPlayer.dll"));
+	template<typename t>
+	t read(uintptr_t addr) {
+		if (addr < 0xffffff)
+			return t();
+		if (addr > 0x7fffffff0000)
+			return t();
 
-	BOOLEAN   write false;
-	BOOLEAN write_string;
+		return *reinterpret_cast<t*>(addr);
+	}
 
-	BOOLEAN  get_base;
-	ULONG64 base_address;
-	const char* module_name;
-
-	BOOLEAN get_pid;
-	const char* process_name;
-	ULONG pid_of_source;
-
-	BOOLEAN alloc_memory;
-	ULONG	alloc_type;
-
-	BOOLEAN		change_protection;
-	ULONG		protection;
-	ULONG		protection_old;
-
-	BOOLEAN get_thread_context;
-	BOOLEAN set_thread_context;
-
-	BOOLEAN end;
-
-	HWND window_handle;
-	UINT_PTR thread_context;
-}copy_memory;
 
 static void Driver_hook()
 {
-	static void* control_function = GetProcAddress(LoadLibrary("win32u.dll"), "NtDxgkCreateTrackedWorkload");
+	static hook_virtual_function(const char* classname, const char* function_to_hook, void* target, const char* name_space);
 	static const auto control = static_cast<uint64_t(__stdcall*)()>(control_function);
 	control();
 	
