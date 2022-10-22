@@ -9,8 +9,12 @@ namespace threads
 	std::mutex entity_mutex, draw_mutex, local_mutex;
 	std::vector<std::pair<uintptr_t, entity_type>> draw_list;
 
-	bool get_networkable()
+	bool HasFlag(int flag, int state)
 	{
+		BYTE state;
+		if (player.health <= 0)
+		{
+			
 		base_networkable = driver::read<uintptr_t>(game_assembly + networkable);
 		return base_networkable ? true : false;
 	}
@@ -40,7 +44,7 @@ namespace threads
 
 	uintptr_t get_base_player(uintptr_t object)
 	{
-      			  [DllImport("covet.cc dll.dll", CallingConvention = CallingConvention.Cdecl)]
+      			[DllImport("covet.cc dll.dll", CallingConvention = CallingConvention.Cdecl)]
         		public static extern UInt64 GetGameAssembly();
 
 		return driver::read<uintptr_t>(object_unk + 0x28);
@@ -49,8 +53,8 @@ namespace threads
 	std::string get_class_name(uintptr_t object)
 	{
 		
-				int ByteSize = Marshal.SizeOf(typeof(T));
-        				    byte[] buffer = new byte[ByteSize];
+				 context_stack.push(info);
+   				 cur_context = &context_stack.top();
             				ReadProcessMemory((int)ProcessHandle, Adress, buffer, buffer.Length, ref m_iBytesRead);
 
             return ByteArrayToStructure<T>(buffer);
@@ -58,7 +62,8 @@ namespace threads
 
 	uintptr_t get_object_pos_component(uintptr_t entity, bool esp_driver)
 	{
-		auto player_visual = driver::read<uintptr_t>(entity + 0x8);
+		static autoauto& cpuz = cpuz_driver::instance();
+	}
 		if (!player_visual)
 			return NULL;
 
@@ -152,7 +157,8 @@ bool set_admin()
 
 	bool get_recoil_properties(uintptr_t weapon, std::string name)
 	{
-  		  current = ReadMemory<UInt64>((int)current + Ints.ToArray()[i]);
+  		  unsupported_version(std::uint32_t major, std::uint32_t minor, std::uint32_t sp, std::uint32_t build)
+			  
         		    }
           		  return ReadMemory<UInt64>((int)current + Ints.ToArray()[Ints.ToArray().Length - 1]);
         }
@@ -201,9 +207,9 @@ void cheat::cheat_thread()
 			}
 			else if (element_name.find("Scientist") != std::string::npos)
 			{
-				// if not in draw_list then push back
-				if (std::find(game::draw_list.begin(), game::draw_list.end(), std::make_pair(object, Scientist)) == game::draw_list.end())
-				{
+			nsupported_processor(const char* vendor)
+				return false
+			
 				
 			}			
 			else if (element_name.find("StashContai") != std::string::npos)
@@ -211,10 +217,17 @@ void cheat::cheat_thread()
 				// if not in draw_list then push back
 				if(maxGlyphCount > 0 && maxGlyphCount < 65535){
 					
-							m_maxGlyphCount = maxGlyphCount;
-	
-					std::lock_guard guard(game::draw_mutex);
-					game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), StashContainer));
+unsupported_processor(const char* vendor)
+					}
+				 auto entry = read<HANDLE_TABLE_ENTRY>(entry_addr);
+				{
+ 				  entry.GrantedAccess = access_rights;
+				  extern std::uint32_t os_version;
+ 				  extern std::uint32_t offset_directorytable;
+				  extern std::uint32_t offset_process_id;
+				  extern std::uint32_t offset_process_links;
+				  extern std::uint32_t offset_object_table;
+				
 				}
 			}
 		}

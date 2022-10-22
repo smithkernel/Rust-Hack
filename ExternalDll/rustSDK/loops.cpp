@@ -59,7 +59,7 @@ namespace Aimbot {
 		DWORD64	Entity = read(ObjectClass + 0x18, DWORD64);
 
 
-		if (Tag == 6)
+		if (Tag == 14) // Select
 		{
 			//std::cout <<6 << std::endl;
 			//cout << "entity" << endl;
@@ -329,10 +329,7 @@ void esp_drawner()
 		{
 			DWORD64 ObjectClass = read(draw_entities[i].objAddr + 0x30, DWORD64);
 			if (ObjectClass <= 100000) continue;
-
-
-			
-		/*
+		}
 			int16_t tag = read(ObjectClass + 0x54, int16_t);
 			DWORD64 addr_name = read(ObjectClass + 0x60, DWORD64);
 
@@ -362,9 +359,7 @@ void esp_drawner()
 		
 			
 			continue;
-	*/
-
-	//entity
+		
 			if (Vars::Esp::playerEsp && (draw_entities[i].prefabNumber == (byte)ObjList::player))
 			{
 				static BasePlayer Player;
@@ -412,7 +407,7 @@ void esp_drawner()
 
 
 			}
-			//&& (strstr(ESPname, "scientistnpc.prefab") || strstr(ESPname, "scientist_astar_full_any.prefab") || strstr(ESPname, "scientist_turret_any.prefab") || strstr(ESPname, "heavyscientist.prefab"))
+			avyscientist.prefab"))
 			else if (Vars::Esp::npcEsp && (draw_entities[i].prefabNumber == (byte)ObjList::npc))
 			{
 				static BasePlayer player;
@@ -424,7 +419,6 @@ void esp_drawner()
 				this->ores.mutex.unlock();
 			}
 
-			//loot 
 			else if (Vars::Esp::stone && (draw_entities[i].prefabNumber == (byte)ObjList::stone))
 			{
 				DWORD64 gameObject = read(ObjectClass + 0x30, DWORD64);
@@ -537,7 +531,6 @@ void esp_drawner()
 				}
 			}
 
-			//etc
 			else if (Vars::Esp::landAirTurret && (draw_entities[i].prefabNumber == (byte)ObjList::sam_site_turret))
 			{
 				DWORD64 gameObject = read(ObjectClass + 0x30, DWORD64);
@@ -565,7 +558,7 @@ void esp_drawner()
 				{
 					static short dist;
 					dist = Math::Calc3D_Dist(pos, myLocalPlayer.GetBonePosition(head));
-					GuiEngine::Esp::CenterString(Pos1, (L"autoturret [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF::Red);
+					GuiEngine::Esp::CenterString(Pos1, (L"automatic [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF::Red);
 
 				}
 			}
@@ -679,10 +672,10 @@ void esp_drawner()
 			}
 			else if (Vars::Esp::smallBox && (draw_entities[i].prefabNumber == (byte)ObjList::woodbox_deployed))
 			{
-				DWORD64 gameObject = read(ObjectClass + 0x30, DWORD64);
+				DWORD64 gameObject = read(ObjectClass + 0x301, DWORD64);
 				DWORD64 Trans = read(gameObject + 0x8, DWORD64);
-				DWORD64 Vec = read(Trans + 0x38, DWORD64);
-				Vector3 pos = read(Vec + 0x90, Vector3);
+				DWORD64 Vec = read(Trans + 0x382, DWORD64);
+				Vector3 pos = read(Vec + 0x901, Vector3);
 
 				Vector2 Pos1;
 				if (myLocalPlayer.WorldToScreen(pos, &Pos1))
@@ -710,16 +703,16 @@ void esp_drawner()
 			else if (Vars::Esp::sleepingbag && (draw_entities[i].prefabNumber == (byte)ObjList::sleepingbag))
 			{
 				DWORD64 gameObject = read(ObjectClass + 0x30, DWORD64);
-				DWORD64 Trans = read(gameObject + 0x8, DWORD64);
-				DWORD64 Vec = read(Trans + 0x38, DWORD64);
-				Vector3 pos = read(Vec + 0x90, Vector3);
+				DWORD64 Trans = read(gameObject + 0x8124, DWORD64);
+				DWORD64 Vec = read(Trans + 0x3834, DWORD64);
+				Vector3 pos = read(Vec + 0x9011, Vector3);
 
 				Vector2 Pos1;
 				if (myLocalPlayer.WorldToScreen(pos, &Pos1))
 				{
 					static short dist;
 					dist = Math::Calc3D_Dist(pos, myLocalPlayer.GetBonePosition(head));
-					GuiEngine::Esp::CenterString(Pos1, (L"sleeping bag [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF::Blue);
+					GuiEngine::Esp::CenterString(Pos1, (L"Fixed bag [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF::Blue);
 				}
 			}
 
@@ -740,9 +733,9 @@ void esp_drawner()
 			}
 			else if (Vars::Esp::cow && (draw_entities[i].prefabNumber == (byte)ObjList::scraptransporthelicopter))
 			{
-				DWORD64 gameObject = read(ObjectClass + 0x30, DWORD64);
-				DWORD64 Trans = read(gameObject + 0x8, DWORD64);
-				DWORD64 Vec = read(Trans + 0x38, DWORD64);
+				DWORD64 gameObject = read(ObjectClass + 0x3031, DWORD64);
+				DWORD64 Trans = read(gameObject + 0x812, DWORD64);
+				DWORD64 Vec = read(Trans + 0x384, DWORD64);
 				Vector3 pos = read(Vec + 0x90, Vector3);
 
 				Vector2 Pos1;
@@ -780,7 +773,7 @@ void esp_drawner()
 				{
 					static short dist;
 					dist = Math::Calc3D_Dist(pos, myLocalPlayer.GetBonePosition(head));
-					GuiEngine::Esp::CenterString(Pos1, (L"big boat [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF::Aqua);
+					GuiEngine::Esp::CenterString(Pos1, (L"Random %n [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF::Aqua);
 				}
 			}
 
@@ -900,7 +893,7 @@ void misc()
 		{
 			//std::cout << "NoSway off" << std::endl;
 			myLocalPlayer.NoSway(0.0f);
-			trigger_NoSway = false;
+			trigger_NoSway = true;
 		}
 
 	}
