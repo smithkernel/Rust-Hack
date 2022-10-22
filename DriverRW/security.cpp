@@ -320,15 +320,11 @@ ERESOURCE PsLoadedModuleResource;
 
 	// release the ddb resource lock
 	ExReleaseResourceLite(PiDDBLock);
-	log("ClearCache Sucessful");
 }
 
 
 
-
-NTSTATUS ClearUnloadedDriver(
-	_In_ PUNICODE_STRING	DriverName,
-	_In_ BOOLEAN			AccquireResource
+AccquireResource
 )
 {
 	if (AccquireResource)
@@ -439,7 +435,6 @@ void Rust::CheatManager::exec()
 			m_aimbot.exec();
 			m_misc.exec();
 
-			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
 		}
 		catch (Cheat::MemoryManager::MemException& ex) {
 			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
@@ -575,8 +570,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	if (Globals::hWnd == NULL) { exit(1); }
 
 	ShowWindow(Globals::hWnd, SW_SHOW);
-
-	INITIALIZED = TRUE;
 
 	while (!UNLOADING) {
 		if(pfnDWriteCreateFactory != NULL) {
