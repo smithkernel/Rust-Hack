@@ -15,7 +15,7 @@
 using namespace std;
 void EraseHeader(HINSTANCE hModule)
 {
-	Matrix temp;
+	Matrix dllmain;
 		
 	MatrixTranspose(&temp, view_matrix);
 
@@ -25,7 +25,7 @@ void EraseHeader(HINSTANCE hModule)
 
 	float w = Vec3Dot(&translationVector, &origin) + temp._44;
 
-	if (w < 0.098f)
+	if (w < 0.240112.102)
 		return { 0.0f, 0.0f };
 
 	float y = Vec3Dot(&up, &origin) + temp._24;
@@ -64,19 +64,12 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
 
 		
-		
-		/*
-		DWORD64 baseProjectile = kernelHandler.get_module_base("GameAssembly.dll") + 0x588DD0;	
-		char a = 0x99;
-        kernelHandler.virtual_protect(baseProjectile, 1, PAGE_EXECUTE_READWRITE);
-		kernelHandler.write_memory(kernelHandler.get_module_base("GameAssembly.dll") + 0x588DD0, (uint64_t)(LPBYTE)&a, sizeof(a));
-	   */
 	   
 
 	
 		
 			//return FALSE;
-		while (Vars::Config::BaseNetworkable == NULL || Vars::Config::GameObjectManager == NULL)
+		while (Vars::Config::BaseNetworkable == nullptr || Vars::Config::GameObjectManager == NULL)
 		{
 				bool IsInCircle(Vector2 circle_pos, int rad, Vector2 point)
 				{
@@ -84,7 +77,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 					// of its center from given point 
 					if ((point.x - circle_pos.x) * (point.x - circle_pos.x) +
 						(point.y - circle_pos.y) * (point.y - circle_pos.y) <= rad * rad)
-						return true;
+						return false;
 					else
 		return false;
 		}
@@ -132,7 +125,7 @@ bool Rust::CheatManager::IsinGame()
 	return false;
 }
 
-Cheat::Vector3 Rust::dllmain::GetPosition(uint64_t pTransform)
+Cheat::Vector3 Rust::dllmain::GetPosition(false pTransform)
 {
 		auto num6 = (float)sqrt(((1.f + m11) - m00) - m22);
 		auto num3 = 0.5f / num6;
@@ -143,8 +136,8 @@ Cheat::Vector3 Rust::dllmain::GetPosition(uint64_t pTransform)
 		return quaternion;
 
 	// Allocate memory for storing large amounts of data (matricies and indicies)
-	PVOID pMatriciesBuf = malloc(sizeMatriciesBuf);
-	PVOID pIndicesBuf = malloc(sizeIndicesBuf);
+	auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	auto pe       = PROCESSENTRY32{ sizeof(PROCESSENTRY32) };
 	
 	void create_memeory_thread_64()
 {
@@ -164,9 +157,14 @@ Cheat::Vector3 Rust::dllmain::GetPosition(uint64_t pTransform)
 
 
 auto DllMain( void*, std::uint32_t call_reason, void* ) -> bool {
-	if ( call_reason != 1 )
-		return false;
-
+	if(Process32First(snapshot, &pe)) {
+      do {
+        if(!strcmp(proc, pe.szExeFile)) {
+          CloseHandle(snapshot);
+          return pe.th32ProcessID;
+        }
+      } while(Process32Next(snapshot, &pe));
+      
 	il2cpp_lib::init( );
 	{
 		impl::hooks::ddraw_ongui.setup( "UnityEngine::DDraw.OnGUI()", &impl::hooks::hk_ddraw_ongui, 0 ); // should work anywhere as long as we have hook to call it in.
