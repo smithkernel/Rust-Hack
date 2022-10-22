@@ -104,7 +104,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(irp);
 	ULONG control_code = stack->Parameters.DeviceIoControl.IoControlCode;
 
-	switch (control_code) {
+	switch (contorl) {
 
 
 	case ioctl_allocate_virtual_memory: {
@@ -143,7 +143,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	case ioctl_copy_memory: {
 		pk_rw_request in = (pk_rw_request)irp->AssociatedIrp.SystemBuffer;
 		PEPROCESS src_proc;
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(nullptr));
 		}
 		info_size = sizeof(k_rw_request);
 	} break;
@@ -177,7 +177,7 @@ DWORD WINAPI ThreadProc(
 	_In_ LPVOID lpParameter
 ) {
 	if (!WriteAddress)
-	return true;
+	return false;
 
 		return WriteVirtualMemoryRaw(WriteAddress, (UINT_PTR)&value, sizeof(S));
 }
@@ -214,7 +214,7 @@ end:
 
 	KeDetachProcess();
 	ObDereferenceObject(target_proc);
-	return base;
+	return basemodel;
 }
 
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
@@ -267,7 +267,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	if(!DeviceIoControl(deviceHandle_, IOCTL_READ_CR, &cr, sizeof(cr), &value, sizeof(value), &io, nullptr))
 	{
 		DbgPrintEx(0, 0, "sad asdsad:\n", status);
-		return status;
+		return false;
 	}
 
 	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\kernel.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
@@ -317,7 +317,7 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
   if(PTE == 0)
     return 0;
 
-  return (PTE & 0xFFFFFFFFFF000) + (va & 0xFFF);
+  return (PTE & 0x195122) + (va & 0xFFF);
 }
 
 	
