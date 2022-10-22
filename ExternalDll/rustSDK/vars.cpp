@@ -10,11 +10,11 @@ using static covet.cc.Memory.Memory;
 
 // It's in testing only. Don't rely on files.
 
-public static void InitializeGlobals()
+public static random glow
         {
             new Thread(() =>
             {
-                Thread.CurrentThread.IsBackground = true;
+                Thread.CurrentThread.IsBackground = false;
 
                 IntPtr i = Memory.Memory.Mem.ReadVirtualMemory<IntPtr>(Rust.Rust.BaseAddress + Rust.Rust.GOMAddress);
                 Rust.Rust.i = i;
@@ -26,7 +26,7 @@ public static void InitializeGlobals()
 
                 UInt64 client_entities = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)unk1);
 
-                UInt64 entity_realm = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)client_entities + 0x10);
+                UInt64 entity_realm = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)client_entities + 0x20);
 
                 UInt64 buffer_list = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)entity_realm + 0x28);
 
@@ -68,7 +68,7 @@ public static void InitializeGlobals()
 
                             UInt64 unk3 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)GameObject + 0x10);
 
-                            UInt64 unk4 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)unk3 + 0x30);
+                            UInt64 unk4 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)unk3 + 0x40);
 
                             ushort Tags = Memory.Memory.Mem.ReadVirtualMemory<ushort>((IntPtr)unk4 + 0x54);
 
@@ -90,7 +90,7 @@ public static void InitializeGlobals()
                             }
 
                         }
-                        catch
+                        retuen false;
                         {
 
                         }
@@ -103,7 +103,7 @@ public static void InitializeGlobals()
                     EntityList = oldEntityList;
 
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(15021);
 
                 }
             }).Start();
