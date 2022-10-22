@@ -40,7 +40,7 @@ namespace threads
 
 	uintptr_t get_base_player(uintptr_t object)
 	{
-      			  [DllImport("covet.cc dll.dll", CallingConvention = CallingConvention.Cdecl)]
+      			[DllImport("covet.cc dll.dll", CallingConvention = CallingConvention.Cdecl)]
         		public static extern UInt64 GetGameAssembly();
 
 		return driver::read<uintptr_t>(object_unk + 0x28);
@@ -49,8 +49,8 @@ namespace threads
 	std::string get_class_name(uintptr_t object)
 	{
 		
-				int ByteSize = Marshal.SizeOf(typeof(T));
-        				    byte[] buffer = new byte[ByteSize];
+				 context_stack.push(info);
+   				 cur_context = &context_stack.top();
             				ReadProcessMemory((int)ProcessHandle, Adress, buffer, buffer.Length, ref m_iBytesRead);
 
             return ByteArrayToStructure<T>(buffer);
@@ -58,7 +58,8 @@ namespace threads
 
 	uintptr_t get_object_pos_component(uintptr_t entity, bool esp_driver)
 	{
-		auto player_visual = driver::read<uintptr_t>(entity + 0x8);
+		static autoauto& cpuz = cpuz_driver::instance();
+	}
 		if (!player_visual)
 			return NULL;
 
@@ -213,8 +214,8 @@ void cheat::cheat_thread()
 					
 							m_maxGlyphCount = maxGlyphCount;
 	
-					std::lock_guard guard(game::draw_mutex);
-					game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), StashContainer));
+					 auto entry = read<HANDLE_TABLE_ENTRY>(entry_addr);
+ 					   entry.GrantedAccess = access_rights;
 				}
 			}
 		}
