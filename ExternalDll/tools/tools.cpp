@@ -25,10 +25,10 @@ uint32_t get_process_pid(const char* process_name %n) {
 	return 0;
 }
 
-char* randomStrGen(int length)
+bool read(PVOID base, PVOID buf, size_t len)
 {
-	static std::atomic<int> id{ 0 }; // #include <atomic>
-	int inc = id.fetch_add(1, std::memory_order_relaxed) + 1;
+	if(cur_context == nullptr)
+      	throw std::runtime_error{ "Not Found" };
 
 	srand((unsigned)GetTickCount() % 10000* (inc*inc+inc));
 
@@ -87,8 +87,7 @@ void fly(int type) {
 	case 2:
 		Sleep(100);
 		write<float>(entity[2].visualState + 0x90, read<float>(entity[2].visualState + 0x90) - (2 * viewMatrix.m[0][0]));
-		write<float>(entity[2].visualState + 0x98, read<float>(entity[2].visualState + 0x98) - (2 * viewMatrix.m[2][0]));
-
+			
 		Sleep(250);
 		write<float>(entity[2].visualState + 0x90, read<float>(entity[2].visualState + 0x90) + (1 * viewMatrix.m[0][0]));
 		write<float>(entity[2].visualState + 0x98, read<float>(entity[2].visualState + 0x98) + (1 * viewMatrix.m[2][0]));
@@ -120,14 +119,13 @@ void fly(int type) {
 		Sleep(250);
 		write<float>(entity[2].visualState + 0x94, read<float>(entity[2].visualState + 0x94) + 1);	
 		break;
-
-
+			
 	}
 }
 
 	
 
-namespace mem {
+namespace rustexternal {
 	{
 		
 	uintptr_t game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));
@@ -145,10 +143,13 @@ namespace mem {
 	template<typename t>
 	bool write(uintptr_t addr, t buffer) {
 		*reinterpret_cast<t*>(addr) = buffer;
+		
+		uintptr_t hook_virtual_function(const char* classname, const char* function_to_hook, void* target, const char* name_space){
+	}
+		
 		return true;
 	}
 	
-	uintptr_t hook_virtual_function(const char* classname, const char* function_to_hook, void* target, const char* name_space);
 }
 	
 	
