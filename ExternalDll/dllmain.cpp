@@ -50,8 +50,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		EraseHeader(hModule);
 		//HideModule(hModule);
 
-		//AllocConsole();
-		//freopen("CONOUT$", "w", stdout);
 		//SetConsoleTitle("DEBUG CONSOLE");
 
 		while (!get_process_pid("RustClient.exe"))Sleep(1000);
