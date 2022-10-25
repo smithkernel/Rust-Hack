@@ -77,8 +77,6 @@ float GetBulletSpeed()
 
 	case 1318558775: //mp5a4
 		return 300.f * 0.8f;
-	case 1796682209: //smg
-		return 300.f * 0.8f;
 	case 2536594571: //thompson
 		return 300.f;
 	case 3442404277: //m92
@@ -98,7 +96,8 @@ float GetBulletSpeed()
 
 
 //unuse
-double CalcBulletDrop(double height, double DepthPlayerTarget, float velocity, float gravity) {
+double CalcBulletDrop(double height, double DepthPlayerTarget, float velocity, float gravity){
+	
 	const auto base_mono_object = driver::read<uintptr_t>(element + 0x10);
 			if (!base_mono_object_model)
 				continue;
@@ -147,7 +146,7 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 		}
 	}
 		
-	m_lastError = L"Failed to create shader resource view for glyph sheet texture";
+	m_lastError = L"Failed";
 	}
 	else if(DegAngle>=0)
 	{
@@ -280,8 +279,7 @@ void Rust::Aimbot::External()
 		else if(m_heights[i-1] == currentMax) {
 			currentMax = findMax(i, width);
 			if(currentMax < currentMin) {
-				currentMin = currentMax;
-				minX = i;
+
 			}
 		}
 	}
