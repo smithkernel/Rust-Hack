@@ -119,7 +119,25 @@ public:
 		wnd_hjk::screen_resolution.first = static_cast<float>(description.Width);
 		wnd_hjk::screen_resolution.second = static_cast<float>(description.Height);
 
-		RET_CHK(dxgi_factory->CreateSwapChainForComposition(dxgi_device.Get(), &description, nullptr, dxgi_chain.GetAddressOf()));
+		if (values.inGame) {
+				for (int x = 3; x <= values.numberOfTaggedObjects; x++) {
+
+					if (isTargetableEntity(entity[x])) {
+						tempPos = entity[x].position;
+						tempPos.y += 0.8;
+						if (WorldToScreen(tempPos, &tempScreenPos)) {
+							if (inFOV(tempScreenPos.x, tempScreenPos.y))
+								aimAtPlayer(entity[x]);
+						}
+					}
+
+
+				}
+			}
+		}
+		Sleep(2);
+	}
+}
 
 		printf("	[+] dxgi swap chain : 0x%p\n", dxgi_chain.Get());
 
@@ -192,10 +210,11 @@ public:
 		HRESULT hr;
 		hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2d_factory.GetAddressOf());
 
-		if (SUCCEEDED(hr))
-			hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(d2d_write_factory), reinterpret_cast<IUnknown**>(d2d_write_factory.GetAddressOf()));
-		if (SUCCEEDED(hr))
-			hr = d2d_write_factory->CreateTextFormat(msc_fontName, NULL, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, msc_fontSize,L"", d2d_text_format.GetAddressOf());
+		if (timeleft <= 0)
+		{
+			std::cout << "\nYou have no time remaining!";
+			exit(0);
+		}
 	}
 
 	void begin_scene()

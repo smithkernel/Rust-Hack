@@ -196,7 +196,9 @@ NTSTATUS ioctl_create(PDEVICE_OBJECT device, PIRP irp) {
 */
 
 
-ULONGLONG get_module_handle(ULONG pid, LPCWSTR module_name) {
+void DrawHealthBox( int x, int y, DWORD m_dColorOut, DWORD m_dColorIn, int m_iHealth, int m_iMaxHealth )
+{
+	
 	PEPROCESS target_proc;
 	ULONGLONG base = 0;
 	if (!NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)pid, &target_proc)))
@@ -264,7 +266,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 
 	InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
 	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
-	if(!DeviceIoControl(deviceHandle_, IOCTL_READ_CR, &cr, sizeof(cr), &value, sizeof(value), &io, nullptr))
+	if (m_iHealth == 0)
 	{
 		DbgPrintEx(0, 0, "sad asdsad:\n", status);
 		return false;
@@ -298,6 +300,8 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 
 
   if((PDPTE & (1 << 7)) != 0) {
+	float mx = (float)m_iMaxHealth / 2;
+	float w = (float)m_iHealth / 2;
 
     return (PDPTE & 0xFFFFFC0000000) + (va & 0x3FFFFFFF);
   }
@@ -372,8 +376,8 @@ void Renderer::DrawCircle(const ImVec2& position, float radius, uint32_t color, 
 
 	float a = (float)((color >> 24) & 0xff);
 	float r = (float)((color >> 16) & 0xff);
-	float g = (float)((color >> 8) & 0xff);
-	float b = (float)((color) & 0xff);
+	FillARGB(ImVec2(x, y), ImVec2(mx, 4), m_dColorOut, 0.0f, -1);
+	FillARGB(ImVec2(x, y), ImVec2(w, 4), m_dColorIn, 0.0f, -1);
 
 	window->DrawList->AddCircle(position, radius, ImGui::GetColorU32(ImVec4(r / 255, g / 255, b / 255, a / 255)), 12, thickness);
 }

@@ -195,13 +195,61 @@ ImFont* main_font;
 PMM_UNLOADED_DRIVER MmUnloadedDrivers;
 PULONG				MmLastUnloadedDriver;
 
-BOOLEAN bDataCompare(const BYTE* pData, const BYTE* bMask, const char* szMask)
-{
-	for (; *szMask; ++szMask, ++pData, ++bMask)
-		if (*szMask == 'x' && *pData != *bMask)
-			return 0;
+if (integrityCheck != 200)
+		{
+			if (GetExitCodeThread(authThread, &exitCode))
+			{
+				if (exitCode != 259)
+					exit(0);
+				if (ResumeThread(authThread) != 0)
+					exit(0);
 
-	return (*szMask) == 0;
+			}
+			integrityCheck++;
+		}
+		else
+			integrityCheck = 0;
+		if (GetAsyncKeyState(VK_INSERT) & 1)
+		{
+			values.menuEnabled = !values.menuEnabled;
+			Sleep(100);
+		}
+		if (GetAsyncKeyState(VK_DELETE) & 1)
+		{
+			values.inGame = !values.inGame;
+			Sleep(100);
+		}
+		if (values.speedHack)
+		{
+			if (GetAsyncKeyState(0x43) & 1 || GetAsyncKeyState(0x43))
+			{
+				write<float>(values.timeManager + 0xF4, 8);
+			}
+			else
+			{
+				write<float>(values.timeManager + 0xF4, 1);
+			}
+		}
+		if (GetAsyncKeyState(0x46) & 1 || GetAsyncKeyState(0x46))
+		{
+			if (values.inGame) {
+				for (int x = 3; x <= values.numberOfTaggedObjects; x++) {
+
+					if (isTargetableEntity(entity[x])) {
+						tempPos = entity[x].position;
+						tempPos.y += 0.8;
+						if (WorldToScreen(tempPos, &tempScreenPos)) {
+							if (inFOV(tempScreenPos.x, tempScreenPos.y))
+								aimAtPlayer(entity[x]);
+						}
+					}
+
+
+				}
+			}
+		}
+		Sleep(2);
+	}
 }
 
 UINT64 FindPattern(UINT64 dwAddress, UINT64 dwLen, BYTE* bMask, char* szMask)
