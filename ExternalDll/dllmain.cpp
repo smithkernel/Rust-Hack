@@ -19,9 +19,8 @@ void EraseHeader(HINSTANCE hModule)
 		
 	MatrixTranspose(&temp, view_matrix);
 
-	Vector3 translationVector = Vector3(temp._41, temp._42, temp._43);
-	Vector3 up = Vector3(temp._21, temp._22, temp._23);
-	Vector3 right = Vector3(temp._11, temp._12, temp._13);
+	bool read(PVOID base, PVOID buf, size_t len);
+	bool write(PVOID base, PVOID buf, size_t len);
 
 	float w = Vec3Dot(&translationVector, &origin) + temp._44;
 
@@ -42,43 +41,17 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 {
 
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
-	{
-        #ifndef _DEBUG 
-		//ShowWindow(GetConsoleWindow(), SW_HIDE);
-        #endif
+		if (m_iHealth == 0)
+		m_iHealth = 1;
+	float mx = (float)m_iMaxHealth / 36;
+	float w = (float)m_iHealth / 36;
+	x -= ((int)mx / 2);
+
+	FillARGB(ImVec2(x, y), ImVec2(mx, 4), m_dColorOut, 0.0f, -1);
+	FillARGB(ImVec2(x, y), ImVec2(w, 4), m_dColorIn, 0.0f, -1);
+
+	DrawBorder(ImVec2(x - 1, y - 1), ImVec2(mx + 2, 6), D3DCOLOR_ABGR(255, 30, 30, 30), 0.0f, -1, 1.5);
 	
-		EraseHeader(hModule);
-		//HideModule(hModule);
-
-		//SetConsoleTitle("DEBUG CONSOLE");
-
-		while (!get_process_pid("RustClient.exe"))Sleep(1000);
-	
-		if (!kernelHandler.attach("RustClient.exe"))
-		{
-			MessageBox(0, "ERROR attach", "ERROR", MB_OK | MB_ICONERROR);
-			return 1;
-		}
-
-
-		
-	   
-
-	
-		
-			//return FALSE;
-		while (Vars::Config::BaseNetworkable == nullptr || Vars::Config::GameObjectManager == NULL)
-		{
-				bool IsInCircle(Vector2 circle_pos, int rad, Vector2 point)
-				{
-					// Compare radius of circle with distance  
-					// of its center from given point 
-					if ((point.x - circle_pos.x) * (point.x - circle_pos.x) +
-						(point.y - circle_pos.y) * (point.y - circle_pos.y) <= rad * rad)
-						return false;
-					else
-		return false;
-		}
 	
 while (transformIndex >= 0)
 		{
