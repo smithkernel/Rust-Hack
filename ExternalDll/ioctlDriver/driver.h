@@ -39,17 +39,25 @@ namespace mem {
 	}
 
 
-static void Driver_hook()
-{
-	static hook_virtual_function(const char* classname, const char* function_to_hook, void* target, const char* name_space);
-	static const auto control = static_cast<uint64_t(__stdcall*)()>(control_function);
-	control();
-	
-	if(FAILED(hResult)) {
-		m_lastError = L"Failed to create glyph sheet texture";
-	}
-	
-	return true;
-}
 
+while ((Kernel(0x46) & 1 || GetAsyncKeyState(0x46)))
+	{
+		//getPosition((void*)player->getObjectClass()->getEntity()->getBaseEntity()->getPlayerModel()->getSkinnedMultiMesh()->getBoneDict()->getValues()->getBoneObject(48)->getTransform(), &headPos);
+		
+		headPos = read<D3DXVECTOR3>(player.visualState + 0x90);
+		BOOL ducking = HasFlag(1, player.state);
+		if (ducking)
+			headPos.y += 0.85;
+		else
+			headPos.y += 1.45;
+		toWrite = calcmyangles(&entity[0].position, &headPos);
+		write<D3DXVECTOR2>(entity[2].playerInput + 0x44, toWrite);
+		if (!isTargetableEntity(player)) {
+			Sleep(100);
+			break;
+		}
+		Sleep(2);
+	}
+
+}
 
