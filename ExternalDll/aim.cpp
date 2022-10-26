@@ -95,22 +95,14 @@ float GetBulletSpeed()
 }
 
 
-//unuse
-double CalcBulletDrop(double height, double DepthPlayerTarget, float velocity, float gravity){
-	
-	const auto base_mono_object = driver::read<uintptr_t>(element + 0x10);
-			if (!base_mono_object_model)
-				continue;
-
-			auto object = driver::read<uintptr_t>(base_mono_object + 0x30);
-			if (!object)
-				continue;
-
-			object = driver::read<uintptr_t>(object + 0x30);
-			if (!object)
-				continue;
-					
-	return TotalVerticalDrop * 10;
+bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x8000; //VK_XBUTTON1 -> mouse back button
+	{
+		
+		
+		auto TargetHeadPos = Rust::MainCam::GetPosition(Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(m_TargetData.pOwnClassObject, {0x80, 0x28, 0x10 }));
+		auto LocalHeadPos = Rust::MainCam::GetPosition(Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(Rust::Globals::hack_data.LocalPlayer.pOwnClassObject, { 0x80, 0x28, 0x10 }));
+		auto AngleAddress = Rust::Globals::hack_data.RustMemory->Read<uint64_t>(Rust::Globals::hack_data.LocalPlayer.pOwnClassObject + 0x470);
+		auto OriginalAngle = Rust::Globals::hack_data.RustMemory->Read<Cheat::Vector2>(AngleAddress + 0x44);
 }
 
 Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, BoneList Bone)
@@ -160,16 +152,18 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 
 static Aimbot::Aimbot_Data Aimbot_Data;
 {
-	Process(Valorant.exe, "Rust.exe");
+	for (const auto& PlayerObject : Rust::Globals::hack_data.TaggedObject.map) {
+		("Rust.exe")
 	
-	smooth = Aimbot_Data.smooth;
-	fov = Aimbot_Data.fov;
-	bone = Aimbot_Data.bone;
-	aim_key = Aimbot_Data.aim_key; ("Right_Click")
-	aim_key_pressed = Aimbot_Data.aim_key_pressed;
-	aim_key_pressed_time = Aimbot_Data.aim_key_pressed_time;
-	aim_key_pressed_time_max = Aimbot_Data.aim_key_pressed_time_max;
-	aim_key_pressed_time_min = Aimbot_Data.aim_key_pressed_time_min;
+	if (pTarget) {
+		m_TargetExist = true;
+		m_TargetData.pCoreObject = pTarget->pCoreObject;
+		m_TargetData.pGameObject = pTarget->pGameObject;
+		m_TargetData.pVisuaState = pTarget->pVisuaState;
+		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
+		return true;
+	}
+
 
 {
 	
