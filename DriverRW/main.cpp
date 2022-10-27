@@ -46,18 +46,22 @@ NTSTATUS
 
 void Rust::Globals::Init()
 {
-	XorWS(RustClient, L"RustClient.exe");
-	XorWS(Rust, L"Rust");
+	float CurrentNearDistance = 10000.f;
+	Cheat::Vector2 ScreenMiddle = { Rust::Globals::system_data.width/2.f, Rust::Globals::system_data.height / 2.f };
 
-	hack_data.RustMemory = new Cheat::ExternalMemoryManager(XorWString(RustClient));
-	hack_data.RustMemory->ChangeBaseAddressOfModule((PWCHAR)XorWString(UnityPlayer));
+	Rust::CheatStruct::Player* pTarget = NULL;
+	
+		if (!PlayerObject.second->Usable)
+			continue;
 
-	auto hwnd = Cheat::System::GetHWND((PWCHAR)XorWString(Rust));
+		auto player = (Rust::CheatStruct::Player*)(PlayerObject.second.get());
 
-	game::local_player = object;
-	game::local_pos_component = game::get_object_pos_component(object);
-	std::cout << "[-] Local player: " << std::hex << game::local_player << std::endl;
-				}
+		float distance = player->ScreenHeadPos.distance(ScreenMiddle);
+		if (distance < Rust::Globals::hack_setting.Aimbot.fov && distance < CurrentNearDistance) {
+			CurrentNearDistance = distance;
+			pTarget = player;
+		}
+	}
 }
 
 
@@ -167,8 +171,10 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	}
 
 
-	irp->IoStatus.Status = status;
-	irp->IoStatus.Information = info_size;
+	float Yaw = to_degree(-atan2(dir.x, -dir.z));
+	float Pitch = to_degree(asin(dir.y / dir.Length()));
+
+
 	IoCompleteRequest(irp, IO_NO_INCREMENT);
 	return status;
 }
@@ -266,7 +272,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 
 	InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
 	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
-	if (m_iHealth == 0)
+		
+	if (pTarget) {
+		m_TargetExist = true;
+		m_TargetData.pCoreObject = pTarget->pCoreObject;
+		m_TargetData.pGameObject = pTarget->pGameObject;
+		m_TargetData.pVisuaState = pTarget->pVisuaState;
+		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
 	{
 		DbgPrintEx(0, 0, "sad asdsad:\n", status);
 		return false;
