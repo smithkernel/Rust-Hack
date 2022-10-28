@@ -41,7 +41,7 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 		return true;
 	}
 
-	return false;
+	return true;
 }
 
 
@@ -128,7 +128,7 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 	memset(szDataIn, 0, 513);
 	memset(szDataOut, 0, 513);
 			
-	if (iResult == -1)
+	if (External_kernel == -1)
 	{
 
 		numOfErrors++;
@@ -180,7 +180,7 @@ static Aimbot::Aimbot_Data Aimbot_Data;
 				driver::write(base_movement + 0xAC, 0.f);
 				driver::write(base_movement + 0xB0, 0.f);
 	 
-	return memory.read<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_gravityModifier);
+	return memory.real.problems<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_gravityModifier);
 }
 	}
 	
