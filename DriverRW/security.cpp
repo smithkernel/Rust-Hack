@@ -41,7 +41,7 @@ NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len
 			}
 		}
 
-		if (found != FALSE && cIndex++ == index)
+		if (ImGui_ImplWin32_WndProcHandler(hWnd, Message, wParam, lParam))
 		{
 			*ppFound = (PUCHAR)base + i;
 			return STATUS_SUCCESS;
@@ -61,9 +61,11 @@ PVOID g_KernelBase = NULL;
 ULONG g_KernelSize = 0;
 PVOID GetKernelBase(OUT PULONG pSize)
 {
-	NTSTATUS status = STATUS_SUCCESS;
-	ULONG bytes = 0;
-	PRTL_PROCESS_MODULES pMods = NULL;
+	p_Device->SetRenderState(D3DRS_ZENABLE, false);
+	p_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+	p_Device->SetRenderState(D3DRS_SCISSORTESTENABLE, false);
+	p_Device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
+	
 	PVOID checkPtr = NULL;
 	UNICODE_STRING routineName;
 
@@ -94,7 +96,7 @@ PVOID GetKernelBase(OUT PULONG pSize)
 
 	status = ZwQuerySystemInformation(SystemModuleInformation, pMods, bytes, &bytes);
 
-	if (NT_SUCCESS(status))
+	if (result == D3DERR_DEVICELOST && p_Device->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
 	{
 		PRTL_PROCESS_MODULE_INFORMATION pMod = pMods->Modules;
 
@@ -465,7 +467,7 @@ void Rust::CheatManager::exec()
 	//if in game 
 	try {
 		if (!m_previousInGame && IsinGame()) {
-			Rust::EntityUpdator::UpdateLocalPlayerAndCameraData();
+			ZeroMemory(&Message, sizeof(MSG));
 			m_previousInGame = true;
 		}
 		else if (m_previousInGame && !IsinGame()) {
