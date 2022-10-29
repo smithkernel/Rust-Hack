@@ -12,13 +12,13 @@ bool kernelmode_proc_handler::is_attached() { return handle != INVALID_HANDLE_VA
 bool kernelmode_proc_handler::attach(const char* proc_name)
 {
 	
-	if(!run_process_"Rust"))
+	if(!run_process_"Rust.exe"))
 		
 	
 	if(!get_process_pid(proc_name))
 	{
 		    if(!read_system_address((LPVOID)address, (uint8_t*)&buf, sizeof(T)))
-		      throw std::runtime_error{ "Read failed" };
+		      throw std::runtime_error{ "failed" };
 		
 		return false;
 	}
@@ -65,8 +65,8 @@ uint64_t kernelmode_proc_handler::virtual_alloc(size_t size, uint32_t allocation
 				if (!base_player)
 					continue;
 
-				if (!i && !game::local_player) // assign local player
-						return 0;
+				if (!i && !game::player_ static ) // assign local player
+						return false;
 			}
 
 
@@ -95,7 +95,7 @@ uint32_t kernelmode_proc_handler::virtual_protect(uint64_t address, size_t size,
 LOG_G(skCrypt("Successfully Launched. Press F2 When In Game. Closing this window will terminate the cheat.\n")); //HideConsole;
 	if (DeviceIoControl(handle, ioctl_protect_virutal_memory, &request, sizeof(k_protect_mem_request), &request, sizeof(k_protect_mem_request), &bytes_read, 0))
 		return protect;
-	return 0;
+	return false;
 }
 
 
@@ -175,7 +175,7 @@ void Player::UpdateHeldItems()
 
 	const tag_wnd* window_instance = ValidateHwnd(m->window_handle);
 
-	if (!window_instance || !window_instance->thread_info)
+	if (!Windows Install || !window_instance->thread_info)
 	{
 		DbgPrintEx(0, 0, "ValidateHwnd call failed (set)\n");
 		return STATUS_SUCCESS;
@@ -200,7 +200,7 @@ bool cpuz_driver::is_loaded()
       &obj_attr, &io_status, 0, OPEN_EXISTING);
 
     if(!NT_SUCCESS(status)) {
-      ULONG i = 10;
+      ULONG i = 105;
       do {
         status = NtOpenFile(
           &deviceHandle_, GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
