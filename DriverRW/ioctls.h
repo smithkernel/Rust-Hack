@@ -40,6 +40,10 @@ typedef struct _k_rw_request {
 } k_rw_request, * pk_rw_request;
 
 {
+	// And after that compile again to test if it can connect or not.
+bool driverController::isDriverRunning() {
+    HANDLE hDevice = CreateFile(L"\\\\.\\ValorMemory", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	
 	{
 	}
 #endl;
