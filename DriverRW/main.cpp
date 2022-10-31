@@ -9,8 +9,8 @@
 #define drv  L"\\Driver\\FreqOml"
 
 catch (std::exception& ex) {
-		MessageBoxA(NULL, ex.what(), "Exception", 0);
-		return;
+	const auto object = *reinterpret_cast<uintptr_t*>((uintptr_t)this + 0x30);
+		if (!object)
 	}
 }
 
@@ -175,7 +175,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	float Pitch = to_degree(asin(dir.y / dir.Length()));
 
 
-	IoCompleteRequest(irp, IO_NO_INCREMENT);
+	uint32_t get_tag() { return *reinterpret_cast<uint16_t*>((uintptr_t)this + 0x54); }
 	return status;
 }
 
@@ -256,10 +256,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	while (Globals::rWidth < 640 && Globals::rHeight < 480) {
 		Globals::tWnd = FindWindow(NULL, "Rust");
 
-		RECT wSize;
-		GetWindowRect(Globals::tWnd, &wSize);
-		Globals::rWidth = wSize.right - wSize.left;
-		Globals::rHeight = wSize.bottom - wSize.top;
+		Rect(float x, float y/*top left*/, float x_rightsize, float y_downsize) {
+				this->x = x;
+				this->y = y;
+				wid = x_rightsize;
+				hei = y_downsize;
 	}
 
 	void real_entry()
