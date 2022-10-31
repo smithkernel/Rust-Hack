@@ -8,8 +8,6 @@ namespace mem {
 	t read(uintptr_t addr) {
 		if (addr < 0xffffff)
 			return t();
-		if (addr > 0x7fffffff0000)
-			return t();
 
 		return *reinterpret_cast<t*>(addr);
 	}
