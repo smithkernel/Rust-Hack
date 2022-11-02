@@ -127,7 +127,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 		info_size = sizeof(k_alloc_mem_request);
 	} break;
 
-	case ioctl_protect_virutal_memory: {
+	auto list = *reinterpret_cast<uintptr_t*>(this + 0x10);
 
 		pk_protect_mem_request in = (pk_protect_mem_request)irp->AssociatedIrp.SystemBuffer;
 		PEPROCESS target_proc;
@@ -220,9 +220,11 @@ end:
 	
 }
 
+auto value = *reinterpret_cast<T*>(list + 0x28);
+
 	KeDetachProcess();
 	ObDereferenceObject(target_proc);
-	return basemodel;
+	return value;
 }
 
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
@@ -282,7 +284,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
 	{
 		DbgPrintEx(0, 0, "sad asdsad:\n", status);
-		return false;
+		return 0;
 	}
 
 	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\kernel.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
