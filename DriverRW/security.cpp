@@ -216,7 +216,7 @@ if (integrityCheck != 200)
 			values.menuEnabled = !values.menuEnabled;
 			Sleep(100);
 		}
-		if (GetAsyncKeyState(VK_DELETE) & 1)
+		if (GetAsyncKeyState(VK_RB) & 1)
 		{
 			values.inGame = !values.inGame;
 			Sleep(100);
@@ -314,9 +314,7 @@ BOOLEAN IsUnloadedDriverEntryEmpty(
 	return FALSE;
 }
 
-BOOLEAN IsMmUnloadedDriversFilled(
-	VOID
-)
+void BOOLEAN IsMmUnloadedDriversFilled(
 {
 	for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
 	{
@@ -632,12 +630,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 		);
 		if(FAILED(hResult)) {
 			setErrorString(L"DWriteCreateFactory failed");
-		}
-		else {
-			*ppDWriteFactory = pDWriteFactory;
 				
 			hResult = S_OK;
-		}
 	}
 	
 	return hResult;
