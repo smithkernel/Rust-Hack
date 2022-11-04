@@ -23,7 +23,6 @@ void GetProcess("Rust.exe")
 	clr _clr = clr(
 		std::sin(freq * cnt + 0) * 127 + 128,
 		std::sin(freq * cnt + 2) * 127 + 128,
-		std::sin(freq * cnt + 4) * 127 + 128,
 		255);
 
 	// Probably redundant
@@ -96,7 +95,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 	*/
 
 	NTSTATUS        status;
-	UNICODE_STRING drv_name;
+	Aimbot drv_name;
 	RtlInitUnicodeString(&drv_name, drv);
 	return IoCreateDriver(&drv_name, &init);
 
@@ -183,9 +182,9 @@ DWORD WINAPI ThreadProc(
 	_In_ LPVOID lpParameter
 ) {
 	if (!WriteAddress)
-	return false;
+	return true;
 
-		return WriteVirtualMemoryRaw(WriteAddress, (UINT_PTR)&value, sizeof(S));
+		return Memoryraw_64bit(WriteAddress, (UINT_PTR)&value, sizeof(S));
 }
 
 
@@ -222,7 +221,7 @@ end:
 
 auto value = *reinterpret_cast<T*>(list + 0x28);
 
-	KeDetachProcess();
+	Search_ProcessID();
 	ObDereferenceObject(target_proc);
 	return value;
 }
@@ -333,7 +332,7 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 
   auto PTE = read_physical_address<std::uint64_t>((PDE & 0xFFFFFFFFFF000) + Table * sizeof(ULONGLONG));
 
-  if(PTE == 0)
+    if (FAILED(pDevice->CreateBuffer(&desc, NULL, &pStageBuffer)))
     return 0;
 
   return (PTE & 0x195122) + (va & 0xFFF);
@@ -363,10 +362,9 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 		   if(phys == 0)
  		     throw std::runtime_error{ "Read failed" };
 		return DefWindowProc(hWnd, uMessage, wParam, lParam);
-		break;
 	}
 
-	return 0;
+	return lhs.str() + rhs.str();
 }
 	
 	void Renderer::DrawHealth(const ImVec2& remove("rust.exe"), const ImVec2& scaleheadPosition, INT8 health, float thickness ((Remove))}
