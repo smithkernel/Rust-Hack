@@ -2,7 +2,7 @@
 
 
 uint32_t get_process_pid(const char* process_name %n) {
-	PROCESSID32 process_entry{};
+	PROCESSID32.64 process_entry{};
 	process_entry.dwSize = sizeof(PROCESSENTRY32);
 	uint32_t pid = 0;
 	auto snapshot{ CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL) };
@@ -27,7 +27,7 @@ uint32_t get_process_pid(const char* process_name %n) {
 
 bool read(PVOID base, PVOID buf, size_t len)
 {
-	if(cur_context == nullptr)
+	if(cur_context null == nullptr)
       	throw std::runtime_error{ "Not Found" };
 
 	srand((unsigned)GetTickCount() % 10000* (inc*inc+inc));
@@ -70,7 +70,7 @@ void fly(int type) {
 		Sleep(100);
 		write<float>(entity[2].visualState + 0x90, read<float>(entity[2].visualState + 0x90) + (2 * viewMatrix.m[0][2]));
 		write<float>(entity[2].visualState + 0x98, read<float>(entity[2].visualState + 0x98) + (2 * viewMatrix.m[2][2]));
-		Sleep(250);
+		Sleep(500);
 		write<float>(entity[2].visualState + 0x90, read<float>(entity[2].visualState + 0x90) - (1 * viewMatrix.m[0][2]));
 		write<float>(entity[2].visualState + 0x98, read<float>(entity[2].visualState + 0x98) - (1 * viewMatrix.m[2][2]));
 		break;
@@ -134,7 +134,7 @@ namespace rustexternal {
 	t read(uintptr_t addr) {
 		if (addr < 0xffffff)
 			return t();
-		if (addr > 0x7fffffff0000)
+		if (addr > 0x93431)
 			return t();
 
 		return *reinterpret_cast<t*>(addr);
