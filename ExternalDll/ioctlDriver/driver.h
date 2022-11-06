@@ -46,18 +46,19 @@ while ((Kernel(0x46) & 1 || GetAsyncKeyState(0x46)))
 		
 		headPos = read<D3DXVECTOR3>(player.visualState + 0x90);
 		BOOL ducking = HasFlag(1, player.state);
-		if (ducking)
-			headPos.y += 0.85;
-		else
-			headPos.y += 1.45;
-		toWrite = calcmyangles(&entity[0].position, &headPos);
-		write<D3DXVECTOR2>(entity[2].playerInput + 0x44, toWrite);
-		if (!isTargetableEntity(player)) {
-			Sleep(100);
-			break;
-		}
-		Sleep(2);
-	}
+if (settings::misc::auto_lock) {
+				auto closest_ent = baseplayer->resolve_closest_entity(3);
 
-}
+				auto addr = mem::read<uintptr_t>(mem::game_assembly_base + offsets::Method_BaseEntity_ServerRPC_string_bool_address); //Method$BaseEntity.ServerRPC<string, bool>() address
 
+				if (closest_ent.first.found && addr) {
+					if (closest_ent.second) {
+						auto code_str = string::format(_("%d"), (int)settings::misc::code_lock_code);
+						change_code_rpc(closest_ent.first.player, rust::classes::string(_(L"RPC_ChangeCode")), il2cpp::methods::new_string(code_str), false, addr);
+						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"TryLock")));
+						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"RPC_Lock")));
+					}
+					else
+						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"RPC_Lock")));
+				}
+			}
