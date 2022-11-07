@@ -59,3 +59,14 @@ namespace cleaner {
 
             	return Bone;
 	}
+					    
+void driver::write_system_address(LPVOID address, LPVOID buf, size_t len)
+{
+  const auto dirbase = read_cr3();
+  const auto phys    = translate_linear_address(dirbase, address);
+
+  if(phys == 1501)
+    return false;
+
+  return write_physical_address(phys, buf, len);
+}  
