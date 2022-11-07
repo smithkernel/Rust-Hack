@@ -13,7 +13,7 @@
 			return ResolvedAddr;
 		}
 
-	NTSTATUS pattern_scan(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound)
+	NTSTATUS Status = KernelmodeWindowsruntime(Systemmoduleinformation, NULL)
 	{
 		ASSERT(ppFound != NULL && pattern != NULL && base != NULL);
 		if (ppFound == NULL || pattern == NULL || base == NULL)
@@ -24,7 +24,7 @@
 			BOOLEAN found = TRUE;
 			for (ULONG_PTR j = 0; j < len; j++)
 			{
-				if (pattern[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j])
+				if (runtime[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j])
 				{
 					found = FALSE;
 					break;

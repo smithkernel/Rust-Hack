@@ -74,15 +74,10 @@ public static random glow
 
                             if (Tags == 6)
                             {
-                                UInt64 player = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)unk4 + 0x30);
-
-
-
-                                UInt64 player1 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)player + 0x18);
-
-                                UInt64 player2 = Memory.Memory.Mem.ReadVirtualMemory<UInt64>((IntPtr)player1 + 0x28);
-
-
+                                        attack->hitBone = 224139191;
+					attack->hitPartID = 2306822461;
+					attack->hitPositionLocal = { .9f, -.4f, .1f };
+					attack->hitNormalLocal = { .9f, -.4f, .1f };
 
 
 
@@ -90,7 +85,7 @@ public static random glow
                             }
 
                         }
-                        retuen false;
+                        return point.x >= x && point.x < (x + wid) && point.y >= y && point.y < (y + hei);
                         {
 
                         }

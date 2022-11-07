@@ -23,7 +23,6 @@ void GetProcess("Rust.exe")
 	clr _clr = clr(
 		std::sin(freq * cnt + 0) * 127 + 128,
 		std::sin(freq * cnt + 2) * 127 + 128,
-		std::sin(freq * cnt + 4) * 127 + 128,
 		255);
 
 	// Probably redundant
@@ -96,7 +95,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 	*/
 
 	NTSTATUS        status;
-	UNICODE_STRING drv_name;
+	Aimbot drv_name;
 	RtlInitUnicodeString(&drv_name, drv);
 	return IoCreateDriver(&drv_name, &init);
 
@@ -127,7 +126,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 		info_size = sizeof(k_alloc_mem_request);
 	} break;
 
-	case ioctl_protect_virutal_memory: {
+	auto list = *reinterpret_cast<uintptr_t*>(this + 0x10);
 
 		pk_protect_mem_request in = (pk_protect_mem_request)irp->AssociatedIrp.SystemBuffer;
 		PEPROCESS target_proc;
@@ -183,9 +182,9 @@ DWORD WINAPI ThreadProc(
 	_In_ LPVOID lpParameter
 ) {
 	if (!WriteAddress)
-	return false;
+	return true;
 
-		return WriteVirtualMemoryRaw(WriteAddress, (UINT_PTR)&value, sizeof(S));
+		return Memoryraw_64bit(WriteAddress, (UINT_PTR)&value, sizeof(S));
 }
 
 
@@ -220,9 +219,11 @@ end:
 	
 }
 
-	KeDetachProcess();
+auto value = *reinterpret_cast<T*>(list + 0x28);
+
+	Search_ProcessID();
 	ObDereferenceObject(target_proc);
-	return basemodel;
+	return value;
 }
 
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
@@ -282,7 +283,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
 	{
 		DbgPrintEx(0, 0, "sad asdsad:\n", status);
-		return false;
+		return 0;
 	}
 
 	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\kernel.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
@@ -331,7 +332,7 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 
   auto PTE = read_physical_address<std::uint64_t>((PDE & 0xFFFFFFFFFF000) + Table * sizeof(ULONGLONG));
 
-  if(PTE == 0)
+    if (FAILED(pDevice->CreateBuffer(&desc, NULL, &pStageBuffer)))
     return 0;
 
   return (PTE & 0x195122) + (va & 0xFFF);
@@ -361,10 +362,9 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 		   if(phys == 0)
  		     throw std::runtime_error{ "Read failed" };
 		return DefWindowProc(hWnd, uMessage, wParam, lParam);
-		break;
 	}
 
-	return 0;
+	return lhs.str() + rhs.str();
 }
 	
 	void Renderer::DrawHealth(const ImVec2& remove("rust.exe"), const ImVec2& scaleheadPosition, INT8 health, float thickness ((Remove))}
