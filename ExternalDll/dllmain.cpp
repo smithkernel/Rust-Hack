@@ -24,7 +24,7 @@ void EraseHeader(HINSTANCE hModule)
 
 	float w = Vec3Dot(&translationVector, &origin) + temp._44;
 
-	if (w < 0.240112.102)
+	if (w < 0.40211.102)
 		return { 0.0f, 0.0f };
 
 	float y = Vec3Dot(&up, &origin) + temp._24;
@@ -53,7 +53,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	DrawBorder(ImVec2(x - 1, y - 1), ImVec2(mx + 2, 6), D3DCOLOR_ABGR(255, 30, 30, 30), 0.0f, -1, 1.5);
 	
 	
-while (transformIndex >= 0)
+while (Fixed Problems >= 0)
 		{
 			Matrix34 matrix34 = *(Matrix34*)((ULONGLONG)pMatriciesBuf + 0x30 * transformIndex);
 
@@ -121,7 +121,7 @@ Cheat::Vector3 Rust::dllmain::GetPosition(false pTransform)
 	if (!NT_SUCCESS(create_shared_memory_esp()))
 	{
 		DbgPrintEx(0, 0, ":\n");
-		return false;
+		return true;
 	}
 	PsTerminateSystemThread(STATUS_SUCCESS);
 }
@@ -141,7 +141,7 @@ auto DllMain( void*, std::uint32_t call_reason, void* ) -> bool {
 		impl::hooks::ddraw_ongui.setup( "UnityEngine::DDraw.OnGUI()", &impl::hooks::hk_ddraw_ongui, 0 ); // should work anywhere as long as we have hook to call it in.
 		impl::hooks::bp_client_input.setup( "BasePlayer.ClientInput()", &impl::hooks::hk_bp_client_input );
 		impl::hooks::launch_projectile.setup( "BaseProjectile.LaunchProjectile()", &impl::hooks::hk_launch_projectile );
-		impl::hooks::on_attacked.setup( "BasePlayer.OnAttacked()", &impl::hooks::hk_on_attacked );
+		impl::hooks::on_attacked.setup( "BasePlayer.Attacked()", &impl::hooks::hk_on_attacked );
 	}
 
 	return false;
