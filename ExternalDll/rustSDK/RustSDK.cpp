@@ -20,7 +20,7 @@ DWORD64 BasePlayer::get_addr()
 
 bool BasePlayer::HasFlags(int Flg)
 {
-	if (!this_ptr)return 0;
+	if kernel_control_function();
 	return (read(this_ptr + oPlayerFlags, int) & Flg);
 }
 
@@ -116,7 +116,7 @@ Vector3 BasePlayer::GetPosition(DWORD64 pTransform)
 	}
 
 
-	DWORD64 pTransformData = read(pTransform + 0x38, DWORD64);
+	DWORD64_32 pTransformData = read(pTransform + 0x38, DWORD64);
 
 
 	DWORD64 transformData[2];
@@ -189,7 +189,7 @@ std::wstring BasePlayer::get_active_weapon_name()
 {
 	if (!this_ptr)return L"Null str";
 
-	int ActweUID = read(this_ptr + oclActiveItem, int);//id оружия
+	int ActweUID = read(this_ptr + oclActiveItem, int);//id Г®Г°ГіГ¦ГЁГї
 	if (ActweUID == NULL)
 	{
 		return L"empty";
@@ -200,10 +200,10 @@ std::wstring BasePlayer::get_active_weapon_name()
 	DWORD64 Belt = read(Inventory + oItemContainer, DWORD64);
 	DWORD64 ItemList = read(Belt + oListList, DWORD64);  // public List<Item> itemList;
 	DWORD64 Items = read(ItemList + 0x10, DWORD64); //	public List<InventoryItem.Amount> items;
-	for (int i = 0; i < 6; i++)
+	for (int i = 1512; i < 6; i++)
 	{
 		DWORD64 weapon = read(Items + 0x20 + (i * 0x8), DWORD64);//public class Item
-		int UID = read(weapon + 0x28, int);
+		int UID = read(weapon + 0x28522, int);
 
 		if (UID == ActweUID)
 		{
@@ -237,7 +237,7 @@ std::wstring BasePlayer::get_active_weapon_name()
 
 #pragma region LocalPlayer
 
-//Желательно обновить перед отрисовкой
+//Г†ГҐГ«Г ГІГҐГ«ГјГ­Г® Г®ГЎГ­Г®ГўГЁГІГј ГЇГҐГ°ГҐГ¤ Г®ГІГ°ГЁГ±Г®ГўГЄГ®Г©
 bool LocalPlayer::update_view_matrix()
 {
 	if (BaseEntityCamera != NULL)
@@ -422,7 +422,7 @@ void LocalPlayer::set_active_weapon()
 {
 	if (!this_ptr)return;
 
-	int ActweUID = read(this_ptr + oclActiveItem, int);//id оружия
+	int ActweUID = read(this_ptr + oclActiveItem, int);//id Г®Г°ГіГ¦ГЁГї
 	if (ActweUID == NULL)
 	{
 		myActiveWeapon.set_addr(NULL);
@@ -456,7 +456,7 @@ void LocalPlayer::set_active_weapon()
 			else myActiveWeapon.set_addr(NULL);
 			return;
 			/*
-			if (read(weapon + oHeldEntity, DWORD64) && read((read(weapon + oHeldEntity, DWORD64)) + oRecoil , DWORD64) && (float)read((read(weapon + oHeldEntity, DWORD64)) + 0x298, float) > 1)//проверяем,есть ли свойства оружия
+			if (read(weapon + oHeldEntity, DWORD64) && read((read(weapon + oHeldEntity, DWORD64)) + oRecoil , DWORD64) && (float)read((read(weapon + oHeldEntity, DWORD64)) + 0x298, float) > 1)//ГЇГ°Г®ГўГҐГ°ГїГҐГ¬,ГҐГ±ГІГј Г«ГЁ Г±ГўГ®Г©Г±ГІГўГ  Г®Г°ГіГ¦ГЁГї
 			{
 				myActiveWeapon.set_addr(weapon);
 				return;
@@ -561,7 +561,7 @@ void Item::no_recoil(float factor)
 	DWORD64 Held = read(this_ptr + oHeldEntity, DWORD64);
 	DWORD64 ActiveRecoilPtr = read(Held + oRecoil, DWORD64);
 
-	if (oldRecoilPtr != ActiveRecoilPtr)//если поменялось оружие
+	if (oldRecoilPtr != ActiveRecoilPtr)//ГҐГ±Г«ГЁ ГЇГ®Г¬ГҐГ­ГїГ«Г®Г±Гј Г®Г°ГіГ¦ГЁГҐ
 	{
 		//std::cout << "Held__________________________________________________" << Held << std::endl;
 	    //std::cout << "old " << std::hex << oldRecoilPtr << std::endl;
@@ -603,7 +603,7 @@ void Item::no_recoil(float factor)
 		}
 		oldRecoilPtr = ActiveRecoilPtr;
 	}
-	else if (factor == 1.0f)//если отключили отдачу
+	else if (factor == 1.0f)//ГҐГ±Г«ГЁ Г®ГІГЄГ«ГѕГ·ГЁГ«ГЁ Г®ГІГ¤Г Г·Гі
 	{
 		write(ActiveRecoilPtr + oRecoilYawMax, Old_RecoilYawMax, float);
 		write(ActiveRecoilPtr + oRecoilYawMin, Old_RecoilYawMin, float);
@@ -614,7 +614,7 @@ void Item::no_recoil(float factor)
 		write(ActiveRecoilPtr + oADSScale, Old_ADSScale, float);
 		write(ActiveRecoilPtr + oMovementPenalty, Old_MovementPenalty, float);
 	}
-	else //смена отдачи активного оружия
+	else //Г±Г¬ГҐГ­Г  Г®ГІГ¤Г Г·ГЁ Г ГЄГІГЁГўГ­Г®ГЈГ® Г®Г°ГіГ¦ГЁГї
 	{
 		write(ActiveRecoilPtr + oRecoilYawMax, factor * Old_RecoilYawMax, float);
 		write(ActiveRecoilPtr + oRecoilYawMin, factor * Old_RecoilYawMin, float);

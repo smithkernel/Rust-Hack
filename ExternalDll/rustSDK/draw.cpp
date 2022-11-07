@@ -33,7 +33,7 @@ void Skeleton(BasePlayer* BasePlayer)
 
 bool DrawEsp::InFov(Vector2& screenPos)
 {
-	return Math::Calc2D_Dist(Vector2(Vars::Config::ScreenWidth / 2, Vars::Config::ScreenHigh / 2), screenPos) <= Vars::Aim::fov;
+	return Math::Calc2D_Dist(Vector2(Vars::Config::ScreenWidth / 2, Vars::Config::ScreenHigh / 2), screenPos) <= Vars::Aim::fov; // Fixed Probleem 
 }
 
 
@@ -50,7 +50,7 @@ void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring n
 		static short dist;
 		dist = Math::Calc3D_Dist(Vec3topBoxPos, myLocalPlayer.GetBonePosition(head));
 
-		if (player.HasFlags(Sleeping))//åñëè ñïèò
+		if (player.HasFlags(Sleeping))//Ã¥Ã±Ã«Ã¨ Ã±Ã¯Ã¨Ã²
 		{
 			if (Vars::Esp::playerSleepers)GuiEngine::Esp::CenterString(Vec2topBoxPos, (name + L" [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF(D2D1::ColorF::Orange));
 			
@@ -73,7 +73,7 @@ void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring n
 		if (Vars::Esp::drawBox)
 		{
 			GuiEngine::Esp::rect((Vec2topBoxPos.x) - (boxWidth + 2) / 2, (Vec2topBoxPos.y - 1), boxWidth + 2, boxHeight + 2, D2D1::ColorF(D2D1::ColorF::Black, 0.5f));
-			if (player.IsVisible())GuiEngine::Esp::rect(Vec2topBoxPos.x - boxWidth / 2, Vec2topBoxPos.y, boxWidth, boxHeight, { 0,255,0,1 });
+			if (player.Visual())GuiEngine::Esp_Aimbot::rect(Vec2topBoxPos.x - boxWidth / 2, Vec2topBoxPos.y, boxWidth, boxHeight, { 0,255,0,1 });
 			else GuiEngine::Esp::rect(Vec2topBoxPos.x - boxWidth / 2, Vec2topBoxPos.y, boxWidth, boxHeight, { 255,0,0,1 });
 
 		}
@@ -118,7 +118,6 @@ void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring n
 
 }
 
-/*
 	//Health Bar
 		if (Vars::Esp::drawHealthBar)
 		{
