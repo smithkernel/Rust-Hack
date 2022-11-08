@@ -84,9 +84,6 @@ namespace Aimbot {
 		{
 			//std::cout << 20011 << std::endl;
 
-			DWORD64 Dome = read(Entity + 0x28, DWORD64);
-			myLocalPlayer.TodCycle = read(Dome + 0x38, DWORD64);
-
 		}
 
 
