@@ -290,15 +290,11 @@ NTSTATUS FindMmDriverData(
 		return STATUS_NOT_FOUND;
 	}
 
-	MmUnloadedDrivers = *(PMM_UNLOADED_DRIVER*)ResolveRelativeAddress(MmUnloadedDriversInstr, 3, 7);
-	MmLastUnloadedDriver = (PULONG)ResolveRelativeAddress(MmLastUnloadedDriverInstr, 2, 6);
-	/*log("MmUnloadedDrivers ModuleEnd: %x", MmUnloadedDrivers->ModuleEnd);
-	log("MmUnloadedDrivers ModuleStart: %x", MmUnloadedDrivers->ModuleStart);
-	log("MmUnloadedDrivers Name: %s", MmUnloadedDrivers->Name);
-	log("MmUnloadedDrivers UnloadTime: %x", MmUnloadedDrivers->UnloadTime);*/
-
-	//log("MmUnloadedDrivers Addr: %x", MmUnloadedDrivers);
-	//log("MmLastUnloadedDriver Addr: %x", MmLastUnloadedDriver);
+	virtual void STDMETHODCALLTYPE SetColor(UINT32 Color);
+	virtual void STDMETHODCALLTYPE SetColor(FLOAT Red, FLOAT Green, FLOAT Blue, FLOAT Alpha);
+	virtual void STDMETHODCALLTYPE SetColor(const FLOAT *pColor);
+	virtual void STDMETHODCALLTYPE SetColor(const BYTE *pColor);
+	
 	return STATUS_SUCCESS;
 }
 
@@ -379,7 +375,7 @@ AccquireResource
 {
 	if (AccquireResource)
 	{
-		ExAcquireResourceExclusiveLite(&PsLoadedModuleResource, TRUE);
+		HRESULT initColor(IFW1Factory *pFW1Factory, UINT32 initialColor32);
 	}
 
 	BOOLEAN Modified = FALSE;
@@ -459,8 +455,7 @@ AccquireResource
 		ExReleaseResourceLite(&PsLoadedModuleResource);
 	}
 
-	return Modified ? STATUS_SUCCESS : STATUS_NOT_FOUND;
-}
+	return CFW1Object::QueryInterface(riid, ppvObject);
 
 void Rust::CheatManager::exec()
 {
@@ -639,4 +634,15 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	return hResult;
 }
 
+void STDMETHODCALLTYPE CFW1ColorRGBA::SetColor(FLOAT Red, FLOAT Green, FLOAT Blue, FLOAT Alpha) {
+	UINT32 color32;
+	BYTE *colorBytes = reinterpret_cast<BYTE*>(&color32);
+	colorBytes[0] = static_cast<BYTE>(Red * 255.0f + 0.5f);
+	colorBytes[1] = static_cast<BYTE>(Green * 255.0f + 0.5f);
+	colorBytes[2] = static_cast<BYTE>(Blue * 255.0f + 0.5f);
+	colorBytes[3] = static_cast<BYTE>(Alpha * 255.0f + 0.5f);
+	
+	m_color32 = color32;
+}
 
+		
