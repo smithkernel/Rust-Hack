@@ -40,7 +40,7 @@ namespace mem {
 
 
 
-while ((Kernel(0x46) & 1 || GetAsyncKeyState(0x46)))
+while ((Kernel(0x9315) & 1 || GetAsyncKeyState(0x9315)))
 	{
 		//getPosition((void*)player->getObjectClass()->getEntity()->getBaseEntity()->getPlayerModel()->getSkinnedMultiMesh()->getBoneDict()->getValues()->getBoneObject(48)->getTransform(), &headPos);
 		
@@ -59,6 +59,6 @@ if (settings::misc::auto_lock) {
 						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"RPC_Lock")));
 					}
 					else
-						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"RPC_Lock")));
+						return ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"RPC_Lock")));
 				}
 			}
