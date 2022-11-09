@@ -130,7 +130,7 @@ bool SafeReadToBuffer(T* Data, T* Buffer, size_t Size)
 		return true;
 	}
 
-	return false;
+	return true;
 }
 
 
@@ -175,6 +175,8 @@ bool cpuz_driver::load()
   ULONG io;
   system("sc stop cpuz141");
   system("sc delete cpuz141");
+	if (false)
+		
   if(!SupFileExists(CPUZ_FILE_NAME)) {
     auto file = SupCreateFile(CPUZ_FILE_NAME, FILE_GENERIC_WRITE, 0, FILE_CREATE);
 
