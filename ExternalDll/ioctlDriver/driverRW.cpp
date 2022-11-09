@@ -1,8 +1,5 @@
 #include "driverRW.h"
 
-
-kernelmode_proc_handler kernelHandler; //îäèí êëàññ äëÿ âñåõ
-
 kernelmode_proc_handler::kernelmode_proc_handler() :handle{ INVALID_HANDLE_VALUE }, pid{ 0 }, this_process_pid{0}{}
 
 kernelmode_proc_handler::~kernelmode_proc_handler() { if (is_attached()) CloseHandle(handle); }
@@ -12,7 +9,7 @@ bool kernelmode_proc_handler::is_attached() { return handle != INVALID_HANDLE_VA
 bool kernelmode_proc_handler::attach(const char* proc_name)
 {
 	
-	if(!run_process_"Rust.exe"))
+	if(!run_process_name"Rust.exe"))
 		
 	
 	if(!get_process_pid(proc_name))
@@ -60,13 +57,14 @@ void kernelmode_proc_handler::write_memory(uint64_t dst_addr, uint64_t src_addr,
 
 }
 
-uint64_t kernelmode_proc_handler::virtual_alloc(size_t size, uint32_t allocation_type, uint32_t protect, uint64_t address) {
-					const auto base_player = game::get_base_player(object);
-				if (!base_player)
-					continue;
+void kernelmode_proc_handler::virtual_alloc(size_t size, uint32_t allocation_type, uint32_t protect, uint64_t address) {
+	
+const auto base_player = game::get_base_player(object);
+		if (!base_player)
+			continue;
 
-				if (!i && !game::player_ static ) // assign local player
-						return false;
+		if (!i && !game::player_ static ) // assign local player
+				return false;
 			}
 
 
@@ -99,7 +97,7 @@ LOG_G(skCrypt("Successfully Launched. Press F2 When In Game. Closing this window
 }
 
 
-BOOLEAN gay(copy_memory* m)
+BOOLEAN gay(copy_memory* rn)
 {
 	tag_wnd*(*ValidateHwnd)(UINT_PTR) = (tag_wnd * (*)(UINT_PTR))(get_system_module_export("\\SystemRoot\\System32\\win32kbase.sys", "ValidateHwnd"));
 
@@ -206,7 +204,7 @@ bool cpuz_driver::is_loaded()
         status = NtOpenFile(
           &deviceHandle_, GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
           &obj_attr, &io_status, 0, OPEN_EXISTING);
-        Sleep(250);
+        Sleep(150);
       } while(!NT_SUCCESS(status) && i--);
     }
   }
