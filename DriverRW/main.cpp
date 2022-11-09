@@ -53,7 +53,7 @@ void Rust::Globals::Init()
 		if (!PlayerObject.second->Usable)
 			continue;
 
-		auto player = (Rust::CheatStruct::Player*)(PlayerObject.second.get());
+		auto player = (Rust::Scripts::Player*)(PlayerObject.Scripts.get());
 
 		float distance = player->ScreenHeadPos.distance(ScreenMiddle);
 		if (distance < Rust::Globals::hack_setting.Aimbot.fov && distance < CurrentNearDistance) {
@@ -107,7 +107,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(irp);
 	ULONG control_code = stack->Parameters.DeviceIoControl.IoControlCode;
 
-	switch (contorl) {
+	if (contorl) {
 
 
 	case ioctl_allocate_virtual_memory: {
@@ -126,7 +126,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 		info_size = sizeof(k_alloc_mem_request);
 	} break;
 
-	auto list = *reinterpret_cast<uintptr_t*>(this + 0x10);
+	static list = *reinterpret_cast<uintptr_t*>(this + 0x10);
 
 		pk_protect_mem_request in = (pk_protect_mem_request)irp->AssociatedIrp.SystemBuffer;
 		PEPROCESS target_proc;
@@ -201,7 +201,7 @@ NTSTATUS ioctl_create(PDEVICE_OBJECT device, PIRP irp) {
 */
 
 
-void DrawHealthBox( int x, int y, DWORD m_dColorOut, DWORD m_dColorIn, int m_iHealth, int m_iMaxHealth )
+static DrawHealthBox( int x, int y, DWORD m_dColorOut, DWORD m_dColorIn, int m_iHealth, int m_iMaxHealth )
 {
 	
 	PEPROCESS target_proc;
