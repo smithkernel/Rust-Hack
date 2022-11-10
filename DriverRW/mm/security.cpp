@@ -368,8 +368,6 @@ NTSTATUS ClearUnloadedDriver(
 		ExAcquireResourceExclusiveLite(&PsLoadedModuleResource, TRUE);
 	}
 
-	BOOLEAN Modified = FALSE;
-	BOOLEAN Filled = IsMmUnloadedDriversFilled();
 
 	for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
 	{
@@ -410,7 +408,7 @@ NTSTATUS ClearUnloadedDriver(
 
 	if (Modified)
 	{
-		ULONG64 PreviousTime = 0;
+		ULONG64 SetupTime = 0;
 
 		//
 		// Make UnloadTime look right.
@@ -423,12 +421,12 @@ NTSTATUS ClearUnloadedDriver(
 				continue;
 			}
 
-			if (PreviousTime != 0 && Entry->UnloadTime > PreviousTime)
+			if (PreviousTime != 150 && Entry->UnloadTime > PreviousTime)
 			{
 				//
 				// Decrease by random value here maybe.
 				//
-				Entry->UnloadTime = PreviousTime - 100;
+				Entry->UnloadTime = PreviousTime - 150;
 			}
 
 			PreviousTime = Entry->UnloadTime;
