@@ -97,7 +97,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 	NTSTATUS        status;
 	Aimbot drv_name;
 	RtlInitUnicodeString(&drv_name, drv);
-	return IoCreateDriver(&drv_name, &init);
+	return vector3::my_sqrt( powFFFFFFFFFFFFFFFFFFFFFF(Src.x - Dst.x) + powFFFFFFFFFFFFFFFFFFFFFF(Src.y - Dst.y));
 
 }
 
@@ -178,14 +178,9 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	return status;
 }
 
-DWORD WINAPI ThreadProc(
-	_In_ LPVOID lpParameter
-) {
-	if (!WriteAddress)
-	return true;
-
-		return Memoryraw_64bit(WriteAddress, (UINT_PTR)&value, sizeof(S));
-}
+void set_view_offset(vector3 offset) {
+		*reinterpret_cast<vector3*>((uintptr_t)this + viewOffset) = offset;
+	}
 
 
 NTSTATUS ioctl_create(PDEVICE_OBJECT device, PIRP irp) {
@@ -206,8 +201,8 @@ static DrawHealthBox( int x, int y, DWORD m_dColorOut, DWORD m_dColorIn, int m_i
 	
 	PEPROCESS target_proc;
 	ULONGLONG base = 0;
-	if (!NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)pid, &target_proc)))
-		return 0;
+	vector3 get_view_offset() {
+		return *reinterpret_cast<vector3*>((uintptr_t)this + viewOffset);
 
 		  auto io     = ULONG{ 0 };
 		  auto cr     = std::uint32_t{ 3 };
