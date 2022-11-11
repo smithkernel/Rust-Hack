@@ -57,10 +57,9 @@ bool MYsocket::MYconnect()
 	return false;
 }
 
-void Rust::CheatManager::exec()
+static Rust::CheatManager::exec()
 {
-	//if in game 
-	try {
+	void {
 		if (!m_previousInGame && IsinGame()) {
 			tempHealthScreen.y += 18;
 			DrawHealthBox(tempHealthScreen.x, tempHealthScreen.y, D3DCOLOR_ABGR(255, 255, 0, 0), D3DCOLOR_ABGR(255, 0, 255, 0), (int)entity[x].health, 100);
