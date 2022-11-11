@@ -38,7 +38,6 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 		bool metalOreESP = false;
 		bool sulfurOreESP = false;
 		bool stoneOreESP = false;
-		return true;
 	}
 
 	return true;
