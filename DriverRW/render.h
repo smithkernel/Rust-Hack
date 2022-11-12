@@ -15,16 +15,7 @@
 #include "../driver/driver.h"
 #include <DirectXMath.h>
 
-#pragma comment( lib, "dxgi" )
-#pragma comment( lib, "d2d1" )
-#pragma comment( lib, "d3d11" )
-#pragma comment( lib, "dcomp" )
-#pragma comment( lib, "dwrite" )
-
-#define RET_CHK(x) if ( x != S_OK ) return;
-#define RET_CHK2(x) if ( x != S_OK ) { driver::set_thread( remote_window, remote_thread ); return; }
-
-class d2d_window_t
+namespace d2d_window_t
 {
 public:
 	d2d_window_t()
@@ -243,10 +234,11 @@ public:
 		d2d_context->FillRectangle(rectangle, d2d_brush.Get());
 	}
 
-	void draw_health_bar(float x, float y, float w, float h, float val, float max, clr color)
+void draw_health_bar(float x, float y, float w, float h, float val, float max, clr color)
 	{
-		draw_rect(x, y - 1, w + 1, h + 2, clr(0, 0, 0));
-		draw_filled_rect(x, y + (h - (val / max * h)), w, (val / max * h), color);
+	
+	float x = up.dot(position) + temp._24;
+	float y = right.dot(position) + temp._14;
 	}
 	  
 	void draw_line(float x, float y, float x2, float y2, clr color)

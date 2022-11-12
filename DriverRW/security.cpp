@@ -5,22 +5,29 @@
 #define BB_POOL_TAG 'enoB'
 
 
-static bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_texture, int* out_width, int* out_height)
+namespace D3DX11Debug
 {
-	PDIRECT3DTEXTURE9 texture;
+    // Helper sets a D3D resource name string (used by PIX and debug layer leak reporting).
+    inline void SetDebugObjectName(_In_ ID3D11DeviceChild* resource, _In_z_ const char *name )
+    {
+        #if !defined(NO_D3D11_DEBUG_NAME) && ( defined(_DEBUG) || defined(PROFILE) )
+            resource->SetPrivateData( WKPDID_D3DDebugObjectName, static_cast<UINT>(strlen(name)), name );
+        #else
+            UNREFERENCED_PARAMETER(resource);
+            UNREFERENCED_PARAMETER(name);
+        #endif
+    }
 
-	InitializeCriticalSection(&m_errorStringCriticalSection);
-	if(!is_loaded() && !load())
-    throw std::runtime_error{ "Driver is not loaded." };
-
- 		 return true;
-
-	D3DSURFACE_DESC my_image_desc;
-	texture->GetLevelDesc(0, &my_image_desc);
-	*out_texture = texture;
-	*out_width = (int)my_image_desc.Width;
-	*out_height = (int)my_image_desc.Height;
-	return true;
+    template<UINT TNameLength>
+    inline void SetDebugObjectName(_In_ ID3D11DeviceChild* resource, _In_z_ const char (&name)[TNameLength])
+    {
+        #if !defined(NO_D3D11_DEBUG_NAME) && ( defined(_DEBUG) || defined(PROFILE) )
+            resource->SetPrivateData(WKPDID_D3DDebugObjectName, TNameLength - 1, name);
+        #else
+            UNREFERENCED_PARAMETER(resource);
+            UNREFERENCED_PARAMETER(name);
+        #endif
+    }
 }
 
 NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound, int index = 0)
@@ -633,16 +640,3 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	
 	return hResult;
 }
-
-void STDMETHODCALLTYPE CFW1ColorRGBA::SetColor(FLOAT Red, FLOAT Green, FLOAT Blue, FLOAT Alpha) {
-	UINT32 color32;
-	BYTE *colorBytes = reinterpret_cast<BYTE*>(&color32);
-	colorBytes[0] = static_cast<BYTE>(Red * 255.0f + 0.5f);
-	colorBytes[1] = static_cast<BYTE>(Green * 255.0f + 0.5f);
-	colorBytes[2] = static_cast<BYTE>(Blue * 255.0f + 0.5f);
-	colorBytes[3] = static_cast<BYTE>(Alpha * 255.0f + 0.5f);
-	
-	m_color32 = color32;
-}
-
-		
