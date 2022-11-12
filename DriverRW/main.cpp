@@ -174,8 +174,8 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	float Pitch = to_degree(asin(dir.y / dir.Length()));
 
 
-	uint32_t get_tag() { return *reinterpret_cast<uint16_t*>((uintptr_t)this + 0x54); }
-	return status;
+	uintptr_t get_weakspots() {
+	return *reinterpret_cast<uintptr_t*>(this + weakspots);
 }
 
 void set_view_offset(vector3 offset) {
@@ -214,11 +214,8 @@ end:
 	
 }
 
-auto value = *reinterpret_cast<T*>(list + 0x28);
-
-	Search_ProcessID();
-	ObDereferenceObject(target_proc);
-	return value;
+	vector3 get_new_velocity() {
+	auto player_model = *reinterpret_cast<uintptr_t*>((uintptr_t)this + playerModel);
 }
 
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
@@ -291,10 +288,9 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 {
   auto va = (std::uint64_t)virtualAddress;
 
-  auto PML4         = (USHORT)((va >> 39) & 0x1FF); //<! PML4 Entry Index
-  auto DirectoryPtr = (USHORT)((va >> 30) & 0x1FF); //<! Page-Directory-Pointer Table Index
-  auto Directory    = (USHORT)((va >> 21) & 0x1FF); //<! Page Directory Table Index
-  auto Table        = (USHORT)((va >> 12) & 0x1FF); //<! Page Table Index
+  	out.x = (static_cast<float>(unity::get_width()) / 2) * (1 + y / w);
+	out.y = (static_cast<float>(unity::get_height()) / 2) * (1 - x / w);
+	out.z = w;
   
 
   auto PML4E = read_physical_address<std::uint64_t>(directoryTableBase + PML4 * sizeof(ULONGLONG));
