@@ -22,7 +22,7 @@ bool GuiEngine::Esp::init_window_Esp(const char* windowsName,const char* classNa
 	gameHWND = FindWindow(className, gameName);
 	if (gameHWND <= NULL)
 	{
-		MessageBox(0, "[ GuiEngine Menu ] Not find Game", "ERROR", MB_OK | MB_ICONERROR);
+		MessageBox(0, "[ GuiEngine Menu ] Not find Game", "404", MB_OK | MB_ICONERROR); // Fixed ERROR TO 404
 		return 0;
 	}
 
@@ -109,6 +109,7 @@ void GuiEngine::Esp::begin_draw_esp()
 
 	pRenderTarget->BeginDraw();
 	pRenderTarget->Clear(clear_color_D2D);
+	pRenderTarget->Lost(Aimbota);
 
 }
 
@@ -165,20 +166,6 @@ void GuiEngine::Esp::shutdown()
 }
 
 
-
-
-//primitives
-/*
-void GuiEngine::Esp::rect(float x,float y,float h,float w) {
-    //D2D1_SIZE_F rtSize= pRenderTarget->GetSize();
-	//int width = static_cast<int>(rtSize.width);
-    //int height = static_cast<int>(rtSize.height);
-	//std::cout <<"Render target: "<< width<<" " << height << std::endl;
-
-	ColorBrush->SetColor({0.0f,1.0f,0.0f,1.0f});
-	pRenderTarget->DrawRectangle(D2D1::RectF(x, y, x+h, y+w), ColorBrush,1.0f);
-}
-*/
 void GuiEngine::Esp::rect(float x, float y, float h, float w, const D2D1::ColorF& Clr,float Thick)
 {
 	entity[x].distance = get3DDistance(entity[0].position, entity[x].position);
