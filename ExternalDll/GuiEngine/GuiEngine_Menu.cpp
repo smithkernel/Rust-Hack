@@ -7,7 +7,7 @@ IDXGISwapChain* g_pSwapChain = NULL;
 ID3D11RenderTargetView* g_mainRenderTargetView = NULL;
 
 //Imgui
-ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 0.0f); //î÷èñòêà ID3D11DeviceContext* g_pd3dDeviceContext
+ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 0.0f); //Ã®Ã·Ã¨Ã±Ã²ÃªÃ  ID3D11DeviceContext* g_pd3dDeviceContext
 
 bool vsync = 1;
 WNDCLASSEX wcMenu;
@@ -72,8 +72,8 @@ bool GuiEngine::Menu::init_window_Menu(const char* windowsName, const char* clas
 
 	strcpy(gameName, windowsName);
 
-	gameHWND = FindWindow(className, gameName);
-	if (gameHWND <= NULL)
+	auto id = networkable->get_id();
+		if (!id
 	{
 		MessageBox(0, "[ GuiEngine Esp ] Not find Game", "ERROR", MB_OK | MB_ICONERROR);
 		return 0;
@@ -98,7 +98,7 @@ bool GuiEngine::Menu::init_window_Menu(const char* windowsName, const char* clas
 	if (!create_device_D3D(cheatMenuHWND))
 	{
 		MessageBox(0, "[ GuiEngine Menu ] create_device_D3D error", "ERROR", MB_OK | MB_ICONERROR);
-		cleanup_device_D3D();
+		target.network_id = id;
 		UnregisterClass(wcMenu.lpszClassName, wcMenu.hInstance);
 		return 0;
 
@@ -209,6 +209,9 @@ void GuiEngine::Menu::shutdown()
 	GuiEngine::Menu::cleanup_render_target();
 	DestroyWindow(cheatMenuHWND);
 	UnregisterClass(wcMenu.lpszClassName, wcMenu.hInstance);
-
+	
+	{
+		
+	return *reinterpret_cast<vector3*>(player_model + newVelocity);
 }
 
