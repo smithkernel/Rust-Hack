@@ -7,7 +7,7 @@ static std::mutex mtx;
 
 #include <chrono>
 
-class timer
+class timer 
 {
 private:
 	std::chrono::time_point<std::chrono::steady_clock> m_StartTime;
