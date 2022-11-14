@@ -36,14 +36,7 @@ typedef struct _k_rw_request {
 	uint32_t dst_pid;
 	uint64_t src_addr;
 	uint64_t dst_addr;
-	uint32_t size;
-} k_rw_request, * pk_rw_request;
-
-{
-	// And after that compile again to test if it can connect or not.
-bool driverController::isDriverRunning() {
-    HANDLE hDevice = CreateFile(L"\\\\.\\ValorMemory", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	
 	{
+		return false;
 	}
-#endl;
+}
