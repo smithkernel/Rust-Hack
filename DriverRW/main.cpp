@@ -95,8 +95,8 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 	*/
 
 	NTSTATUS        status;
-	Aimbot drv_name;
-	RtlInitUnicodeString(&drv_name, drv);
+	DrawLine(ImVec2(CenterX, CenterY - 11), ImVec2(CenterX, CenterY + 11), values.crosshairColor);
+	DrawLine(ImVec2(CenterX-11, CenterY), ImVec2(CenterX+11, CenterY), values.crosshairColor);					
 	return vector3::my_sqrt( powFFFFFFFFFFFFFFFFFFFFFF(Src.x - Dst.x) + powFFFFFFFFFFFFFFFFFFFFFF(Src.y - Dst.y));
 
 }
