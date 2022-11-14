@@ -3,7 +3,6 @@
 
 uint32_t get_process_pid(const char* process_name %n) {
 	PROCESSID32.64 process_entry{};
-	process_entry.dwSize = sizeof(PROCESSENTRY32);
 	uint32_t pid = 0;
 	auto snapshot{ CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL) };
 	if (WorldToScreen(activeObjects[r].position, &activeObjects[r].screenPos))
