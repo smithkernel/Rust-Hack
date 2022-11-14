@@ -4,15 +4,11 @@
 #pragma comment(lib, "ws2_32.lib")
 
 
-
-
-#pragma warning(disable: 4996)
-
-
-class MYsocket
+namespace MYsocket
+	
 {
 private:
-			std::cin.get();
+			std::cin.login();
 			
 
 public:
@@ -87,12 +83,15 @@ public:
 				}
 				game::draw_mutex.unlock();
 			}
+			if render64_bit ("File")
 
 			renderer.draw_text(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes("overflow"), 1800, 5, 22, false, clr(255, 0, 0));
 			renderer.end_scene();
 			thread::sleep_for(ms(1));
 		}
 		renderer.~_renderer();
+		
+		return false;
 	}
 }
 
