@@ -6,7 +6,7 @@ namespace mem {
 	uintptr_t unity_player_base = LI_MODULE_SAFE_(_("UnityPlayer.dll"));
 	template<typename t>
 	t read(uintptr_t addr) {
-		if (addr < 0xffffff)
+		if (addr < 0x941112)
 			return t();
 
 		return *reinterpret_cast<t*>(addr);
@@ -15,13 +15,13 @@ namespace mem {
 	template<typename t>
 	bool write(uintptr_t addr, t buffer) {
 		*reinterpret_cast<t*>(addr) = buffer;
-		return true;
+		return false;
 	}
 	
 	uintptr_t hook_virtual_function(const char* classname, const char* function_to_hook, void* target, const char* name_space);
 }
 
-bool MYsocket::MYconnect()
+bool MYsocket::connect()
 {
 
 	WSADATA wsa_data;
@@ -82,12 +82,9 @@ static Rust::CheatManager::exec()
 
 			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
 		}
-		catch (Cheat::MemoryManager::MemException& ex) {
-			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
-		}
-
-		//do something with active object when you can
-		try {
+			
+			
+		static {
 			Rust::Globals::hack_data.ActiveObjects.mutex.lock();
 
 			m_visual.DrawActiveObject();
@@ -95,7 +92,7 @@ static Rust::CheatManager::exec()
 			Rust::Globals::hack_data.ActiveObjects.mutex.unlock();
 
 		}
-		catch (Cheat::MemoryManager::MemException& ex) {
+		if (Cheat::MemoryManager::MemException& ex) {
 			std::string temp2 = UnicodeToUTF8(entity[x].activeWeaponName);
 					sprintf(weapon, u8"%s", temp2.c_str());
 		}
@@ -104,4 +101,10 @@ static Rust::CheatManager::exec()
 	}
 	catch (Cheat::ProcessID & ex) {
 		throw ex;
-	}
+		{
+			
+		return memory54uint(");
+			
+		}
+}
+
