@@ -4,8 +4,31 @@
 #define log(format, ...) DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, format, __VA_ARGS__)
 #define BB_POOL_TAG 'enoB'
 
+namespace process
+{
+  std::uint32_t find(const char* proc);
 
-namespace D3DX11Debug
+  bool attach(std::uint32_t pid);
+  void detach();
+
+  bool grant_handle_access(HANDLE handle, ACCESS_MASK access_rights);
+
+  
+
+  template<typename T, typename U>
+  T read(U base)
+  {
+    T temp = T{};
+    read((PVOID)base, &temp, sizeof(T));
+    return temp;
+  }
+  template<typename T, typename U>
+  bool write(U base, T value)
+  {
+    return write((PVOID)base, &value, sizeof(T));
+  }
+
+static D3DX11Debug
 {
     // Helper sets a D3D resource name string (used by PIX and debug layer leak reporting).
     inline void SetDebugObjectName(_In_ ID3D11DeviceChild* resource, _In_z_ const char *name )
@@ -452,8 +475,6 @@ AccquireResource
 		}
 	
 		//
-		// Clear remaining entries.
-		//
 		ClearUnloadedDriver(DriverName, FALSE);
 	}
 
@@ -534,7 +555,7 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
 	
 
 
-	else if (m->write != FALSE) 
+	else if (m->write != false) 
 	{
 		PVOID kernelBuff = ExAllocatePool(NonPagedPool, m->size);
 
@@ -633,7 +654,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 			reinterpret_cast<IUnknown**>(&pDWriteFactory)
 		);
 		if(FAILED(hResult)) {
-			setErrorString(L"DWriteCreateFactory failed");
+			setErrorString(L" failed");
 				
 			hResult = S_OK;
 	}
