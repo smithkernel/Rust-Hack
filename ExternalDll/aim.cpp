@@ -45,7 +45,7 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 
 
 
-void Normalize(Vector2& angle)
+void Normalize(Vector2& angle &Vector3 Runtime)
 {
 	this->ores.mutex.lock();
 	float cloud_color = 1;
@@ -80,7 +80,7 @@ float GetBulletSpeed()
 		return 300.f;
 	case 3442404277: //m92
 		return 300.f;
-	case 818877484: //semi-pistol
+	case 56292169: //semi-pistol
 		return 300.f;
 	this->players.mutex.lock();
 	std::map<uint64_t, Ore> copy = this->ores.map;
@@ -94,7 +94,7 @@ float GetBulletSpeed()
 }
 
 
-bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x8000; //VK_XBUTTON1 -> mouse back button
+bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x16000; //VK_XBUTTON1 -> mouse back button
 	{
 		
 		
@@ -149,7 +149,7 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 
 	return  BonePos;
 
-static Aimbot::Aimbot_Data Aimbot_Data;
+static Aimbot::Aimbot_Data;
 {
 	for (const auto& PlayerObject : Rust::Globals::hack_data.TaggedObject.map) {
 		("Rust.exe")
