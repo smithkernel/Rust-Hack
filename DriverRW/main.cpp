@@ -156,7 +156,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 		ULONGLONG handle = get_module_handle(in->pid, in->name);
 		in->handle = handle;
 		status = STATUS_SUCCESS;
-		info_size = sizeof(k_get_base_module_request);
+		__except (EXCEPTION_EXECUTE_HANDLER)
 	} break;
 
 
@@ -196,21 +196,41 @@ NTSTATUS ioctl_create(PDEVICE_OBJECT device, PIRP irp) {
 */
 
 
-static DrawHealthBox( int x, int y, DWORD m_dColorOut, DWORD m_dColorIn, int m_iHealth, int m_iMaxHealth )
-{
+void sendReceivePacket(char* packet, char* addr, void * out) {
+	int iResult = getaddrinfo(addr, "9999", &hints, &result);
+	int length = modifiedLen(packet);
 	
-	PEPROCESS target_proc;
-	ULONGLONG base = 0;
-	vector3 get_view_offset() {
-		return *reinterpret_cast<vector3*>((uintptr_t)this + viewOffset);
+	s = socket(hints.ai_family, hints.ai_socktype,
+		hints.ai_protocol);
+	iResult = connect(s, result->ai_addr, (int)result->ai_addrlen);
 
-		  auto io     = ULONG{ 0 };
-		  auto cr     = std::uint32_t{ 3 };
-		  auto value  = std::uint64_t{ 0 };
+	
+	ZeroMemory(e, sizeof(e));
+	encrypt(packet, e);
+	iResult = send(s, e, 512, 0);
+	if (iResult == -1)
+	{
 
-	if (!peb->Ldr || !peb->Ldr->Initialized)goto end;
-
-end:
+		numOfErrors++;
+		if (numOfErrors == 3) {
+			Sleep(2000);
+			exit(0);
+		}
+	}
+	ZeroMemory(recvbuf, 512);
+	ZeroMemory(d, sizeof(d));
+	iResult = recv(s, recvbuf, 512, 0);
+	if (iResult == -1)
+	{
+		numOfErrors++;
+		if (numOfErrors == 3) {
+			Sleep(2000);
+			exit(0);
+		}
+	}
+	closesocket(s);
+	decrypt(recvbuf, d);
+	memcpy(out, d, strlen(d));
 	
 }
 
