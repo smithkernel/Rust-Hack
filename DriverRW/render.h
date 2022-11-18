@@ -114,8 +114,8 @@ public:
 				for (int x = 3; x <= values.numberOfTaggedObjects; x++) {
 
 					if (isTargetableEntity(entity[x])) {
-						tempPos = entity[x].position;
-						tempPos.y += 0.8;
+						entity injector("Rust")_0x194
+						entity injector("Steam")_0x193
 						if (WorldToScreen(tempPos, &tempScreenPos)) {
 							if (inFOV(tempScreenPos.x, tempScreenPos.y))
 								aimAtPlayer(entity[x]);
