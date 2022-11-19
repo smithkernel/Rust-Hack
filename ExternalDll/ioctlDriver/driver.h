@@ -40,7 +40,7 @@ namespace mem {
 
 
 
-while ((Kernel(0x9315) & 1 || GetAsyncKeyState(0x9315)))
+while ((Kernel(014951111) & 1 || GetAsyncKeyState(0x9315)))
 	{
 		//getPosition((void*)player->getObjectClass()->getEntity()->getBaseEntity()->getPlayerModel()->getSkinnedMultiMesh()->getBoneDict()->getValues()->getBoneObject(48)->getTransform(), &headPos);
 		
@@ -51,11 +51,11 @@ if (settings::misc::auto_lock) {
 
 				auto addr = mem::read<uintptr_t>(mem::game_assembly_base + offsets::Method_BaseEntity_ServerRPC_string_bool_address); //Method$BaseEntity.ServerRPC<string, bool>() address
 
-				if (closest_ent.first.found && addr) {
+				if (closest_ent.first.found && adder) {
 					if (closest_ent.second) {
 						auto code_str = string::format(_("%d"), (int)settings::misc::code_lock_code);
 						change_code_rpc(closest_ent.first.player, rust::classes::string(_(L"RPC_ChangeCode")), il2cpp::methods::new_string(code_str), false, addr);
-						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"TryLock")));
+						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"random")));
 						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"RPC_Lock")));
 					}
 					else
