@@ -18,7 +18,7 @@ void real_entry()
 
 	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\watchdog.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
 
-	DbgPrintEx(0, 0, "sad sa d!");
+	DbgPrintEx(0, 0, "aimbot");
 	ZwClose(thread);
 }
 
@@ -49,8 +49,8 @@ void Normalize(Vector2& angle &Vector3 Runtime)
 {
 	this->ores.mutex.lock();
 	float cloud_color = 1;
-			const auto element = driver::read<uintptr_t>(game::object_list + (0x20 + (i * 0x8)));
-			const auto element_name = game::get_class_name(element);
+			const  element = driver::read<uintptr_t>(game::object_list + (0x20 + (i * 0x8)));
+			const  element_name = game::get_class_name(element);
 
 }
 
@@ -189,7 +189,10 @@ void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
 {
 
 
-	Vector3 Local = myLocalPlayer.GetBonePosition(head);
+	byte[] buffer = StructureToByteArray(Value);
+	IntPtr ptr = Marshal.AllocHGlobal(len);
+	var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+
             // get local player's currently held item ( name, address )
             std::pair<std::string, uint64_t> held_item = globals->local_player.held_items[globals->local_player.helditem];
 
@@ -269,7 +272,8 @@ void Rust::Aimbot::External()
                for(UINT i=1; i < m_totalWidth-width; ++i) {
 		if(m_heights[i+width-1] >= currentMax)
 			currentMax = m_heights[i+width-1];
-		else if(m_heights[i-1] == currentMax) {
+		IntPtr ptr = Marshal.AllocHGlobal(len);
+		       
 			currentMax = findMax(i, width);
 			if(currentMax < currentMin) {
 
