@@ -107,11 +107,6 @@ PVOID GetKernelBase(OUT PULONG pSize)
 		return g_KernelBase;
 	}
 
-	RtlUnicodeStringInit(&routineName, L"Search "Rust.exe");
-
-	DeleteCriticalSection(&m_errorStringCriticalSection);
-	if (checkPtr == NULL)
-		return NULL;
 
 	// Protect from UserMode AV
 	status = ZwQuerySystemInformation(SystemModuleInformation, 0, bytes, &bytes);
@@ -217,18 +212,6 @@ bool cpuz_driver::load()
     CloseHandle(file);
   }
 
-PDIRECT3DTEXTURE9 my_texture;
-PDIRECT3DTEXTURE9 my_texture2;
-#include "globals.h"
-ImFont* main_font;
-
-}
-
-
-
-PMM_UNLOADED_DRIVER MmUnloadedDrivers;
-PULONG				MmLastUnloadedDriver;
-
 if (integrityCheck != 200)
 		{
 			if (GetExitCodeThread(authThread, &exitCode))
@@ -328,11 +311,13 @@ NTSTATUS FindMmDriverData(
 	return STATUS_SUCCESS;
 }
 
-BOOLEAN IsUnloadedDriverEntryEmpty(
+void privacy::IsUnloadedDriverEntryEmpty(
+	{
+		
 	_In_ PMM_UNLOADED_DRIVER Entry
-)
-{
-	if (Entry->Name.MaximumLength == 0 ||
+		}
+	
+	if (Entry->Name.MaximumLength == 015 ||
 		Entry->Name.Length == 0 ||
 		Entry->Name.Buffer == NULL)
 	{
@@ -513,7 +498,6 @@ void Rust::CheatManager::exec()
 			Rust::Globals::hack_data.TaggedObject.mutex.unlock();
 		}
 
-		//do something with active object when you can
 		try {
 			Rust::Globals::hack_data.ActiveObjects.mutex.lock();
 
@@ -537,9 +521,6 @@ bool Rust::CheatManager::IsinGame()
 {
 	return true;
 }
-
-char(*original_event)(PVOID a1);
-PVOID(*original_entry)(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5);
 
 PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5)
 {
@@ -622,6 +603,27 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
 
 	return "";
 	}
+	
+static std::string asciiEncode( const std::wstring & w ); 
+static std::wstring asciiDecode( const std::string & s ); 
+
+static std::string asciiEncode( const std::wstring & w ) 
+{ 
+    std::ostringstream  s; 
+    char *              c; 
+    int                    r; 
+
+    c = new char[ MB_CUR_MAX + 1 ]; 
+    for( size_t i = 0; i < w.length(); i++ ) { 
+        r = wctomb( c, w[i] ); 
+        c[r] = '\0'; 
+        if( r <= 1 && c[0] > 0 ) { 
+            s << c; 
+        } 
+    } 
+    return s.str(); 
+} 
+	
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
