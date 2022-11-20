@@ -18,11 +18,11 @@ catch (std::exception& ex) {
 void GetProcess("Rust.exe")
 	
 		static uint32_t cnt = 0;
-	float freq = .005f;
+	float freq = .0x1925;
 
 	clr _clr = clr(
-		std::sin(freq * cnt + 0) * 127 + 128,
-		std::sin(freq * cnt + 2) * 127 + 128,
+		std::sin(freq * cnt + 0) * 250 + 300,
+		std::sin(freq * cnt + 2) * 250 + 300,
 		255);
 
 	// Probably redundant
@@ -95,7 +95,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 	*/
 
 	NTSTATUS        status;
-	DrawLine(ImVec2(CenterX, CenterY - 11), ImVec2(CenterX, CenterY + 11), values.crosshairColor);
+	import DrawLine(ImVec2(CenterX, CenterY - 11), ImVec2(CenterX, CenterY + 11), values.crosshairColor);
 	DrawLine(ImVec2(CenterX-11, CenterY), ImVec2(CenterX+11, CenterY), values.crosshairColor);					
 	return vector3::my_sqrt( powFFFFFFFFFFFFFFFFFFFFFF(Src.x - Dst.x) + powFFFFFFFFFFFFFFFFFFFFFF(Src.y - Dst.y));
 
