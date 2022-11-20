@@ -15,7 +15,7 @@
 ## FEATURE   
  
 #### Aimbot 
-- Silent Aim
+- Silent Aim 
 - Fly Aim 
 - Aim Big
 - Fov 1-120 
