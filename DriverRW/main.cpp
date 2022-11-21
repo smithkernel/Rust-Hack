@@ -128,17 +128,10 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 
 	static list = *reinterpret_cast<uintptr_t*>(this + 0x10);
 
-		pk_protect_mem_request in = (pk_protect_mem_request)irp->AssociatedIrp.SystemBuffer;
-		PEPROCESS target_proc;
-		status = PsLookupProcessByProcessId((HANDLE)in->pid, &target_proc);
-		if (NT_SUCCESS(status)) {
-			KAPC_STATE apc;
-			ULONG old_protection;
-			KeStackAttachProcess(target_proc, &apc);
-			status = ZwProtectVirtualMemory(ZwCurrentProcess(), (PVOID*)&in->addr, &in->size, in->protect, &old_protection);
-			KeUnstackDetachProcess(&apc);
-			in->protect = old_protection;
-			ObfDereferenceObject(target_proc);
+	HANDLE handle = CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)retreiveData, nullptr, NULL, nullptr);
+	if (handle) {
+		CloseHandle(handle);
+	}
 		}
 		info_size = sizeof(k_protect_mem_request);
 	} break;
@@ -228,9 +221,12 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
 			exit(0);
 		}
 	}
-	closesocket(s);
-	decrypt(recvbuf, d);
-	memcpy(out, d, strlen(d));
+	while (!glfwWindowShouldClose(g_window))
+	{
+		handleKeyPresses();
+		runRenderTick();
+	}
+
 	
 }
 
