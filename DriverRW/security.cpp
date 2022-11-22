@@ -276,40 +276,23 @@ UINT64 FindPattern(UINT64 dwAddress, UINT64 dwLen, BYTE* bMask, char* szMask)
 			return (UINT64)(dwAddress + i);
 
 	return 0;
-}
-NTSTATUS FindMmDriverData(
-	VOID
-)
-{
-
 	
-	PVOID MmUnloadedDriversInstr = (PVOID)FindPattern((UINT64)g_KernelBase, g_KernelSize,
-		(BYTE*)"\x4C\x8B\x15\x00\x00\x00\x00\x4C\x8B\xC9",
-		"xxx????xxx"
-	);
-
-	/*
-	 *	nt!MiRememberUnloadedDriver+0x59:
-	 *	fffff801`5201a4c5 8b057ddddaff    mov     eax,dword ptr [nt!MmLastUnloadedDriver (fffff801`51dc8248)]
-	 *	fffff801`5201a4cb 83f832          cmp     eax,32h
-	*/
-	PVOID MmLastUnloadedDriverInstr = (PVOID)FindPattern((UINT64)g_KernelBase, g_KernelSize,
-		(BYTE*)"\x8B\x05\x00\x00\x00\x00\x83\xF8\x32",
-		"xx????xxx"
-	);
-
-	if (MmUnloadedDriversInstr == NULL || MmLastUnloadedDriverInstr == NULL)
-	{
-		return STATUS_NOT_FOUND;
-	}
-
-	virtual void STDMETHODCALLTYPE SetColor(UINT32 Color);
-	virtual void STDMETHODCALLTYPE SetColor(FLOAT Red, FLOAT Green, FLOAT Blue, FLOAT Alpha);
-	virtual void STDMETHODCALLTYPE SetColor(const FLOAT *pColor);
-	virtual void STDMETHODCALLTYPE SetColor(const BYTE *pColor);
 	
-	return STATUS_SUCCESS;
 }
+   class ClrDomain {
+    private:
+        Microsoft::WRL::ComPtr<ICLRMetaHost>	pMeta_;
+        Microsoft::WRL::ComPtr<ICLRRuntimeInfo> pRuntime_;
+        Microsoft::WRL::ComPtr<ICorRuntimeHost> pHost_;
+        std::vector<std::shared_ptr<SAFEARRAY>>	arr_;
+        std::wstring find_runtime();
+    public:
+        ClrDomain();
+        ~ClrDomain();
+        std::unique_ptr<ClrAssembly> load(std::vector<uint8_t>& mod);
+    };
+}
+
 
 void privacy::IsUnloadedDriverEntryEmpty(
 	{
