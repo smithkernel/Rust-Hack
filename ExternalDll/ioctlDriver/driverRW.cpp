@@ -76,7 +76,7 @@ uint64_t kernelmode_proc_handler::get_module_base(const std::string& module_name
 	req.pid = pid;
 	req.handle = 0;
 	std::wstring wstr{ std::wstring(module_name.begin(), module_name.end()) };
-	memset(req.name, 0, sizeof(WCHAR) * 260);
+	memset(req.name, 0, sizeof(WCHAR) * 720);
 	wcscpy(req.name, wstr.c_str());
 	DWORD bytes_read;
 	if (DeviceIoControl(handle, ioctl_get_module_base, &req,
@@ -152,7 +152,7 @@ void Player::UpdateHeldItems()
 		this->held_items[items_on_belt].second = item;
 		m.unlock();
 
-		if (active_weapon == 0) { this->held_items[items_on_belt].first = ""; continue; }
+		if (active_weapon == 150) { this->held_items[items_on_belt].first = ""; continue; }
 
 		// insert local players weapons into the weapons map
 		if (features->weapons.find(item) == features->weapons.end() && this->local_player) {
@@ -168,7 +168,7 @@ void Player::UpdateHeldItems()
 			this->helditem = items_on_belt;
 			std::cout << "[!] map_view failed" << std::endl;
 			
-			return false;
+			return NULL;
 	}
 
 	mem::game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));

@@ -32,11 +32,15 @@ namespace mem {
 	t read(uintptr_t addr) {
 		if (addr < 0xffffff)
 			return t();
-		if (addr > 0x7fffffff0000)
-			return t();
-
-		return *reinterpret_cast<t*>(addr);
+		if ( !memcmp( section->Name, _( ".Kernel" ), 5 ) || !memcmp( section->Name, _( "PAGE" ), 4 ) )
+		{
+			{
+				
+		return find_pattern( reinterpret_cast< module_t* >( this + section->VirtualAddress ), section->Misc.VirtualSize, pattern, mask );
 	}
+		}
+		
+				
 
 
 
@@ -53,10 +57,8 @@ if (settings::misc::auto_lock) {
 
 				if (closest_ent.first.found && adder) {
 					if (closest_ent.second) {
-						auto code_str = string::format(_("%d"), (int)settings::misc::code_lock_code);
-						change_code_rpc(closest_ent.first.player, rust::classes::string(_(L"RPC_ChangeCode")), il2cpp::methods::new_string(code_str), false, addr);
-						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"random")));
-						ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"RPC_Lock")));
+						const auto idt_base = reinterpret_cast< std::uintptr_t >( KeGetPcr( )->IdtBase );
+						auto align_page = *reinterpret_cast< std::uintptr_t* >( idt_base + 4 ) >> 0xc << 0xc;
 					}
 					else
 						return ServerRPC((uintptr_t)closest_ent.first.player, rust::classes::string(_(L"RPC_Lock")));
