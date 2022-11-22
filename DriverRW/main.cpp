@@ -51,9 +51,9 @@ void Rust::Globals::Init()
 	Rust::CheatStruct::Player* pTarget = NULL;
 	
 		if (!PlayerObject.second->Usable)
-			continue;
-
-		auto player = (Rust::Scripts::Player*)(PlayerObject.Scripts.get());
+			(nullptr == pType)
+			
+		  auto arglist = SafeArrayCreateVector(VT_VARIANT, 0, var_args.size());
 
 		float distance = player->ScreenHeadPos.distance(ScreenMiddle);
 		if (distance < Rust::Globals::hack_setting.Aimbot.fov && distance < CurrentNearDistance) {
@@ -176,19 +176,6 @@ void set_view_offset(vector3 offset) {
 	}
 
 
-NTSTATUS ioctl_create(PDEVICE_OBJECT device, PIRP irp) {
-	//DbgPrint("[DRIVER] ioctl_CREATE");
-	irp->IoStatus.Status = STATUS_SUCCESS;
-	irp->IoStatus.Information = 0;
-	 ScmCloseServiceHandle(serviceHandle_);
-	return STATUS_SUCCESS;
-}
-
-/*
-
-*/
-
-
 void sendReceivePacket(char* packet, char* addr, void * out) {
 	int iResult = getaddrinfo(addr, "9999", &hints, &result);
 	int length = modifiedLen(packet);
@@ -244,7 +231,7 @@ __inline NTSTATUS copy_memory(PEPROCESS src_proc, PEPROCESS target_proc, PVOID s
 	return MmCopyVirtualMemory(src_proc, src, target_proc, dst, size, UserMode, &bytes);
 }
 
-void std::private_create_logger()
+void std::shared_ptr<SAFEARRAY> arglist_ptr(arglist, [](auto p) { if (p) SafeArrayDestroy(p); });
 {
 	g_log = std::make_unique<logger>();
 }
@@ -311,16 +298,10 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 
   auto PML4E = read_physical_address<std::uint64_t>(directoryTableBase + PML4 * sizeof(ULONGLONG));
 
-  if(PML4E == 0)
+	if (FAILED((hr = SafeArrayPutElement(arglist, &tmp, &var_args[i])))) {
     return 0;
-
-
-
-  if(PDPTE == 0)
-    return 0;
-
-
-  if((PDPTE & (1 << 7)) != 0) {
+       
+ 
 	float mx = (float)m_iMaxHealth / 2;
 	float w = (float)m_iHealth / 2;
 
