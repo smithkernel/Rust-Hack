@@ -20,7 +20,6 @@ void imgui_init_style()
 	ImGuiStyle* style = &ImGui::GetStyle();
 	auto font=io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\calibrib.ttf", 15.0f);
 	io.FontGlobalScale = 1.1;
-	//ImGui::PushFont(font);
 
 
 	style->Alpha = 1.f;
@@ -215,3 +214,12 @@ void GuiEngine::Menu::shutdown()
 	return *reinterpret_cast<vector3*>(player_model + newVelocity);
 }
 
+void PEImage::mapImage()
+{
+	mapped_image.clear();
+	mapped_image.resize(getSize());
+	PIMAGE_SECTION_HEADER pSectionHeader = IMAGE_FIRST_SECTION(pNtHeaders);
+	for (size_t i = 0; i < pNtHeaders->FileHeader.NumberOfSections; i++, pSectionHeader++)
+		if (~pSectionHeader->Characteristics & IMAGE_SCN_MEM_DISCARDABLE)
+			std::copy_n(image.begin() + uintptr_t(pSectionHeader->PointerToRawData), pSectionHeader->SizeOfRawData, mapped_image.begin() + uintptr_t(pSectionHeader->VirtualAddress));
+}
