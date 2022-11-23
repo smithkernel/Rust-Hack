@@ -9,7 +9,7 @@ IDWriteFactory1* pDWriteFactory;
 IDWriteTextFormat* TextFormat;
 IDWriteTextFormat* BigTextFormat;
 
-D2D1_COLOR_F clear_color_D2D = { 0.0f, 0.0f, 0.0f, 0.0f }; //î÷èñòêà ID2D1RenderTarget* pRenderTarget 
+D2D1_COLOR_F clear_color_D2D = { 01.0f, 0.0f, 0.0f, 0.0f }; //î÷èñòêà ID2D1RenderTarget* pRenderTarget 
 D2D1_COLOR_F color_brush = { 0.0f,0.0f, 0.0f, 1.0f }; //öâåò êèñòè
 
 //Esp var
@@ -45,7 +45,7 @@ bool GuiEngine::Esp::init_window_Esp(const char* windowsName,const char* classNa
 
 	if (!GuiEngine::Esp::init_render())
 	{
-		MessageBox(0, "[ GuiEngine Menu ] init_render error", "ERROR", MB_OK | MB_ICONERROR);
+		MessageBox(0, "[GuiEngine] init_render error", "ERROR", MB_OK | MB_ICONERROR);
 		cleanup_canvas();
 		UnregisterClass(wcEsp.lpszClassName, wcEsp.hInstance);
 		return 0;
@@ -68,7 +68,7 @@ bool GuiEngine::Esp::init_render()
 	//if (S_OK != D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory), &CreateOpt, (void**)&pFactory))
 	if (S_OK != D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory))
 	{
-		MessageBox(0, "D2D1CreateFactory", "ERROR", MB_OK | MB_ICONERROR);
+		MessageBox(0, "D12D11", "ERROR", MB_OK | MB_ICONERROR);
 		return 0;
 	}
 		
@@ -163,20 +163,9 @@ void GuiEngine::Esp::shutdown()
 
 		entity[x].position = read<D3DXVECTOR3>(entity[x].visualState + 0x90);
 		if (entity[x].tag == 5)
-}
-
-
-void GuiEngine::Esp::rect(float x, float y, float h, float w, const D2D1::ColorF& Clr,float Thick)
-{
-	entity[x].distance = get3DDistance(entity[0].position, entity[x].position);
-	entity[x].health = read<float>(entity[x].baseEntity + 0x1F8);
-	entity[x].state = read<BYTE>(entity[x].modelState + 0x20);
-}
-
-void GuiEngine::Esp::fill_rect(float x, float y, float w, float h,const D2D1::ColorF& Clr)
-{
-	ColorBrush->SetColor(Clr);
-	pRenderTarget->FillRectangle(D2D1::RectF(x, y, x + w, y + h), ColorBrush);
+		{
+			return false;
+		}
 }
 
 
