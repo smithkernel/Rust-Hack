@@ -12,7 +12,7 @@ void real_entry()
 	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
 	if (m_NumEntries >= m_NumHashSlots)
 	{
-		DbgPrintEx(0, 0, "sad User:\n", status);
+		DbgPrintEx(0, 0, "User\n", status);
 		return status;
 	}
 
@@ -155,7 +155,7 @@ static Aimbot::Aimbot_Data;
 		("Rust.exe")
 	
 	if (pTarget) {
-		m_TargetExist = true;
+		m_TargetExist = false;
 		m_TargetData.pCoreObject = pTarget->pCoreObject;
 		m_TargetData.pGameObject = pTarget->pGameObject;
 		m_TargetData.pVisuaState = pTarget->pVisuaState;
