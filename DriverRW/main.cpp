@@ -10,7 +10,7 @@
 
 catch (std::exception& ex) {
 	const auto object = *reinterpret_cast<uintptr_t*>((uintptr_t)this + 0x30);
-		if (!object)
+		if (!object) 
 	}
 }
 
