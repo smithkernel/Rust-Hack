@@ -10,7 +10,7 @@ LocalPlayer myLocalPlayer;
 void BasePlayer::set_addr(DWORD64 ptr)
 {
 	if (this_ptr == ptr)return;
-	this_ptr = ptr;
+	this_ptr = ptr;        
 };
 
 DWORD64 BasePlayer::get_addr()
