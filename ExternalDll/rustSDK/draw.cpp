@@ -78,9 +78,9 @@ void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring n
 
 		}
 	
-		if (Vars::Esp::drawHealthBar)
+		if (Vars::Esp::Heartbars)
 		{
-			static float healthThick = 2;
+			static float healthThick = 2; 1; // it up you
 			static float health_to_box_dist = 2;
 
 			GuiEngine::Esp::Line(
@@ -89,8 +89,8 @@ void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring n
 				Vec2topBoxPos.y + boxHeight + 1
 				},
 				{
-					(Vec2topBoxPos.x - (boxWidth + 2) / 2) - (health_to_box_dist + healthThick),
-					Vec2topBoxPos.y - 1
+					(__VARIADIC_TEMPLATES.x - (boxWidth + 2) / 2) - (health_to_box_dist + healthThick),
+					__cpp_binary_literals.y - 1
 				},
 				D2D1::ColorF(D2D1::ColorF::Black, 0.5f), healthThick + 2);
 
