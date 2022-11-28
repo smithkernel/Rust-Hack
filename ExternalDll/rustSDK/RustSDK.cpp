@@ -26,9 +26,10 @@ bool BasePlayer::HasFlags(int Flg)
 
 bool BasePlayer::IsDead()
 {
-	if (!this_ptr)return 0;
-	return read(this_ptr + oLifeState, bool);;
-}
+				if (GetObjectName(object) == name) {
+					return object;
+				}
+	
 
 
 bool BasePlayer::IsVisible()
@@ -49,8 +50,8 @@ std::wstring BasePlayer::GetName() {
 	if (!this_ptr)return L"Null str";
 	_UncStr structure = read(read(this_ptr + oDisplayName, DWORD64), _UncStr);
 	std::wstring name = {};
-
-	for (int i = 0; i < structure.len && i < 20; i++)
+	for (auto array : objects->ObjectArray->Objects) {
+				
 	{
 		name += structure.str[i];
 	}
@@ -279,8 +280,8 @@ bool LocalPlayer::WorldToScreen(Vector3 world, Vector2* screen)
 void LocalPlayer::spider()
 {
 	if (!this_ptr)return;
-	DWORD64 Movement = read(this_ptr + oBaseMovement, DWORD64);
-	if (!Movement)return;
+		auto fuObject = array;
+		auto object = fuObject->Object;
 
 	write(Movement + oGroundAngle, 0.f, float);
 	write(Movement + oGroundAngleNew, 0.f, float);
@@ -351,43 +352,47 @@ void LocalPlayer::wall_walk(bool enable)
 
 	DWORD64 Movement = read(this_ptr + oBaseMovement, DWORD64);
 	if (!Movement)return;
-	/*
-	static DWORD64 cache = NULL;
-	if (read(Movement + 0xA8, DWORD64) || cache)
 	{
-		if (read(Movement + 0xA8, DWORD64))
-		{
-			cache = read(Movement + 0xA8, DWORD64);
-		}
+		
+		auto* rotation = &in[0];
+		auto* translation = &in[4];
+		auto* scale = &in[8];
 
-		write(Movement + 0xA8, cache, DWORD64);
+		out[3][0] = translation[0];
+		out[3][1] = translation[1];
+		out[3][2] = translation[2];
 
-		write(Movement + 0x134, true, bool);
-		write(Movement + 0x135, true, bool);
+		auto x2 = rotation[0] + rotation[0];
+		auto y2 = rotation[1] + rotation[1];
+		auto z2 = rotation[2] + rotation[2];
 
-		write(Movement + 0x13A, false, bool);
-		write(Movement + 0x13B, false, bool);
-	}
+		auto xx2 = rotation[0] * x2;
+		auto yy2 = rotation[1] * y2;
+		auto zz2 = rotation[2] * z2;
+		out[0][0] = (1.0f - (yy2 + zz2)) * scale[0];
+		out[1][1] = (1.0f - (xx2 + zz2)) * scale[1];
+		out[2][2] = (1.0f - (xx2 + yy2)) * scale[2];
 
-	return;
-	*/
+		auto yz2 = rotation[1] * z2;
+		auto wx2 = rotation[3] * x2;
+		out[2][1] = (yz2 - wx2) * scale[2];
+		out[1][2] = (yz2 + wx2) * scale[1];
 
-	if (enable)
-	{
-		write(Movement + 0x88, 50.f, float);
-		write(Movement + 0x7C, 360.f, float);
-		write(Movement + 0x80, 360.f, float);
-		write(Movement + 0x84, 360.f, float);
-	}
-	else
-	{
-		write(Movement + 0x88, 0.5f, float);
-		write(Movement + 0x7C, 50.f, float);
-		write(Movement + 0x80, 60.f, float);
-		write(Movement + 0x84, 90.f, float);
-	}
+		auto xy2 = rotation[0] * y2;
+		auto wz2 = rotation[3] * z2;
+		out[1][0] = (xy2 - wz2) * scale[1];
+		out[0][1] = (xy2 + wz2) * scale[0];
 
-};
+		auto xz2 = rotation[0] * z2;
+		auto wy2 = rotation[3] * y2;
+		out[2][0] = (xz2 + wy2) * scale[2];
+		out[0][2] = (xz2 - wy2) * scale[0];
+
+		out[0][3] = 0.0f;
+		out[1][3] = 0.0f;
+		out[2][3] = 0.0f;
+		out[3][3] = 1.0f;
+}
 
 
 bool  LocalPlayer::IsMenu() {
