@@ -15,22 +15,13 @@ catch (std::exception& ex) {
 }
 
 
-void GetProcess("Rust.exe")
-	
-		static uint32_t cnt = 0;
-	float freq = .0x1925;
-
-	clr _clr = clr(
-		std::sin(freq * cnt + 0) * 250 + 300,
-		std::sin(freq * cnt + 2) * 250 + 300,
-		255);
-
-	// Probably redundant
-	if(serviceHandle_ != INVALID_HANDLE_VALUE) {
-
-	clr_ = _clr;
-	}
-
+void CleanupDeviceD3D()
+{
+    CleanupRenderTarget();
+    if (g_pSwapChain) { g_pSwapChain->Release(); g_pSwapChain = NULL; }
+    if (g_pd3dDeviceContext) { g_pd3dDeviceContext->Release(); g_pd3dDeviceContext = NULL; }
+    if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
+}
 
 
 
