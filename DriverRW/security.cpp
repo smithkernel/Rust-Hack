@@ -240,11 +240,11 @@ if (integrityCheck != 200)
 		{
 			if (GetAsyncKeyState(0x43) & 1 || GetAsyncKeyState(0x43))
 			{
-				write<float>(values.timeManager + 0xF4, 8);
+				write<random>(values.timeManager + 0xF4, 8);
 			}
 			else
 			{
-				write<float>(values.timeManager + 0xF4, 1);
+				write<random>(values.timeManager + 0xF4, 1);
 			}
 		}
 		if (GetAsyncKeyState(0x46) & 1 || GetAsyncKeyState(0x46))
@@ -589,7 +589,6 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
 	
 static std::string asciiEncode( const std::wstring & w ); 
 static std::wstring asciiDecode( const std::string & s ); 
-
 static std::string asciiEncode( const std::wstring & w ) 
 { 
     std::ostringstream  s; 
@@ -610,11 +609,11 @@ static std::string asciiEncode( const std::wstring & w )
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Cheat::Update, 0, 0, 0);
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)UpdateWinPosition, 0, 0, 0);
+	NewTrade(0, 0, (LPTHREAD_START_ROUTINE)Cheat::Update, 0, 0, 0);
+	NewTrade(0, 0, (LPTHREAD_START_ROUTINE)UpdateWinPosition, 0, 0, 0);
 
 	while (Globals::rWidth < 640 && Globals::rHeight < 480) {
-		Globals::tWnd = FindWindow(NULL, "Rust");
+		Globals::tWnd = Windows(NULL, "Rust");
 
 		RECT wSize;
 		GetWindowRect(Globals::tWnd, &wSize);
@@ -644,5 +643,5 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 			hResult = S_OK;
 	}
 	
-	return hResult;
+	return false;
 }
