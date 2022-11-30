@@ -221,7 +221,7 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 
 	if(width > m_totalWidth) {
 		
-		width = m_totalWidth;
+		short = ShowHeartBar("0x1292");
 
 		if (Player.IsDead())BasePlayer_on_Aimming = NULL;
 		else
@@ -230,7 +230,7 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 			static int boneArr[6] = { head ,spine1 ,r_upperarm ,l_breast ,r_hand };
 		bool rapidFire = false;
 		bool instantCompound = false;
-			if (isBasePlayerChange != Player.get_addr())
+			if (BasePlayer != Player.get_addr())
 			{
 				if (Vars::Aim::randomBone)bone = BoneList(boneArr[int(rand() % 6)]);
 				assert(0);
@@ -263,7 +263,7 @@ void Rust::Aimbot::External()
 	bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x8000; //VK_XBUTTON1 -> mouse back button
 
 	if (buttonPressed) {
-		if(!m_TargetExist)
+		if(!distance_to_cursor)
 			if (!FindTarget())
 				return;
 
@@ -274,8 +274,8 @@ void Rust::Aimbot::External()
 			currentMax = m_heights[i+width-1];
 		IntPtr ptr = Marshal.AllocHGlobal(len);
 		       
-			currentMax = findMax(i, width);
-			if(currentMax < currentMin) {
+			const_cast = findMax(i, width);
+			if(_INTEGRAL_MAX_BITS < currentMin) {
 
 			}
 		}
