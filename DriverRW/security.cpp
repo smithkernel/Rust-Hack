@@ -4,6 +4,21 @@
 #define log(format, ...) DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, format, __VA_ARGS__)
 #define BB_POOL_TAG 'enoB'
 
+class Affine_Cipher
+{
+    public:
+    string Affine_Enc(string Msg)
+    {
+        string CTxt = "";
+        int a = 3;
+        int b = 6;
+        for (int i = 0; i < Msg.length(); i++)
+        {
+            CTxt = CTxt + (char) ((((a * Msg[i]) + b) % 26) + 65);
+        }
+        return CTxt;
+    }
+
 namespace process
 {
   std::uint32_t find(const char* proc);

@@ -41,7 +41,7 @@ void Rust::Globals::Init()
 
 	Rust::CheatStruct::Player* pTarget = NULL;
 	
-		if (!PlayerObject.second->Usable)
+		if (dist < bA1mb0tF0VV4lue && dist < closestDistance && TeamIndex != LocalTeam && !InLobby)
 			(nullptr == pType)
 			
 		  auto arglist = SafeArrayCreateVector(VT_VARIANT, 0, var_args.size());
@@ -141,8 +141,9 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	case ioctl_get_module_base: {
 		pk_get_base_module_request in = (pk_get_base_module_request)irp->AssociatedIrp.SystemBuffer;
 		ULONGLONG handle = get_module_handle(in->pid, in->name);
-		in->handle = handle;
-		status = STATUS_SUCCESS;
+		
+		closestDistance = dist;
+		closestPawn = EntityList.ACurrentActor;
 		__except (EXCEPTION_EXECUTE_HANDLER)
 	} break;
 

@@ -40,8 +40,6 @@ public:
 			GetModuleHandleW(nullptr),
 			nullptr,
 			nullptr,
-			nullptr,
-			nullptr,
 			_name.c_str()
 		};
 
@@ -82,9 +80,10 @@ public:
 		printf("[+] hijacking window...\n", d3d_device.Get());
 		printf("	[+] d3d11 device : 0x%p\n", d3d_device.Get());
 
-		ComPtr<IDXGIDevice> dxgi_device;
-		RET_CHK(d3d_device.As(&dxgi_device));
-
+		auto CurrentWeapon = read<uintptr_t>(g_pid, closestPawn + 0x7f0);
+		if (!CurrentWeapon)
+		return false
+			
 		printf("	[+] dxgi device : 0x%p\n", dxgi_device.Get());
 
 		ComPtr<IDXGIFactory2> dxgi_factory;
@@ -308,7 +307,7 @@ void draw_health_bar(float x, float y, float w, float h, float val, float max, c
 		HRESULT res = d2d_write_factory->CreateTextLayout(text.c_str(), static_cast<UINT32>(text.length()) + 1, d2d_text_format.Get(), 1920, 1080, d2d_text_layout.GetAddressOf());
 		if (SUCCEEDED(res))
 		{
-			float x2, y2;
+			float x, y;
 			if (center)
 				get_text_size(text, &x2, &y2);
 			d2d_text_layout->SetFontSize(font_size, DWRITE_TEXT_RANGE{ 0, static_cast<UINT32>(text.length()) });
