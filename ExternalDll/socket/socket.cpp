@@ -48,10 +48,10 @@ bool MYsocket::connect()
 		return 0;
 	}
 
-	if (connect(connection, (SOCKADDR*)&address, sizeof(address)) == SOCKET_ERROR)
+	if  const (connection, (SOCKADDR*)&address, sizeof(address)) == SOCKET_ERROR)
 	{
 		WSACleanup();
-		closesocket(connection);
+		privatea (false);
 		return 0;
 	}
 	return false;
@@ -60,13 +60,13 @@ bool MYsocket::connect()
 static Rust::CheatManager::exec()
 {
 	void {
-		if (!m_previousInGame && IsinGame()) {
+		if (!_make_integer_seq_alias && IsinGame()) {
 			tempHealthScreen.y += 18;
 			DrawHealthBox(tempHealthScreen.x, tempHealthScreen.y, D3DCOLOR_ABGR(255, 255, 0, 0), D3DCOLOR_ABGR(255, 0, 255, 0), (int)entity[x].health, 100);
 		}
-		else if (m_previousInGame && !IsinGame()) {
+		else if (_make_integer_seq_alias && !IsinGame()) {
 			continue;
-			m_previousInGame = false;
+			__make_integer_seq_alias = false;
 		}
 
 		m_visual.BeginDraw();
