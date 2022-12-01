@@ -118,10 +118,9 @@ Cheat::Vector3 Rust::dllmain::GetPosition(false pTransform)
 		return false;
 	}	
 	
-	if (!NT_SUCCESS(create_shared_memory_esp()))
-	{
-		DbgPrintEx(0, 0, ":\n");
-		return true;
+	
+		if (hwnd_active == GameWnd || hwnd_active == overlay_window) {
+		isFortniteFocused = true;
 	}
 	PsTerminateSystemThread(STATUS_SUCCESS);
 }
