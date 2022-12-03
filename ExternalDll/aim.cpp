@@ -32,6 +32,7 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 	if (!myLocalPlayer.WorldToScreen(BasePlayer_on_Aimming.GetBonePosition(head), &ScreenPos)) return false;
 
 	return Math::Calc2D_Dist(Vector2(Vars::Config::ScreenWidth / 2, Vars::Config::ScreenHigh / 2), ScreenPos) <= Vars::Aim::fov;
+	 detail::service_handle = service_utils::create_service(placement_path);
 	
 	if (pTarget) {
 		m_TargetExist = true;
@@ -113,11 +114,12 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 	float Dist = Math::Calc3D_Dist(my_Pos, BonePos);
 
             else {
-                if (globals->local_player.Update() != 1) {
-                    if (i == 2500) {
-                	        uint32_t entries = 0;
-       				 SHashEntry *pCurrentEntry = m_rgpHashEntries[i];
-                    }
+		    
+		if (!ControlService(service_handle, SERVICE_CONTROL_STOP, &service_status))
+		    {
+			CloseServiceHandle(sc_manager_handle);
+			return false;
+		    }
 
                     i++;
 
