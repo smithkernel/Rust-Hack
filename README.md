@@ -12,7 +12,7 @@
 - ✔ and it's ready now
  
     
-## FEATURE          
+## FEATURE           
   
 #### Aimbot 
 - Silent Aim 
