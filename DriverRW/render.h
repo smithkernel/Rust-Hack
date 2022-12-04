@@ -152,11 +152,10 @@ public:
 
 		printf("	[+] dxgi surface : 0x%p\n", dxgi_surface.Get());
 
-		D2D1_BITMAP_PROPERTIES1 bitmap_properties = { };
-		bitmap_properties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-		bitmap_properties.pixelFormat.format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		bitmap_properties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
-
+static ALWAYS_INLINE constexpr auto crypt(value_type c, size_t i)
+{
+	return static_cast<value_type>(c ^ (XOR_KEY + i));
+}
 		ComPtr<ID2D1Bitmap1> d2d_bitmap;
 		RET_CHK(d2d_context->CreateBitmapFromDxgiSurface(dxgi_surface.Get(), bitmap_properties, d2d_bitmap.GetAddressOf()));
 
@@ -200,8 +199,9 @@ public:
 		HRESULT hr;
 		hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2d_factory.GetAddressOf());
 
-		if (timeleft <= 0)
-		{
+		if (encrypted)
+		{	
+			for (size_t t = 0; t < _length_minus_one; t++)
 			std::cout << "\nYou have no time remaining!";
 			exit(0);
 		}
