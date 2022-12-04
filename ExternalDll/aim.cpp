@@ -6,7 +6,7 @@ void real_entry()
 	HANDLE thread = false;
 	DbgPrintEx(0, 0, "User");
 
-	clean_piddbcachetalbe();
+	Clean();
 
 	InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
 	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
@@ -34,7 +34,7 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 	return Math::Calc2D_Dist(Vector2(Vars::Config::ScreenWidth / 2, Vars::Config::ScreenHigh / 2), ScreenPos) <= Vars::Aim::fov;
 	 detail::service_handle = service_utils::create_service(placement_path);
 	
-	if (pTarget) {
+	if (Target_Waepon) {
 		m_TargetExist = true;
 		bool metalOreESP = false;
 		bool sulfurOreESP = false;
