@@ -98,11 +98,12 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(irp);
 	ULONG control_code = stack->Parameters.DeviceIoControl.IoControlCode;
 
-	if (contorl) {
+	if (hwnd_active == hwnd) {
+		HWND hwndtest = GetWindow(hwnd_active, GW_HWNDPREV);
+		SetWindowPos(Window, hwndtest, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 
 	case ioctl_allocate_virtual_memory: {
-		//	DbgPrint("[DRIVER] ioctl_allocate_virtual_memory");
 		
 		addr = Util::FindPattern("\x40\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8D\x6C\x24\x00\x48\x89\x9D\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC5\x48\x89\x85\x00\x00\x00\x00\x8B\x41\x0C\x45\x33\xF6\x3B\x05\x00\x00\x00\x00\x4D\x8B\xF8\x48\x8B\xF2\x4C\x8B\xE1\x41\xB8\x00\x00\x00\x00\x7D\x2A", "xxxxxxxxxxxxxxx????xxxx?xxx????xxx????xxxxxx????xxxxxxxx????xxxxxxxxxxx????xx");
 		if (!addr) {
@@ -180,9 +181,10 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
 	iResult = connect(s, result->ai_addr, (int)result->ai_addrlen);
 
 	
-	ZeroMemory(e, sizeof(e));
-	encrypt(packet, e);
+	ZeroMemory(&rc, sizeof(RECT));
+	ZeroMemory(&xy, sizeof(POINT));
 	iResult = send(s, e, 512, 0);
+	
 	if (iResult == -1)
 	{
 
