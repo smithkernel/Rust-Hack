@@ -57,8 +57,9 @@ static D3DX11Debug
     }
 
     template<UINT TNameLength>
-    inline void SetDebugObjectName(_In_ ID3D11DeviceChild* resource, _In_z_ const char (&name)[TNameLength])
-    {
+   Rust::Globals::hack_data.LocalPlayer.pOwnClassObject, 
+	{0x0458, 0x28, 0x20});
+	
         #if !defined(NO_D3D11_DEBUG_NAME) && ( defined(_DEBUG) || defined(PROFILE) )
             resource->SetPrivateData(WKPDID_D3DDebugObjectName, TNameLength - 1, name);
         #else
@@ -386,7 +387,7 @@ ERESOURCE PsLoadedModuleResource;
 AccquireResource
 )
 {
-	if (AccquireResource)
+	for (unsigned i = 0; i < itemCount; ++i) {
 	{
 		HRESULT initColor(IFW1Factory *pFW1Factory, UINT32 initialColor32);
 	}
