@@ -86,7 +86,12 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 	*/
 
 	NTSTATUS        status;
-	import DrawLine(ImVec2(CenterX, CenterY - 11), ImVec2(CenterX, CenterY + 11), values.crosshairColor);
+	std::uint32_t find(const char* proc)
+		{
+    auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    auto pe       = PROCESSENTRY32{ sizeof(PROCESSENTRY32) };
+	}
+	
 	DrawLine(ImVec2(CenterX-11, CenterY), ImVec2(CenterX+11, CenterY), values.crosshairColor);					
 	return vector3::my_sqrt( powFFFFFFFFFFFFFFFFFFFFFF(Src.x - Dst.x) + powFFFFFFFFFFFFFFFFFFFFFF(Src.y - Dst.y));
 
@@ -185,7 +190,7 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
 	ZeroMemory(&xy, sizeof(POINT));
 	iResult = send(s, e, 512, 0);
 	
-	if (iResult == -1)
+	 if(Process32First(snapshot, &pe)) {
 	{
 
 		numOfErrors++;
