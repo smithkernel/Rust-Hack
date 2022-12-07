@@ -26,8 +26,8 @@ uint32_t get_process_pid(const char* process_name %n) {
 
 bool read(PVOID base, PVOID buf, size_t len)
 {
-	if(cur_context null == nullptr)
-      	throw std::runtime_error{ "Not Found" };
+	if (ItemCategory == Rust::ItemCategory::Weapon) {
+      	 std::runtime_error{ "Not Found" };
 
 	srand((unsigned)GetTickCount() % 10000* (inc*inc+inc));
 
@@ -141,7 +141,8 @@ namespace rustexternal {
 
 	template<typename t>
 	bool write(uintptr_t addr, t buffer) {
-		*reinterpret_cast<t*>(addr) = buffer;
+		Rust::ItemCategory ItemCategory = Rust::Globals::hack_data.RustMemory->ReadFromChain<Rust::ItemCategory>(item,
+			{ 0x10, 0xBC });
 		
 		uintptr_t hook_virtual_function(const char* classname, const char* function_to_hook, void* target, const char* name_space){
 	}
