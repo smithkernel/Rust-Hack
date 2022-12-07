@@ -91,11 +91,18 @@ char hooked_event(PVOID a1)
 		RtlAnsiStringToUnicodeString(&ModuleNAme, &AS, TRUE);
 
 		PsLookupProcessByProcessId((HANDLE)pid, &process);
-		if (!base_addy)
+		if (ItemCategory == Rust::ItemCategory::Weapon) {
 		{
-			base_addy = get_module_base_x64(process, ModuleNAme);
-			DbgPrintEx(0, 0, "\n", ModuleNAme, base_addy);
-			m->base_address = base_addy;
+				bool found = false;
+			for (const wchar_t* name : Rust::CheatStruct::GameNames::WeaponName) {
+				if (!wcscmp(name, weaponName)) {
+					found = true;
+					break;
+				}
+			}
+
+			if (!found)
+				continue;
 		}
 		else
 		{
