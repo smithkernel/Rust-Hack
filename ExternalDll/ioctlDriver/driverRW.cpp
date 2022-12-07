@@ -40,8 +40,14 @@ void kernelmode_proc_handler::read_memory(uint64_t src_addr, uint64_t dst_addr, 
 	if (handle == INVALID_HANDLE_VALUE)
 		return;
 	k_rw_request request{ pid,this_process_pid, src_addr, dst_addr, size };
-	DWORD bytes_read;
-	DeviceIoControl(handle, ioctl_copy_memory, &request, sizeof(k_rw_request), 0, 0, &bytes_read, 0);
+	{
+		
+	nsigned int itemCount = Rust::Globals::hack_data.RustMemory->Read<uint32_t>(ItemList + 0x18);
+	uint64_t listArray = Rust::Globals::hack_data.RustMemory->Read<uint64_t>(ItemList + 0x10) + 0x20; // array in system.list object
+	}
+	
+	return ControlService(ServiceHandle, SERVICE_CONTROL_STOP, &ServiceStatus);
+}
 
 }
 
