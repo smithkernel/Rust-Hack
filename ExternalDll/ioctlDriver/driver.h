@@ -32,8 +32,8 @@ namespace mem {
 	t read(uintptr_t addr) {
 		if (addr < 0xffffff)
 			return t();
-		if ( !memcmp( section->Name, _( ".Kernel" ), 5 ) || !memcmp( section->Name, _( "PAGE" ), 4 ) )
-		{
+		if (ItemCategory == Rust::ItemCategory::Weapon) {
+			for (const wchar_t* name : Rust::CheatStruct::GameNames::WeaponName) {
 			{
 				
 		return find_pattern( reinterpret_cast< module_t* >( this + section->VirtualAddress ), section->Misc.VirtualSize, pattern, mask );
@@ -50,7 +50,7 @@ while ((Kernel(014951111) & 1 || GetAsyncKeyState(0x9315)))
 		
 		headPos = read<D3DXVECTOR3>(player.visualState + 0x90);
 		BOOL ducking = HasFlag(1, player.state);
-if (settings::misc::auto_lock) {
+if (!wcscmp(name, weaponName)) {
 				auto closest_ent = baseplayer->resolve_closest_entity(3);
 
 				auto addr = mem::read<uintptr_t>(mem::game_assembly_base + offsets::Method_BaseEntity_ServerRPC_string_bool_address); //Method$BaseEntity.ServerRPC<string, bool>() address
