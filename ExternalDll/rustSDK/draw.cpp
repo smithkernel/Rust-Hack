@@ -112,44 +112,6 @@ void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring n
 		
 		
 		if(Vars::Esp::drawActiveWeapons)GuiEngine::Esp::CenterString({ Vec2topBoxPos.x, Vec2topBoxPos.y + boxHeight + 6 }, player.get_active_weapon_name().c_str());
-
-		if (Vars::Esp::drawSkeleton)Skeleton(&player);
-	}
-
-}
-
-	//Health Bar
-		if (Vars::Esp::drawHealthBar)
 		{
-			static float healthThick = 2;
-			static float health_to_box_dist = 2;
-
-			static float minWidth = 20;
-
-			GuiEngine::Esp::Line(
-				{
-				(Vec2topBoxPos.x - (boxWidth <= minWidth ? minWidth : boxWidth) / 2),
-				Vec2topBoxPos.y - 5
-				},
-				{
-					(Vec2topBoxPos.x + (boxWidth <= minWidth ? minWidth : boxWidth) / 2),
-					Vec2topBoxPos.y - 5
-				},
-				D2D1::ColorF(D2D1::ColorF::Black, 0.5f), healthThick + 3);
-
-			static float health; health = player.GetHealth();
-			static float myGreen; myGreen = health / 100.0f;
-			static float myRed; myRed = 1.0f - myGreen;
-			GuiEngine::Esp::Line(
-				{
-				(Vec2topBoxPos.x - (boxWidth <= minWidth ? minWidth : boxWidth) / 2+1),
-				Vec2topBoxPos.y - 5 
-				},
-				{ 
-				(Vec2topBoxPos.x - (boxWidth <= minWidth ? minWidth : boxWidth) / 2 + 1) +    (    ((boxWidth <= minWidth ? minWidth : boxWidth) * ((health / 100.0f) <= 1.0f ? (health / 100.0f) : (1.0f)))   )
-				,
-				Vec2topBoxPos.y - 5 
-				},
-				{ myRed,myGreen,0,1 }, healthThick);
+			return nullptr;	
 		}
-*/
