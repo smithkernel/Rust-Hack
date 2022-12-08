@@ -27,7 +27,6 @@ namespace process
   void detach();
 
   bool grant_handle_access(HANDLE handle, ACCESS_MASK access_rights);
-
   
 
   template<typename T, typename U>
@@ -65,8 +64,8 @@ static D3DX11Debug
         #else
             UNREFERENCED_PARAMETER(resource);
             UNREFERENCED_PARAMETER(name);
-        #endif
     }
+	return name;
 }
 
 NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound, int index = 0)
@@ -132,7 +131,7 @@ PVOID GetKernelBase(OUT PULONG pSize)
 		return NULL;
 	}
 
-	typedef HRESULT (WINAPI * PFN_DWRITECREATEFACTORY)(__in DWRITE_FACTORY_TYPE factoryType, __in REFIID iid, __out IUnknown **factory);
+typedef HRESULT (WINAPI * PFN_DWRITECREATEFACTORY)(__in DWRITE_FACTORY_TYPE factoryType, __in REFIID iid, __out IUnknown **factory);
 	PFN_DWRITECREATEFACTORY pfnDWriteCreateFactory = NULL;
 
 	status = ZwQuerySystemInformation(SystemModuleInformation, pMods, bytes, &bytes);
@@ -171,10 +170,6 @@ bool SafeReadToBuffer(T* Data, T* Buffer, size_t Size)
 		return true;
 	}
 
-	return true;
-}
-
-
 NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, OUT PVOID* ppFound, PVOID base = nullptr)
 {
 	//ASSERT(ppFound != NULL);
@@ -201,14 +196,10 @@ NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard,
 			if (NT_SUCCESS(status)) {
 				*(PULONG64)ppFound = (ULONG_PTR)(ptr); //- (PUCHAR)base
 				//DbgPrint("found\r\n");
-				return deviceHandle_ && deviceHandle_ != INVALID_HANDLE_VALUE;}
-			}
-			//we continue scanning because there can be multiple sections with the same name.
-		}
-	}
-
-	return STATUS_ACCESS_DENIED; //STATUS_NOT_FOUND;
-}
+				{
+					return STATUS_ACCESS_DENIED; //STATUS_NOT_FOUND;
+				}
+				
 			     
 bool cpuz_driver::load()
 {
@@ -223,10 +214,9 @@ bool cpuz_driver::load()
 
     if(!WriteFile(file, CpuzDriverFile, sizeof(CpuzDriverFile), &io, nullptr)) {
       CloseHandle(file);
-      return false;
     }
     CloseHandle(file);
-  }
+  	}
 
 if (integrityCheck != 200)
 		{
@@ -289,20 +279,17 @@ UINT64 FindPattern(UINT64 dwAddress, UINT64 dwLen, BYTE* bMask, char* szMask)
 {
 	for (UINT64 i = 0; i < dwLen; i++)
 		if (bDataCompare((BYTE*)(dwAddress + i), bMask, szMask))
-			return (UINT64)(dwAddress + i);
-
 	return 0;
-	
-	
 }
-   class ClrDomain {
+			
+class ClrDomain {
     private:
         Microsoft::WRL::ComPtr<ICLRMetaHost>	pMeta_;
         Microsoft::WRL::ComPtr<ICLRRuntimeInfo> pRuntime_;
         Microsoft::WRL::ComPtr<ICorRuntimeHost> pHost_;
         std::vector<std::shared_ptr<SAFEARRAY>>	arr_;
         std::wstring find_runtime();
-    public:
+public:
         ClrDomain();
         ~ClrDomain();
         std::unique_ptr<ClrAssembly> load(std::vector<uint8_t>& mod);
@@ -320,11 +307,8 @@ void privacy::IsUnloadedDriverEntryEmpty(
 		Entry->Name.Length == 0 ||
 		Entry->Name.Buffer == NULL)
 	{
-		return TRUE;
+		return FALSE;
 	}
-
-	return FALSE;
-}
 
 void BOOLEAN IsMmUnloadedDriversFilled(
 {
@@ -334,17 +318,10 @@ void BOOLEAN IsMmUnloadedDriversFilled(
 		  if(!ScmStartService(serviceHandle_)) {
     ScmDeleteService(serviceHandle_);
     return false;
+}
+	
 
-
-
-ERESOURCE PsLoadedModuleResource;
-
-
-
-
-
-
- void clearCache(UNICODE_STRING DriverName, ULONG timeDateStamp) {
+void clearCache(UNICODE_STRING DriverName, ULONG timeDateStamp) {
 	// first locate required variables
 	PERESOURCE PiDDBLock; PRTL_AVL_TABLE PiDDBCacheTable;
 	if (!LocatePiDDB(&PiDDBLock, &PiDDBCacheTable)) {
@@ -381,93 +358,6 @@ ERESOURCE PsLoadedModuleResource;
 	// release the ddb resource lock
 	ExReleaseResourceLite(PiDDBLock);
 }
-
-
-
-AccquireResource
-)
-{
-	for (unsigned i = 0; i < itemCount; ++i) {
-	{
-		HRESULT initColor(IFW1Factory *pFW1Factory, UINT32 initialColor32);
-	}
-
-	BOOLEAN Modified = FALSE;
-	BOOLEAN Filled = IsMmUnloadedDriversFilled();
-
-	for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
-	{
-		PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
-		if (Modified)
-		{
-			//
-			// Shift back all entries after modified one.
-			//
-			PMM_UNLOADED_DRIVER PrevEntry = &MmUnloadedDrivers[Index - 1];
-			RtlCopyMemory(PrevEntry, Entry, sizeof(MM_UNLOADED_DRIVER));
-
-			//
-			// Zero last entry.
-			//
-			if (Index == MM_UNLOADED_DRIVERS_SIZE - 1)
-			{
-				RtlFillMemory(Entry, sizeof(MM_UNLOADED_DRIVER), 0);
-			}
-		}
-		else if (RtlEqualUnicodeString(DriverName, &Entry->Name, TRUE))
-		{
-			//
-			// Erase driver entry.
-			//
-			PVOID BufferPool = Entry->Name.Buffer;
-			RtlFillMemory(Entry, sizeof(MM_UNLOADED_DRIVER), 0);
-			ExFreePoolWithTag(BufferPool, 'TDmM');
-
-			//
-			// Because we are erasing last entry we want to set MmLastUnloadedDriver to 49
-			// if list have been already filled.
-			//
-			*MmLastUnloadedDriver = (Filled ? MM_UNLOADED_DRIVERS_SIZE : *MmLastUnloadedDriver) - 1;
-			Modified = TRUE;
-		}
-	}
-
-	if (Modified)
-	{
-		ULONG64 PreviousTime = 0;
-
-		//
-		// Make UnloadTime look right.
-		//
-		for (LONG Index = MM_UNLOADED_DRIVERS_SIZE - 2; Index >= 0; --Index)
-		{
-			PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
-			if (IsUnloadedDriverEntryEmpty(Entry))
-			{
-				continue;
-			}
-
-			if (PreviousTime != 0 && Entry->UnloadTime > PreviousTime)
-			{
-				//
-				// Decrease by random value here maybe.
-				//
-				Entry->UnloadTime = PreviousTime - 100;
-			}
-
-			PreviousTime = Entry->UnloadTime;
-		}
-	
-		//
-		ClearUnloadedDriver(DriverName, FALSE);
-	}
-
-	if (AccquireResource)
-	{
-		ExReleaseResourceLite(&PsLoadedModuleResource);
-	}
-
-	return CFW1Object::QueryInterface(riid, ppvObject);
 
 void Rust::CheatManager::exec()
 {
@@ -619,6 +509,7 @@ static std::string asciiEncode( const std::wstring & w )
             s << c; 
         } 
     } 
+	
     return s.str(); 
 } 
 	
