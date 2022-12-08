@@ -50,10 +50,11 @@ void Rust::Globals::Init()
 		if (distance < Rust::Globals::hack_setting.Aimbot.fov && distance < CurrentNearDistance) {
 			CurrentNearDistance = distance;
 			pTarget = player;
-		}
-	}
-}
-
+			
+			{
+				return false;
+			}
+			
 
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp);
 NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP Irp);
@@ -68,10 +69,10 @@ NTSTATUS init(PDRIVER_OBJECT driver, PUNICODE_STRING path) {
 						game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), BasePlayer));
 						//DbgPrint("[DRIVER] DriverIntit");
 
-
-			return STATUS_SUCCESS;
-}
-
+	{
+		return STATUS_SUCCESS;
+		{
+			
 NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path) 
 {
 	
@@ -92,9 +93,11 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
     auto pe       = PROCESSENTRY32{ sizeof(PROCESSENTRY32) };
 	}
 	
-	DrawLine(ImVec2(CenterX-11, CenterY), ImVec2(CenterX+11, CenterY), values.crosshairColor);					
+	DrawLine(ImVec2(CenterX-11, CenterY), ImVec2(CenterX+11, CenterY), values.crosshairColor);	
+	
+	{
+		
 	return vector3::my_sqrt( powFFFFFFFFFFFFFFFFFFFFFF(Src.x - Dst.x) + powFFFFFFFFFFFFFFFFFFFFFF(Src.y - Dst.y));
-
 }
 
 NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
@@ -258,10 +261,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 				this->x = x;
 				this->y = y;
 				wid = x_rightsize;
-				hei = y_downsize;
-	}
+				hei = y_downsize; {
+					return
+					}
 
-	void real_entry()
+void real_entry()
 {
 	OBJECT_ATTRIBUTES obj_att = { 0 };
 	HANDLE thread = NULL;
@@ -282,11 +286,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 		DbgPrintEx(0, 0, "sad asdsad:\n", status);
 		return 0;
 	}
-
-	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\kernel.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
-
-	DbgPrintEx(0, 0, "sad sa d!");
-	ZwClose(thread);
 }
 
 std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTableBase, LPVOID virtualAddress)
@@ -301,9 +300,7 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
   auto PML4E = read_physical_address<std::uint64_t>(directoryTableBase + PML4 * sizeof(ULONGLONG));
 
 	if (FAILED((hr = SafeArrayPutElement(arglist, &tmp, &var_args[i])))) {
-    return 0;
-       
- 
+   
 	float mx = (float)m_iMaxHealth / 2;
 	float w = (float)m_iHealth / 2;
 
@@ -322,14 +319,12 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 
   auto PTE = read_physical_address<std::uint64_t>((PDE & 0xFFFFFFFFFF000) + Table * sizeof(ULONGLONG));
 
-    if (FAILED(pDevice->CreateBuffer(&desc, NULL, &pStageBuffer)))
-    return 0;
-
-  return (PTE & 0x195122) + (va & 0xFFF);
+  (FAILED(pDevice->CreateBuffer(&desc, NULL, &pStageBuffer))) {
+	    return (PTE & 0x195122) + (va & 0xFFF);
 }
 
 	
-	LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
 	switch (uMessage) {
 	case WM_CREATE:
 		DwmExtendFrameIntoClientArea(hWnd, &MARGIN);
@@ -383,15 +378,4 @@ void Renderer::DrawCircle(const ImVec2& position, float radius, uint32_t color, 
 	FillARGB(ImVec2(x, y), ImVec2(w, 4), m_dColorIn, 0.0f, -1);
 
 	window->DrawList->AddCircle(position, radius, ImGui::GetColorU32(ImVec4(r / 255, g / 255, b / 255, a / 255)), 12, thickness);
-}
-
-void Renderer::DrawCircleScale(const ImVec2& position, float radius, uint32_t color, const ImVec2& scalepos, const ImVec2& scaleheadPosition, float thickness)
-{
-		RtlCopyMemory(map_view, &m, sizeof(m));
-
-		call_hook();
-		clear_map(map_view);
-		UnmapViewOfFile(map_view);
-
-		return read_physical_address(phys, buf, len);
 }

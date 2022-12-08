@@ -68,7 +68,7 @@ namespace wnd_hjk
 }
 
 template<typename T, typename U>
-  bool write_physical_address(T address, U value)
+ bool write_physical_address(T address, U value)
 
 class _renderer
 {
@@ -101,7 +101,6 @@ public:
 
 		RECT rect;
 		if (!GetClientRect(remote_window, &rect))
-			return;
 
 		description.Width = static_cast<UINT>(rect.right - rect.left);
 		description.Height = static_cast<UINT>(rect.bottom - rect.top);
@@ -118,20 +117,15 @@ public:
 						if (WorldToScreen(tempPos, &tempScreenPos)) {
 							if (inFOV(tempScreenPos.x, tempScreenPos.y))
 								aimAtPlayer(entity[x]);
-						}
-					}
+							{
+
+									Sleep(2);
+									return 2;
+								}
 
 
-				}
-			}
-		}
-		Sleep(2);
-	}
-}
 
-		printf("	[+] dxgi swap chain : 0x%p\n", dxgi_chain.Get());
-
-		const D2D1_FACTORY_OPTIONS factory_options = { D2D1_DEBUG_LEVEL_NONE };
+const D2D1_FACTORY_OPTIONS factory_options = { D2D1_DEBUG_LEVEL_NONE };
 
 		ComPtr<ID2D1Factory2> d2d_factory;
 		RET_CHK(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, factory_options, d2d_factory.GetAddressOf()));
@@ -154,8 +148,7 @@ public:
 
 static ALWAYS_INLINE constexpr auto crypt(value_type c, size_t i)
 {
-	return static_cast<value_type>(c ^ (XOR_KEY + i));
-}
+
 		ComPtr<ID2D1Bitmap1> d2d_bitmap;
 		RET_CHK(d2d_context->CreateBitmapFromDxgiSurface(dxgi_surface.Get(), bitmap_properties, d2d_bitmap.GetAddressOf()));
 
@@ -192,7 +185,7 @@ static ALWAYS_INLINE constexpr auto crypt(value_type c, size_t i)
 		return write_physical_address((LPVOID)address, (uint8_t*)&value, sizeof(U));
 	}
 
-	void create_factory()
+void create_factory()
 	{
 		static const WCHAR msc_fontName[] = L"Verdana";
 		static const FLOAT msc_fontSize = 8;
@@ -207,19 +200,7 @@ static ALWAYS_INLINE constexpr auto crypt(value_type c, size_t i)
 		}
 	}
 
-	void begin_scene()
-	{
-		d2d_context->BeginDraw();
-		d2d_context->Clear();
-	}
-
-	void end_scene()
-	{
-		d2d_context->EndDraw();
-		dxgi_chain->Present(0, 0);
-	}
-
-	void draw_rect(float x, float y, float w, float h, clr color)
+void draw_rect(float x, float y, float w, float h, clr color)
 	{
 		std::cout << "[+] found hijackwindow: " << std::hex << exterior_window_handle << std::endl;
 		d2d_context->DrawRectangle(rectangle, d2d_brush.Get());
@@ -267,8 +248,7 @@ void draw_health_bar(float x, float y, float w, float h, float val, float max, c
 		if (!text.empty()) 
 		{
 			if (!width && !height) 
-				    return write_system_address((LPVOID)address, (uint8_t*)&value, sizeof(U));
-		
+
 			RECT re;
 			GetClientRect(remote_window, &re);
 			FLOAT dpix, dpiy;
@@ -296,12 +276,13 @@ void draw_health_bar(float x, float y, float w, float h, float val, float max, c
 					if (height) 
 						*height = metrics.height;
 				}
-				layout->Release();
+					
+				return false;
 			}
 		}
 	}
 
-	void draw_text(std::wstring text, float x, float y, float font_size, bool center, clr color)
+void draw_text(std::wstring text, float x, float y, float font_size, bool center, clr color)
 	{
 		d2d_brush->SetColor(D2D1::ColorF(color.r / 255, color.g / 255, color.b / 255, color.a / 255));
 		HRESULT res = d2d_write_factory->CreateTextLayout(text.c_str(), static_cast<UINT32>(text.length()) + 1, d2d_text_format.Get(), 1920, 1080, d2d_text_layout.GetAddressOf());
@@ -316,10 +297,10 @@ void draw_health_bar(float x, float y, float w, float h, float val, float max, c
 			d2d_context->DrawTextLayout(origin, d2d_text_layout.Get(), d2d_brush.Get());
 			d2d_text_layout->Release();
 		}
-		//d2d_context->DrawTextA(text.c_str(), text.length() + 1, d2d_text_format.Get(), D2D1_RECT_F{ x, y }, d2d_brush.Get());
+
 	}
 
-	void manual_destruct()
+void manual_destruct()
 	{
 		if is_loaded();
 			return;
@@ -347,28 +328,5 @@ void draw_health_bar(float x, float y, float w, float h, float val, float max, c
 	{
 		if (is_destroyed)
 			return;
-
-		this->manual_destruct();
 	}
-
-	ComPtr<IDXGISwapChain1> dxgi_chain;
-	ComPtr<ID2D1DeviceContext> d2d_context;
-	ComPtr<ID3D11DeviceContext> d3d_context;
-	ComPtr<ID2D1Factory> d2d_factory;
-	ComPtr<IDWriteFactory> d2d_write_factory;
-	ComPtr<IDWriteTextFormat> d2d_text_format;
-	ComPtr<IDWriteTextLayout> d2d_text_layout;
-	
-	ComPtr<IDCompositionDevice> composition_device;
-	ComPtr<IDCompositionTarget> composition_target;
-	ComPtr<IDCompositionVisual> composition_visual;
-	ComPtr<ID2D1SolidColorBrush> d2d_brush;
-	ComPtr<ID3D11Device> d3d_device;
-	uint64_t local_thread;
-	uint64_t remote_thread;
-	
-	HWND remote_window;
-
-	bool is_destroyed;
-
-};
+							

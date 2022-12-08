@@ -31,7 +31,6 @@ bool BasePlayer::IsDead()
 				}
 	
 
-
 bool BasePlayer::IsVisible()
 {
 	if (!this_ptr)return 0;
@@ -176,6 +175,8 @@ Vector3 BasePlayer::GetPosition(DWORD64 pTransform)
 	}
 	delete[]pMatriciesBuf;
 	delete[]pIndicesBuf;
+	{
+		
 	return Vector3(result.m128_f32[0], result.m128_f32[1], result.m128_f32[2]);
 }
 
@@ -227,18 +228,6 @@ std::wstring BasePlayer::get_active_weapon_name()
 	}
 	return L"dick";
 }
-
-#pragma endregion
-
-
-
-
-
-
-
-#pragma region LocalPlayer
-
-//Æåëàòåëüíî îáíîâèòü ïåðåä îòðèñîâêîé
 bool LocalPlayer::update_view_matrix()
 {
 	if (BaseEntityCamera != NULL)
@@ -520,213 +509,3 @@ void  LocalPlayer::SetRA(const Vector2& newAngle)
 
 }
 
-#pragma endregion
-
-
-
-
-
-
-#pragma region Item
-
-bool Item::set_addr(DWORD64 ptr)
-{
-	if (this_ptr == ptr)return false;
-	this_ptr = ptr;
-};
-
-DWORD64 Item::get_addr()
-{
-	return this_ptr;
-}
-
-DWORD64 Item::GetID()
-{
-	if (!this_ptr)return 0;
-
-	DWORD64 Info = read(this_ptr + 0x20, DWORD64);   ///prefab id
-	if (!Info)return  NULL;
-
-	return read(Info + 0x18, DWORD64);
-}
-
-
-float Old_RecoilYawMax;
-float Old_RecoilYawMin;
-float Old_RecoilPitchMax;
-float Old_RecoilPitchMin;
-float Old_ADSScale;
-float Old_MovementPenalty;
-
-DWORD64 oldRecoilPtr = NULL;
-
-void Item::no_recoil(float factor)
-{
-	if (!this_ptr)return;
-	DWORD64 Held = read(this_ptr + oHeldEntity, DWORD64);
-	DWORD64 ActiveRecoilPtr = read(Held + oRecoil, DWORD64);
-
-	if (oldRecoilPtr != ActiveRecoilPtr)//åñëè ïîìåíÿëîñü îðóæèå
-	{
-		//std::cout << "Held__________________________________________________" << Held << std::endl;
-	    //std::cout << "old " << std::hex << oldRecoilPtr << std::endl;
-		//std::cout << "new " << std::hex << ActiveRecoilPtr << std::endl;
-
-		if (oldRecoilPtr != NULL)
-		{
-
-			write(oldRecoilPtr + oRecoilYawMax, Old_RecoilYawMax, float);
-			write(oldRecoilPtr + oRecoilYawMin, Old_RecoilYawMin, float);
-
-			write(oldRecoilPtr + oRecoilPitchMax, Old_RecoilPitchMax, float);
-			write(oldRecoilPtr + oRecoilPitchMin, Old_RecoilPitchMin, float);
-
-			write(oldRecoilPtr + oADSScale, Old_ADSScale, float);
-			write(oldRecoilPtr + oMovementPenalty, Old_MovementPenalty, float);
-		}
-
-		if (ActiveRecoilPtr != NULL)
-		{
-
-			Old_RecoilYawMax = read(ActiveRecoilPtr + oRecoilYawMax, float);
-			Old_RecoilYawMin = read(ActiveRecoilPtr + oRecoilYawMin, float);
-			Old_RecoilPitchMax = read(ActiveRecoilPtr + oRecoilPitchMax, float);
-			Old_RecoilPitchMin = read(ActiveRecoilPtr + oRecoilPitchMin, float);
-			Old_ADSScale = read(ActiveRecoilPtr + oADSScale, float);
-			Old_MovementPenalty = read(ActiveRecoilPtr + oMovementPenalty, float);
-
-			write(ActiveRecoilPtr + oRecoilYawMax, factor * Old_RecoilYawMax, float);
-			write(ActiveRecoilPtr + oRecoilYawMin, factor * Old_RecoilYawMin, float);
-
-			write(ActiveRecoilPtr + oRecoilPitchMax, factor * Old_RecoilPitchMax, float);
-			write(ActiveRecoilPtr + oRecoilPitchMin, factor * Old_RecoilPitchMin, float);
-
-			write(ActiveRecoilPtr + oADSScale, factor * Old_ADSScale, float);
-			write(ActiveRecoilPtr + oMovementPenalty, factor * Old_MovementPenalty, float);
-
-
-		}
-		oldRecoilPtr = ActiveRecoilPtr;
-	}
-	else if (factor == 1.0f)//åñëè îòêëþ÷èëè îòäà÷ó
-	{
-		write(ActiveRecoilPtr + oRecoilYawMax, Old_RecoilYawMax, float);
-		write(ActiveRecoilPtr + oRecoilYawMin, Old_RecoilYawMin, float);
-
-		write(ActiveRecoilPtr + oRecoilPitchMax, Old_RecoilPitchMax, float);
-		write(ActiveRecoilPtr + oRecoilPitchMin, Old_RecoilPitchMin, float);
-
-		write(ActiveRecoilPtr + oADSScale, Old_ADSScale, float);
-		write(ActiveRecoilPtr + oMovementPenalty, Old_MovementPenalty, float);
-	}
-	else //ñìåíà îòäà÷è àêòèâíîãî îðóæèÿ
-	{
-		write(ActiveRecoilPtr + oRecoilYawMax, factor * Old_RecoilYawMax, float);
-		write(ActiveRecoilPtr + oRecoilYawMin, factor * Old_RecoilYawMin, float);
-
-		write(ActiveRecoilPtr + oRecoilPitchMax, factor * Old_RecoilPitchMax, float);
-		write(ActiveRecoilPtr + oRecoilPitchMin, factor * Old_RecoilPitchMin, float);
-
-		write(ActiveRecoilPtr + oADSScale, factor * Old_ADSScale, float);
-		write(ActiveRecoilPtr + oMovementPenalty, factor * Old_MovementPenalty, float);
-	}
-}
-
-void Item::NoSpread()
-{
-	if (!this_ptr)return ;
-	DWORD64 Held = read(this_ptr + oHeldEntity, DWORD64);
-	if (!Held)return;
-
-	write(Held + oStancePenalty, 0.f, float);
-	write(Held + oAimconePenalty, 0.f, float);
-	write(Held + oAimCone, 0.f, float);
-	write(Held + oHipAimCone, 0.f, float);
-	write(Held + oAimconePenaltyPerShot, 0.f, float);
-}
-
-void Item::fatbullet()
-{
-	if (!this_ptr)return;
-	DWORD64 Held = read(this_ptr + oHeldEntity, DWORD64);//BaseProjectile
-	if (!Held)return;
-	//std::cout << std::hex << "Held: " << Held << std::endl;
-
-	DWORD64 Projectile_list = read(Held + 0x338, DWORD64);
-
-	//std::cout << std::hex << "Projectile_list: " << Projectile_list << std::endl;
-
-	DWORD64 Projectile_items = read(Projectile_list + 0x10, DWORD64);
-	//std::cout << std::hex << "Projectile_items: "<< Projectile_items << std::endl;
-
-	for (int i = 0; i < 24; i++)
-	{
-		DWORD64 Projectile_item = read(Projectile_items + 0x20 + (i * 0x8), DWORD64);
-
-		if (Projectile_item)
-		{
-			float thick = read(Projectile_item + 0x2C, float);
-			if (thick > 0.f && thick < 4.0f) //public float thickness;
-			{
-				write(Projectile_item + 0x2C, Vars::Aim::fat, float);
-				//float gravity = read(Projectile_item + 0x28, float);
-				//write(Projectile_item + 0x28, 100.0f, float);
-
-			}
-			//std::cout << "Speed: " << read(Projectile_item + 0x2C, float) << std::endl;
-		}
-
-	
-
-		/*
-		if (Projectile_item)
-		{
-			DWORD64 ItemModProjectile = read(Projectile_item + 0xE8, DWORD64);
-
-				if (ItemModProjectile)
-				{
-					if (read(ItemModProjectile + 0x34, float) > 0.0003f)
-					{
-						//std::cout << read(ItemModProjectile + 0x34, float) << std::endl;
-					}
-
-				}
-
-				*/
-
-	}
-}
-
-
-void  Item::super_melee()
-{
-	if (!this_ptr)return;
-
-	DWORD64 Held = read(this_ptr + oHeldEntity, DWORD64);
-
-	if (!Held)return;
-
-	write(Held + omaxDistance, 3.0f, float);
-	write(Held + oAttackRadius, 1.0f, float);
-
-	write(Held + oBlockSprintOnAttack, false, bool);
-	write(Held + oonlyThrowAsProjectile, false, bool);
-	write(Held + oisAutomatic, true, bool);
-	write(Held + othrowReady, true, bool);
-
-}
-
-
-void  Item::super_eoka()
-{
-	if (!this_ptr)return;
-
-	DWORD64 Held = read(this_ptr + oHeldEntity, DWORD64);
-	if (!Held)return;
-	//std::cout << "Held:" << std::hex << Held << std::endl;
-	write(Held + 0x360, 1.0f, float);
-	write(Held + 0x370, true, bool);
-
-}
-
-#pragma endregion

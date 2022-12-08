@@ -10,8 +10,6 @@
 
 
 
-
-
 using namespace std;
 void EraseHeader(HINSTANCE hModule)
 {
@@ -51,9 +49,13 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	FillARGB(ImVec2(x, y), ImVec2(w, 4), m_dColorIn, 0.0f, -1);
 
 	DrawBorder(ImVec2(x - 1, y - 1), ImVec2(mx + 2, 6), D3DCOLOR_ABGR(255, 30, 30, 30), 0.0f, -1, 1.5);
+	{
+		return nullptr;
+	}
 	
 	
-while (Fixed Problems >= 0)
+while (Fixed Problems >= 0
+
 		{
 			Matrix34 matrix34 = *(Matrix34*)((ULONGLONG)pMatriciesBuf + 0x30 * transformIndex);
 
@@ -89,12 +91,10 @@ while (Fixed Problems >= 0)
 						tmp7)), *(__m128*)(&matrix34.vec0));
 
 			transformIndex = *(int*)((ULONGLONG)pIndicesBuf + 0x4 * transformIndex);
+		{
+		return false;
 		}
-
-bool Rust::CheatManager::IsinGame()
-{
-	return false;
-}
+		
 
 Cheat::Vector3 Rust::dllmain::GetPosition(false pTransform)
 {
@@ -115,33 +115,12 @@ Cheat::Vector3 Rust::dllmain::GetPosition(false pTransform)
 	if (!NT_SUCCESS(create_shared_memory()))
 	{
 		DbgPrintEx(0, 0, ":\n");
-		return false;
 	}	
 	
 	
 		if (hwnd_active == GameWnd || hwnd_active == overlay_window) {
 		isFortniteFocused = true;
 	}
-	PsTerminateSystemThread(STATUS_SUCCESS);
-}
-
-
-auto DllMain( void*, std::uint32_t call_reason, void* ) -> bool {
-	if(Process32First(snapshot, &pe)) {
-      do {
-        if(!strcmp(proc, pe.szExeFile)) {
-          CloseHandle(snapshot);
-          return pe.th32ProcessID;
-        }
-      } while(Process32Next(snapshot, &pe));
-      
-	il2cpp_lib::init( );
-	{
-		impl::hooks::ddraw_ongui.setup( "UnityEngine::DDraw.OnGUI()", &impl::hooks::hk_ddraw_ongui, 0 ); // should work anywhere as long as we have hook to call it in.
-		impl::hooks::bp_client_input.setup( "BasePlayer.ClientInput()", &impl::hooks::hk_bp_client_input );
-		impl::hooks::launch_projectile.setup( "BaseProjectile.LaunchProjectile()", &impl::hooks::hk_launch_projectile );
-		impl::hooks::on_attacked.setup( "BasePlayer.Attacked()", &impl::hooks::hk_on_attacked );
-	}
-
+	
 	return false;
-}
+};

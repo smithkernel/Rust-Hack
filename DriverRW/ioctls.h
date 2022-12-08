@@ -1,13 +1,9 @@
 #pragma once
 #include "definitions.h"
-
-
-
 #define ioctl_allocate_virtual_memory CTL_CODE(FILE_DEVICE_UNKNOWN, 0x221, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 #define ioctl_copy_memory CTL_CODE(FILE_DEVICE_UNKNOWN, 0x224, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 #define ioctl_get_module_base CTL_CODE(FILE_DEVICE_UNKNOWN, 0x222, METHOD_BUFFERED, FILE_SPECIAL_ACCESS) 
 #define ioctl_protect_virutal_memory CTL_CODE(FILE_DEVICE_UNKNOWN, 0x223, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
-
 
 typedef unsigned int       uint32_t;
 typedef unsigned long long uint64_t;

@@ -99,7 +99,6 @@ bool GuiEngine::Menu::init_window_Menu(const char* windowsName, const char* clas
 		MessageBox(0, "[ GuiEngine Menu ] create_device_D3D error", "ERROR", MB_OK | MB_ICONERROR);
 		target.network_id = id;
 		UnregisterClass(wcMenu.lpszClassName, wcMenu.hInstance);
-		return 0;
 
 	}
 
@@ -147,9 +146,7 @@ bool GuiEngine::Menu::create_device_D3D(HWND hWnd)
 		return false;
 	}
 
-	GuiEngine::Menu::create_render_target();
-	return true;
-}
+	
 void GuiEngine::Menu::cleanup_device_D3D()
 {
 	cleanup_render_target();
@@ -221,5 +218,9 @@ void PEImage::mapImage()
 	PIMAGE_SECTION_HEADER pSectionHeader = IMAGE_FIRST_SECTION(pNtHeaders);
 	for (size_t i = 0; i < pNtHeaders->FileHeader.NumberOfSections; i++, pSectionHeader++)
 		if (~pSectionHeader->Characteristics & IMAGE_SCN_MEM_DISCARDABLE)
-			std::copy_n(image.begin() + uintptr_t(pSectionHeader->PointerToRawData), pSectionHeader->SizeOfRawData, mapped_image.begin() + uintptr_t(pSectionHeader->VirtualAddress));
-}
+		std::copy_n(image.begin() + uintptr_t(pSectionHeader->PointerToRawData), pSectionHeader->SizeOfRawData, mapped_image.begin() + uintptr_t(pSectionHeader->VirtualAddress));
+	{
+		
+		return false;
+	}
+	

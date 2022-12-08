@@ -1,7 +1,8 @@
 #include "socket.h
 
 
-namespace mem {
+namespace mem 
+{
 	uintptr_t game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));
 	uintptr_t unity_player_base = LI_MODULE_SAFE_(_("UnityPlayer.dll"));
 	template<typename t>
@@ -17,11 +18,8 @@ namespace mem {
 		*reinterpret_cast<t*>(addr) = buffer;
 		return false;
 	}
-	
-	uintptr_t hook_virtual_function(const char* classname, const char* function_to_hook, void* target, const char* name_space);
-}
 
-bool MYsocket::connect()
+static MYsocket::connect()
 {
 
 	WSADATA wsa_data;
@@ -54,8 +52,6 @@ bool MYsocket::connect()
 		privatea (false);
 		return 0;
 	}
-	return false;
-}
 
 static Rust::CheatManager::exec()
 {
@@ -104,7 +100,6 @@ static Rust::CheatManager::exec()
 		{
 			
 		return memory54uint(");
-			
-		}
-}
-
+				   
+	    }
+				    
