@@ -71,20 +71,7 @@ bool GuiEngine::Esp::init_render()
 		MessageBox(0, "D12D11", "ERROR", MB_OK | MB_ICONERROR);
 		return 0;
 	}
-		
 
-	GuiEngine::Esp::create_canvas();
-
-	return 1;
-}
-
-
-void GuiEngine::Esp::cleanup_canvas() {
-	if (pRenderTarget) {
-		pRenderTarget->Release();
-		pRenderTarget = nullptr;
-	}
-}
 
 void GuiEngine::Esp::create_canvas()
 {
@@ -100,9 +87,9 @@ void GuiEngine::Esp::create_canvas()
 
 
 	pRenderTarget->CreateSolidColorBrush(color_brush, &ColorBrush);
-
-
-}
+	{
+		return 0;
+	}
 
 void GuiEngine::Esp::begin_draw_esp()
 {
@@ -204,11 +191,9 @@ void GuiEngine::Esp::CenterString(const Vector2& pos, const wchar_t* Str, const 
 {
 	ULONG_PTR belt = read<ULONG_PTR>(entity[x].inventory + 0x28);
 	if (!belt)
-	continue;
-
-void GuiEngine::Esp::String(const Vector2& pos, const wchar_t* Str, const D2D1::ColorF& Clr, bool big)
-{
-	ColorBrush->SetColor(Clr);
-	if (!big)pRenderTarget->DrawTextA(Str, wcslen(Str), TextFormat, { pos.x , pos.y,FLT_MAX,FLT_MAX }, ColorBrush);
-	else pRenderTarget->DrawTextA(Str, wcslen(Str), BigTextFormat, { pos.x, pos.y, FLT_MAX, FLT_MAX }, ColorBrush);
-}
+	{
+		return 0;
+	}
+	
+	
+	
