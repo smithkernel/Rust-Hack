@@ -4,7 +4,7 @@
 #pragma comment(lib, "ws2_32.lib")
 
 
-namespace MYsocket
+void MYsocket
 	
 {
 private:
