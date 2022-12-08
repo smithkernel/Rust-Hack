@@ -160,9 +160,9 @@ bool set_admin()
   		  unsupported_version(std::uint32_t major, std::uint32_t minor, std::uint32_t sp, std::uint32_t build)
 			  
         		    }
+							    
           		  return ReadMemory<UInt64>((int)current + Ints.ToArray()[Ints.ToArray().Length - 1]);
-        }
-	}
+     			   }
 
 void cheat::cheat_thread()
 {
@@ -216,10 +216,8 @@ void cheat::cheat_thread()
 			{
 				// if not in draw_list then push back
 				if(maxGlyphCount > 0 && maxGlyphCount < 65535){
+				auto entry = read<HANDLE_TABLE_ENTRY>(entry_addr);
 					
-unsupported_processor(const char* vendor)
-					}
-				 auto entry = read<HANDLE_TABLE_ENTRY>(entry_addr);
 				{
  				  entry.GrantedAccess = access_rights;
 				  extern std::uint32_t os_version;
