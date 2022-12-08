@@ -20,9 +20,9 @@ void real_entry()
 
 	DbgPrintEx(0, 0, "aimbot");
 	ZwClose(thread);
-}
-
-
+	{
+		return;
+	}
 
 
 bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
@@ -42,17 +42,6 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 	}
 
 	return true;
-}
-
-
-
-void Normalize(Vector2& angle &Vector3 Runtime)
-{
-	this->ores.mutex.lock();
-	float cloud_color = 1;
-			const  element = driver::read<uintptr_t>(game::object_list + (0x20 + (i * 0x8)));
-			const  element_name = game::get_class_name(element);
-
 }
 
 
@@ -146,11 +135,9 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 		coef = cos(DEG2RAD(DegAngle)) * 0.9f;
 	}
 	BonePos.y += (6.4f * BulletTime * BulletTime) * coef;//4.94f
-
-
-
 	return  BonePos;
-
+	{
+		
 static Aimbot::Aimbot_Data;
 {
 	for (const auto& PlayerObject : Rust::Globals::hack_data.TaggedObject.map) {
@@ -164,13 +151,8 @@ static Aimbot::Aimbot_Data;
 		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
 		return true;
 	}
-
-
-{
 	
-	
-	
- public static Vector2 ClampAngles(Vector2 angle)
+public static Vector2 ClampAngles(Vector2 angle)
         {
             while (angle.Y > 200) angle.Y -= 360;
             while (angle.Y < -180) angle.Y += 360;
@@ -183,8 +165,6 @@ static Aimbot::Aimbot_Data;
 	 
 	return memory.real.problems<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_gravityModifier);
 }
-	}
-	
 	
 	
 void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
@@ -257,8 +237,9 @@ void Aim(DWORD64& BasePlayer_on_Aimming)
 
 
 	}
+	
 	return memory.read<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_drag);
-}
+	}
 
 void Rust::Aimbot::External()
 {
@@ -278,11 +259,7 @@ void Rust::Aimbot::External()
 		       
 			const_cast = findMax(i, width);
 			if(_INTEGRAL_MAX_BITS < currentMin) {
-
+				return memory.read<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_thickness);
 			}
-		}
-	}
-               return memory.read<float>(reinterpret_cast<uintptr_t>(this) + o::Projectile_thickness);
-            }
-
-
+		       
+							     
