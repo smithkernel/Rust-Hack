@@ -23,18 +23,15 @@ namespace Rust {
 	};
 }
 
-
-
 namespace Rust {
-	class MainCam {
-	public:
+public:
 		static bool WorldToScreen(const DirectX::XMFLOAT4X4& ViewProjMatrix, const Cheat::Vector3& worldpos, Cheat::Vector2& screenpos, int width, int height);
 		static Cheat::Vector3 GetPosition(uint64_t pTransform);
 		static DirectX::XMFLOAT4X4 GetViweMatrix();
 		static DirectX::XMFLOAT4X4 GetViewProjClipMatrix();
 		static float GetFov();
 
-	private:
+private:
 
 		struct TransformAccessReadOnly
 		{
@@ -53,5 +50,3 @@ namespace Rust {
 			Cheat::Vector4 vec1;
 			Cheat::Vector4 vec2;
 		};
-	};
-	
