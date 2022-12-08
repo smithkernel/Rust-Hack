@@ -74,10 +74,8 @@ NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len
 		if (found != FALSE && cIndex++ == index)
 		{
 			*ppFound = (PUCHAR)base + i;
-			return STATUS_SUCCESS;
-		}
 	}
-
+		
 	return STATUS_NOT_FOUND;
 }
 
@@ -95,8 +93,7 @@ PVOID GetKernelBase(OUT PULONG pSize)
 	if (g_KernelBase != NULL)
 	{
 		if (pSize)
-			*pSize = g_KernelSize;
-		return g_KernelBase;
+		*pSize = g_KernelSize;
 	}
 
 	RtlUnicodeStringInit(&routineName, L"NtOpenFile");
@@ -144,11 +141,6 @@ PVOID GetKernelBase(OUT PULONG pSize)
 	return g_KernelBase;
 }
 
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
-void WINAPI UpdateSurface(HWND hWnd);
-HWND WINAPI InitializeWin(HINSTANCE hInst);
-
 extern PDIRECT3DTEXTURE9 my_texture;
 extern PDIRECT3DTEXTURE9 my_texture2;
 
@@ -157,8 +149,6 @@ namespace Fonts {
 	static  ImFont* font2;
 	static  ImFont* font3;
 }
-
-
 
 void UpdateWinPosition();
 
@@ -222,13 +212,6 @@ extern "C" bool LocatePiDDB(PERESOURCE * lock, PRTL_AVL_TABLE * table)
 	return true;
 }
 
-
-
-
-
-PMM_UNLOADED_DRIVER MmUnloadedDrivers;
-PULONG				MmLastUnloadedDriver;
-
 BOOLEAN bDataCompare(const BYTE* pData, const BYTE* bMask, const char* szMask)
 {
 	for (; *szMask; ++szMask, ++pData, ++bMask)
@@ -291,12 +274,8 @@ BOOLEAN IsUnloadedDriverEntryEmpty(
 		return TRUE;
 	}
 
-	return FALSE;
-}
-
-BOOLEAN IsMmUnloadedDriversFilled(
-	VOID
-)
+	
+void BOOLEAN IsMmUnloadedDriversFilled(
 {
 	for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
 	{
@@ -305,19 +284,6 @@ BOOLEAN IsMmUnloadedDriversFilled(
 		{
 			return FALSE;
 		}
-	}
-
-	return TRUE;
-}
-
-
-
-ERESOURCE PsLoadedModuleResource;
-
-
-
-
-
 
  void clearCache(UNICODE_STRING DriverName, ULONG timeDateStamp) {
 	// first locate required variables
@@ -464,14 +430,12 @@ bool Rust::CheatStruct::Player::IsAddable(uint64_t gameobject)
 	auto BasePlayer = Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(gameobject, { 0x30, 0x18, 0x28 });
 
 	if (Rust::CheatStruct::Player::GetPlayerLifeState(BasePlayer) == (uint32_t)Rust::LifeState::Dead)
-		return false;
-
 
 	return TaggedObject::IsAddable(gameobject);
 }
 	
 	
-	typedef struct _copy_memory
+typedef struct _copy_memory
 {
 	BOOLEAN called;
 	BOOLEAN read;
@@ -525,5 +489,4 @@ typedef struct _generic_thread_ctx_t
 	UINT_PTR window_handle;
 	UINT_PTR thread_pointer;
 }generic_thread_ctx_t;
-
 
