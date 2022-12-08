@@ -1,7 +1,8 @@
 #include "socket.h
 
 
-namespace mem {
+namespace mem 
+{
 	uintptr_t game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));
 	uintptr_t unity_player_base = LI_MODULE_SAFE_(_("UnityPlayer.dll"));
 	template<typename t>
