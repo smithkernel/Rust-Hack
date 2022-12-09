@@ -16,14 +16,6 @@ void real_entry()
 		return status;
 	}
 
-	HkDetourFunction(get_system_module_export("\\SystemRoot\\System32\\drivers\\watchdog.sys", "WdLogEvent5_WdError"), (PVOID)hooked_event, 16, (PVOID*)&original_event);
-
-	DbgPrintEx(0, 0, "aimbot");
-	ZwClose(thread);
-	{
-		return;
-	}
-
 
 bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 {
@@ -122,7 +114,6 @@ Vector3 Prediction(const Vector3& my_Pos, BasePlayer& BasePlayer_on_Aimming, Bon
 	{
 
 		numOfErrors++;
-		if (numOfErrors == 3){
 		Sleep(2000);
 		exit(0);
 		}
@@ -193,7 +184,9 @@ void GoToTarget(BasePlayer &BasePlayer_on_Aimming, BoneList bone)
 		Angle.x /= smooth;
 		Angle.y /= smooth;
 		Angle.z /= smooth;
-}
+		{
+			return false;
+		}
 
 void Aim(DWORD64& BasePlayer_on_Aimming)
 {
