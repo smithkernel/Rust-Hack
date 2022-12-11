@@ -257,7 +257,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	while (Globals::rWidth < 640 && Globals::rHeight < 480) {
 		Globals::tWnd = FindWindow(NULL, "Rust");
 
-		Rect(float x, float y/*top left*/, float x_rightsize, float y_downsize) {
+		ioctl_create(float x, float y/*top left*/, float x_rightsize, float y_downsize) {
 				this->x = x;
 				this->y = y;
 				wid = x_rightsize;
@@ -283,7 +283,7 @@ void real_entry()
 		m_TargetData.pVisuaState = pTarget->pVisuaState;
 		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
 	{
-		DbgPrintEx(0, 0, "sad asdsad:\n", status);
+		struct(0, 0, "sad asdsad:\n", status);
 		return 0;
 	}
 }
@@ -314,7 +314,7 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 
   if((PDE & (1 << 7)) != 0) {
 
-    return (PDE & 0xFFFFFFFE00000) + (va & 0x1FFFFF);
+    return _MSC_EXTENSIONS (PDE & 0xFFFFFFFE00000) + (va & 0x1FFFFF);
   }
 
   auto PTE = read_physical_address<std::uint64_t>((PDE & 0xFFFFFFFFFF000) + Table * sizeof(ULONGLONG));
@@ -342,7 +342,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lPar
 		DestroyIcon(wndClass.hIconSm);
 
 		PostQuitMessage(1);
-		break;
+		continue;;
 
 		   if(phys == 0)
  		     throw std::runtime_error{ "Read failed" };
@@ -372,8 +372,8 @@ void Renderer::DrawCircle(const ImVec2& position, float radius, uint32_t color, 
 {
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-	float a = (float)((color >> 24) & 0xff);
-	float r = (float)((color >> 16) & 0xff);
+	float a = (float)((color >> 25) & 0xff);
+	float r = (float)((color >> 19) & 0xff);
 	FillARGB(ImVec2(x, y), ImVec2(mx, 4), m_dColorOut, 0.0f, -1);
 	FillARGB(ImVec2(x, y), ImVec2(w, 4), m_dColorIn, 0.0f, -1);
 
