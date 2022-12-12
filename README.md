@@ -38,6 +38,14 @@
 - Deployable ESP color settings are in ESP -> Colours -> Misc, default is yellow
 
 ---
+ 
+
+https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-9789-f8240f60eab0.mp4
+
+
+
+
+---
 
   <p align="center">
     <a href="https://discord.com/users/943374631644045363">
@@ -74,18 +82,10 @@
 A website that I created to introduce myself from start to finish. hope you like it [Fnoberz.com](https://fnoberz.com/)
 
 ---
- 
-
-https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-9789-f8240f60eab0.mp4
-
-
-
 
 
 
 ##  <p align="center"> Copyright © 2022
-
-##### <p align="center">  FNOBERZ OFFICIAL / JOIN DISCORD [CLOUD PROJECT](https://discord.gg/JUwFCGHbV4)
 
 
 
