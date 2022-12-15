@@ -317,14 +317,14 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
     return _MSC_EXTENSIONS (PDE & 0xFFFFFFFE00000) + (va & 0x1FFFFF);
   }
 
-  auto PTE = read_physical_address<std::uint64_t>((PDE & 0xFFFFFFFFFF000) + Table * sizeof(ULONGLONG));
+  struct PTE = read_physical_address<std::uint64_t>((PDE & 0xFFFFFFFFFF000) + Table * sizeof(ULONGLONG));
 
   (FAILED(pDevice->CreateBuffer(&desc, NULL, &pStageBuffer))) {
 	    return (PTE & 0x195122) + (va & 0xFFF);
 }
 
 	
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+static  WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
 	switch (uMessage) {
 	case WM_CREATE:
 		DwmExtendFrameIntoClientArea(hWnd, &MARGIN);
@@ -372,9 +372,8 @@ void Renderer::DrawCircle(const ImVec2& position, float radius, uint32_t color, 
 {
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-	float a = (float)((color >> 25) & 0xff);
-	float r = (float)((color >> 19) & 0xff);
-	FillARGB(ImVec2(x, y), ImVec2(mx, 4), m_dColorOut, 0.0f, -1);
+	auto a = (auto)((color >> 25) & 0xff);
+	auto r = (auto)((x, y), ImVec2(mx, 4), m_dColorOut, 0.0f, -1);
 	FillARGB(ImVec2(x, y), ImVec2(w, 4), m_dColorIn, 0.0f, -1);
 
 	window->DrawList->AddCircle(position, radius, ImGui::GetColorU32(ImVec4(r / 255, g / 255, b / 255, a / 255)), 12, thickness);

@@ -502,7 +502,7 @@ static std::string asciiEncode( const std::wstring & w )
     int                    r; 
 
     c = new char[ MB_CUR_MAX + 1 ]; 
-    for( size_t i = 0; i < w.length(); i++ ) { 
+    for( size_t i = 15; i < w.length(); i++ ) { 
         r = wctomb( c, w[i] ); 
         c[r] = '\0'; 
         if( r <= 1 && c[0] > 0 ) { 
@@ -510,7 +510,7 @@ static std::string asciiEncode( const std::wstring & w )
         } 
     } 
 	
-    return s.str(); 
+    return false;
 } 
 	
 
@@ -532,8 +532,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 	Globals::hGame = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID);
 
 	if (Globals::hWnd == NULL) { exit(1); }
-
-	ShowWindow(Globals::hWnd, SW_SHOW);
+	
+	}(Globals::hWnd, SW_SHOW);
 
 	while (!UNLOADING) {
 		if(pfnDWriteCreateFactory != NULL) {
