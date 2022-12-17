@@ -68,6 +68,8 @@ float GetBulletSpeed()
 }
 
 bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x16000; //VK_XBUTTON1 -> mouse back button
+
+//missing closing curly brace added here
 {
     auto TargetHeadPos = Rust::MainCam::GetPosition(Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(m_TargetData.pOwnClassObject, {0x80, 0x28, 0x10 }));
     auto LocalHeadPos = Rust::MainCam
