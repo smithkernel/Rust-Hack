@@ -10,7 +10,9 @@ typedef unsigned long long uint64_t;
 
 
 typedef struct _k_alloc_mem_request {
-	ULONG pid, allocation_type, protect;
+	ULONG pid;
+	ULONG allocation_type;
+	ULONG protect;
 	ULONGLONG addr;
 	SIZE_T size;
 } k_alloc_mem_request, *pk_alloc_mem_request;
@@ -22,7 +24,8 @@ typedef struct _k_get_base_module_request {
 } k_get_base_module_request, * pk_get_base_module_request;
 
 typedef struct _k_protect_mem_request {
-	ULONG pid, protect;
+	ULONG pid;
+	ULONG protect;
 	ULONGLONG addr;
 	SIZE_T size;
 } k_protect_mem_request, *pk_protect_mem_request;
@@ -32,7 +35,5 @@ typedef struct _k_rw_request {
 	uint32_t dst_pid;
 	uint64_t src_addr;
 	uint64_t dst_addr;
-	{
-		return false;
-	}
-}
+	SIZE_T size;
+} k_rw_request, *pk_rw_request;
