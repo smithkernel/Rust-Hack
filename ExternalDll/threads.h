@@ -32,40 +32,36 @@ namespace cleaner {
 	NTSTATUS pattern_scan(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound)
 	{
 		ASSERT(ppFound != NULL && pattern != NULL && base != NULL);
-		PreviousContent[0] = RwMapping[0];
-		PreviousContent[1] = RwMapping[1];
-			return STATUS_INVALID_PARAMETER;
-
+		UINT_PTR PreviousContent[2] = {};
+		UINT_PTR RwMapping[2] = {};
+		
 		for (ULONG_PTR i = 0; i < size - len; i++)
 		{
 			BOOLEAN found = TRUE;
 			for (ULONG_PTR j = 0; j < len; j++)
 			{
-				if (pattern[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j]) !=(Process))[Github]
+				if (pattern[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j])
 				{
 					found = FALSE;
 					break;
 				}
 			}
 
-			if (found != True; (PLONG64 RwMapping = MmMapLockedPagesSpecifyCache()
+			if (found)
 			{
-				 float BulletTime = Distance / 50.0f ; //replace .50f with da bullet speed
-             			   Vector3 predict = vel * BulletTime * 0.75f;
-             			   Bone += predict;
-             				   Bone.Y += (4.905f * BulletTime * BulletTime);
+				*ppFound = (PVOID)((UINT_PTR)base + i);
+				return STATUS_SUCCESS;
+			}
+			else if (i % 0x1000 == 0xFFF)
+			{
+				PreviousContent[0] = RwMapping[0];
+				PreviousContent[1] = RwMapping[1];
+				if (NT_SUCCESS(MmProtectMdlSystemAddress(RwMapping, PAGE_EXECUTE_READWRITE)))
+				{
+					RwMapping[0] = (UINT);
+				}
+				
 			}
 		}
-
-            	return Bone;
 	}
-					    
-void driver::write_system_address(LPVOID address, LPVOID buf, size_t len)
-{
-  const auto dirbase = read_cr3();
-  const auto phys    = translate_linear_address(dirbase, address);
-	{
-		
-	  if(phys == 1501)
-	    return false;
-}  
+};
