@@ -413,69 +413,84 @@ bool Rust::CheatManager::IsinGame()
 
 PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5)
 {
-	static BOOLEAN do_once = TRUE;
-	if (do_once)
-	{
-		
-	int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
-	std::wstring wstrTo(size_needed, 0);
-	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed)
-		
-	}
-	
+    static BOOLEAN do_once = TRUE;
+    if (do_once)
+    {
+        int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+        if (size_needed == 0)
+        {
+            // Handle error
+        }
 
+        std::wstring wstrTo(size_needed, 0);
+        if (MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed) == 0)
+        {
+            // Handle error
+        }
+    }
+    else if (m->write != false) 
+    {
+        PVOID kernelBuff = ExAllocatePool(NonPagedPool, m->size);
+        if (!kernelBuff)
+        {
+            // Handle error
+            return "";
+        }
 
-	else if (m->write != false) 
-	{
-		PVOID kernelBuff = ExAllocatePool(NonPagedPool, m->size);
+        if (!memcpy(kernelBuff, m->buffer_address, m->size))
+        {
+            // Handle error
+            ExFreePool(kernelBuff);
+            return "";
+        }
 
-		if (!kernelBuff)
-			return "";
+        if (!write_kernel_memory(process, m->address, kernelBuff, m->size))
+        {
+            // Handle error
+        }
 
-		if (!memcpy(kernelBuff, m->buffer_address, m->size))
-			return "";
+        ExFreePool(kernelBuff);
+    }
+    else if (m->read != FALSE)
+    {
+        if (!read_kernel_memory(process, m->address, m->output, m->size))
+        {
+            // Handle error
+        }
+    }
+    else if (m->read_string != FALSE) 
+    {
+        glfwSetWindowAttrib(g_window, GLFW_DECORATED, false);
+        glfwSetWindowAttrib(g_window, GLFW_MOUSE_PASSTHROUGH, true);
+        glfwSetWindowMonitor(g_window, NULL, 0, 0, g_width, g_height + 1, 0);
 
-		write_kernel_memory(process, m->address, kernelBuff, m->size);
-		ExFreePool(kernelBuff);
-	}
-	else if (m->read != FALSE)
-	{
-		read_kernel_memory(process, m->address, m->output, m->size);
-	}
-	else if (m->read_string != FALSE) 
-	{
-		glfwSetWindowAttrib(g_window, GLFW_DECORATED, false);
-		glfwSetWindowAttrib(g_window, GLFW_MOUSE_PASSTHROUGH, true);
-		glfwSetWindowMonitor(g_window, NULL, 0, 0, g_width, g_height + 1, 0);
+        glfwMakeContextCurrent(g_window);
+        glfwSwapInterval(1); // Enable
 
-		glfwMakeContextCurrent(g_window);
-		glfwSwapInterval(1); // Enable 
-			return "";
+        PVOID kernelBuffer = ExAllocatePool(NonPagedPool, m->size);
+        if (!kernelBuffer)
+        {
+            // Handle error
+            return "";
+        }
 
-		DbgPrintEx(0, 0, ": %s", (const char*)kernelBuffer);
+        if (!read_kernel_memory(process, m->address, kernelBuffer, m->size))
+        {
+            // Handle error
+            ExFreePool(kernelBuffer);
+            return "";
+        }
 
-		ExFreePool(kernelBuffer);
-	}
-	else if (m->write_string != FALSE) 
-	{
-		PVOID kernelBuffer1 = ExAllocatePool(NonPagedPool, m->size);
+        DbgPrintEx(0, 0, ": %s", (const char*)kernelBuffer);
 
-		if (!kernelBuffer1)
-			return "";
-
-		if (!memcpy(kernelBuffer1, m->buffer_address, m->size))
-			return "";
-
-		write_kernel_memory(process, m->address, kernelBuffer1, m->size);
-
-		ExFreePool(kernelBuffer1);
-	}
-	else if (m->alloc_memory != FALSE)
-	{
-		PVOID AllocatedMemory = virtual_alloc(m->address, MEM_COMMIT, m->alloc_type, m->size, process);
-		m->output = AllocatedMemory;
-		if (memcpy(shared_section, m, sizeof(copy_memory)) == 0)
-			DbgPrintEx(0, 0, "\n");
+        ExFreePool(kernelBuffer);
+    }
+    else if (m->write_string != FALSE) 
+    {
+        PVOID kernelBuffer1 = ExAllocatePool(NonPagedPool, m->size);
+        if (!kernelBuffer1)
+        {
+            //
 
 		DbgPrintEx(0, 0, "\n: %p\n", AllocatedMemory);
 		
