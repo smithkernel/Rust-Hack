@@ -1,64 +1,78 @@
 #pragma once
+
 #include <algorithm>
 #include <random>
+#include <string>
+#include <wrl.h>
+#include <d3d11.h>
 #include <d3d11_2.h>
 #include <d2d1_3helper.h>
 #include <dwrite_3.h>
 #include <dcomp.h>
-#include <wrl.h>
-#include <iterator>
-#include <iostream>
-#include <d3d11.h>
-#include <dinput.h>
 #include <tchar.h>
-#include <string>
-#include "../driver/driver.h"
+#include <iostream>
+#include <dinput.h>
 #include <DirectXMath.h>
+#include "driver/driver.h"
 
-namespace d2d_window_t
+class d2d_window_t
 {
 public:
-	d2d_window_t()
-	{
-		_name.reserve(16u);
-		std::generate_n(std::back_inserter(_name), 16u, []
-			{
-				thread_local std::mt19937_64 mersenne_engine(std::random_device{}());
-				const std::uniform_int_distribution<> distribution(97, 122); // 'a', 'z'
-				return static_cast<uint8_t>(distribution(mersenne_engine));
-			});
+    d2d_window_t()
+    {
+        // Generate a random name for the window class
+        _name.reserve(16u);
+        std::generate_n(std::back_inserter(_name), 16u, []
+        {
+            thread_local std::mt19937_64 mersenne_engine(std::random_device{}());
+            const std::uniform_int_distribution<> distribution(97, 122); // 'a', 'z'
+            return static_cast<char>(distribution(mersenne_engine));
+        });
 
-		WNDCLASSA window_class
-		{
-			0,
-			[](const HWND window, const UINT message, const WPARAM wparam, const LPARAM lparam) -> LRESULT
-			{
-				return DefWindowProcA(window, message, wparam, lparam);
-			},
-			0,
-			0,
-			GetModuleHandleW(nullptr),
-			nullptr,
-			nullptr,
-			_name.c_str()
-		};
+        // Register the window class
+        WNDCLASSEXA window_class
+        {
+            sizeof(WNDCLASSEXA),
+            CS_HREDRAW | CS_VREDRAW,
+            [](const HWND window, const UINT message, const WPARAM wparam, const LPARAM lparam) -> LRESULT
+            {
+                return DefWindowProcA(window, message, wparam, lparam);
+            },
+            0,
+            0,
+            GetModuleHandleW(nullptr),
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            _name.c_str(),
+            nullptr
+        };
+        if (!RegisterClassExA(&window_class))
+        {
+            std::cerr << "Failed to register window class\n";
+            return;
+        }
 
-		RegisterClassA(&window_class);
+        // Create the window
+        _handle = CreateWindowExA(0, _name.c_str(), "", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, window_class.hInstance, nullptr);
+        if (_handle == nullptr)
+        {
+            std::cerr << "Failed to create window\n";
+            return;
+        }
+    }
 
-		_handle = CreateWindowExA(0, _name.c_str(), "", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, window_class.hInstance, nullptr);
+    ~d2d_window_t()
+    {
+        DestroyWindow(_handle);
+        UnregisterClassA(_name.c_str(), GetModuleHandleW(nullptr));
+    }
 
-	}
-
-	~d2d_window_t()
-	{
-
-		DestroyWindow(_handle);
-		UnregisterClassA(_name.c_str(), GetModuleHandleW(nullptr));
-	}
-
-	HWND _handle;
-	std::string _name;
+    HWND _handle;
+    std::string _name;
 };
+
 
 namespace wnd_hjk
 {
