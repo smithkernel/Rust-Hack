@@ -228,34 +228,47 @@ void draw_rect(float x, float y, float w, float h, clr color)
 		d2d_context->FillRectangle(rectangle, d2d_brush.Get());
 	}
 
-void draw_health_bar(float x, float y, float w, float h, float val, float max, clr color)
-	{
-	
-	float x = up.dot(position) + temp._24;
-	float y = right.dot(position) + temp._14;
-	}
-	  
-	void draw_line(float x, float y, float x2, float y2, clr color)
-	{
-		const D2D1_POINT_2F from = { x, y };
-		const D2D1_POINT_2F to = { x2, y2 };
-		d2d_brush->SetColor(D2D1::ColorF(color.r / 255, color.g / 255, color.b / 255, color.a / 255));
-		d2d_context->DrawLine(from, to, d2d_brush.Get());
-	}	
 
-	void draw_circle(float x, float y, float raidus, clr color)
-	{
-		D2D1_ELLIPSE ellipse = { D2D1_POINT_2F {x, y}, raidus, raidus };
-		d2d_brush->SetColor(D2D1::ColorF(color.r / 255, color.g / 255, color.b / 255, color.a / 255));
-		d2d_context->DrawEllipse(ellipse, d2d_brush.Get());
-	}	
+void draw_health_bar(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_brush,
+                     float x, float y, float w, float h, float val, float max, clr color)
+{
+  // Make sure val and max are valid values
+  if (val < 0) val = 0;
+  if (max <= 0) max = 1;
 
-	void draw_filled_circle(float x, float y, float raidus, clr color)
-	{
-		D2D1_ELLIPSE ellipse = { D2D1_POINT_2F {x, y}, raidus, raidus };
-		d2d_brush->SetColor(D2D1::ColorF(color.r / 255, color.g / 255, color.b / 255, color.a / 255));
-		d2d_context->FillEllipse(ellipse, d2d_brush.Get());
-	}
+  // Calculate the percentage of the bar that should be filled
+  float percentage = val / max;
+  if (percentage > 1) percentage = 1;
+
+  // Draw the filled portion of the bar
+  d2d_brush->SetColor(D2D1::ColorF(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f));
+  d2d_context->FillRectangle(D2D1::RectF(x, y, x + w * percentage, y + h), d2d_brush);
+
+  // Draw the outline of the bar
+  d2d_brush->SetColor(D2D1::ColorF(0, 0, 0, 1));
+  d2d_context->DrawRectangle(D2D1::RectF(x, y, x + w, y + h), d2d_brush);
+}
+
+void draw_line(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_brush,
+               float x, float y, float x2, float y2, clr color)
+{
+  d2d_brush->SetColor(D2D1::ColorF(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f));
+  d2d_context->DrawLine(D2D1::Point2F(x, y), D2D1::Point2F(x2, y2), d2d_brush);
+}
+
+void draw_circle(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_brush,
+                 float x, float y, float radius, clr color)
+{
+  D2D1_ELLIPSE ellipse = { D2D1::Point2F(x, y), radius, radius };
+  d2d_brush->SetColor(D2D1::ColorF(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f));
+  d2d_context->DrawEllipse(ellipse, d2d_brush);
+}
+
+void draw_filled_circle(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_brush,
+                        float x, float y, float radius, clr color)
+{
+  D2D1_ELLIPSE ellipse = { D2D1
+
 	
 	void get_text_size(const std::wstring_view text, float* const width, float* const height)
 	{
