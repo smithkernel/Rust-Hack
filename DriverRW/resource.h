@@ -1,42 +1,52 @@
-#pragma once
-#include "resource.h"
+#include <assert.h>
+#include <stddef.h>
 
-		PVOID g_KernelBase = NULL;
-		ULONG g_KernelSize = 0;
+// NTSTATUS is a data type used by the Windows operating system
+// to represent the status of a function call
+typedef int NTSTATUS;
 
-		PVOID resolve_relative_address(_In_ PVOID Instruction, _In_ ULONG OffsetOffset, _In_ ULONG InstructionSize)
-		{
-			ULONG_PTR Instr = (ULONG_PTR)Instruction;
-			LONG RipOffset = *(PLONG)(Instr + OffsetOffset);
-			PVOID ResolvedAddr = (PVOID)(Instr + InstructionSize + RipOffset);
+#define STATUS_SUCCESS 0
+#define STATUS_INVALID_PARAMETER 0xC000000DL
+#define STATUS_NOT_FOUND 0xC0000225L
 
-			return ResolvedAddr;
-		}
+// SystemModuleInformation is a data structure used by the
+// Windows operating system to store information about a module
+// in the system.
+typedef struct _SystemModuleInformation {
+  // Other fields omitted for brevity
+} SystemModuleInformation;
 
-	NTSTATUS Status = KernelmodeWindowsruntime(Systemmoduleinformation, NULL)
-	{
-		ASSERT(ppFound != NULL && pattern != NULL && base != NULL);
-		if (ppFound == NULL || pattern == NULL || base == NULL)
-			return STATUS_INVALID_PARAMETER;
+NTSTATUS KernelmodeWindowsruntime(
+  const SystemModuleInformation *system_module_info,
+  const void *pattern, size_t len,
+  void *wildcard,
+  void **pp_found) {
+  assert(pp_found != NULL && pattern != NULL && system_module_info != NULL);
+  if (pp_found == NULL || pattern == NULL || system_module_info == NULL) {
+    return STATUS_INVALID_PARAMETER;
+  }
 
-		for (ULONG_PTR i = 0; i < size - len; i++)
-		{
-			BOOLEAN found = TRUE;
-			for (ULONG_PTR j = 0; j < len; j++)
-			{
-				if (runtime[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j])
-				{
-					found = FALSE;
-					break;
-				}
-			}
+  // Calculate the size of the memory region to search
+  size_t size = system_module_info->Size;
 
-			if (found != FALSE)
-			{
-				*ppFound = (PUCHAR)base + i;
-				return STATUS_SUCCESS;
-			}
-		}
+  // Get a pointer to the start of the memory region
+  const void *base = system_module_info->Base;
 
-		return STATUS_NOT_FOUND;
-	}
+  for (size_t i = 0; i < size - len; i++) {
+    bool found = true;
+    for (size_t j = 0; j < len; j++) {
+      if (wildcard != NULL && *(const char*)wildcard == pattern[j]) {
+        continue;
+      }
+      if (pattern[j] != *((const char*)base + i + j)) {
+        found = false;
+        break;
+      }
+    }
+    if (found) {
+      *pp_found = (char*)base + i;
+      return STATUS_SUCCESS;
+    }
+  }
+  return STATUS_NOT_FOUND;
+}
