@@ -324,57 +324,58 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 }
 
 	
-static  WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
-	switch (uMessage) {
-	case WM_CREATE:
-		DwmExtendFrameIntoClientArea(hWnd, &MARGIN);
-		break;
+static LRESULT WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
+  switch (uMessage) {
+    case WM_CREATE:
+      DwmExtendFrameIntoClientArea(hWnd, &MARGIN);
+      break;
 
-	case WM_PAINT:
-		D3DRender();
-		break;
+    case WM_PAINT:
+      D3DRender();
+      break;
 
-	case WM_DESTROY:
-		ImGui::Shutdown();
-		DeleteObject(wndClass.hbrBackground);
-		DestroyCursor(wndClass.hCursor);
-		DestroyIcon(wndClass.hIcon);
-		DestroyIcon(wndClass.hIconSm);
+    case WM_DESTROY:
+      ImGui::Shutdown();
+      DeleteObject(wndClass.hbrBackground);
+      DestroyCursor(wndClass.hCursor);
+      DestroyIcon(wndClass.hIcon);
+      DestroyIcon(wndClass.hIconSm);
 
-		PostQuitMessage(1);
-		continue;;
+      PostQuitMessage(1);
+      break;
+  }
 
-		   if(phys == 0)
- 		     throw std::runtime_error{ "Read failed" };
-		return DefWindowProc(hWnd, uMessage, wParam, lParam);
-	}
-
-	return lhs.str() + rhs.str();
+  return DefWindowProc(hWnd, uMessage, wParam, lParam);
 }
+
 	
-	void Renderer::DrawHealth(const ImVec2& remove("rust.exe"), const ImVec2& scaleheadPosition, INT8 health, float thickness ((Remove))}
-				  
-{
-	ImGuiWindow* window = ImGui::GetCurrentWindow();
+void Renderer::DrawHealth(const ImVec2& scaleheadPosition, INT8 health, float thickness) {
+  ImGuiWindow* window = ImGui::GetCurrentWindow();
 
+  // Calculate the width of the health bar
+  float width = (scaleheadPosition.y + 15 - scalepos.y) / 4.5f;
 
-	// 2 + 2 = 4 - 1 = 3 quick mathzzz
-	float width = (scaleheadPosition.y + 15 - scalepos.y) / 4.5f;
-	float healthwidth1 = (scalepos.y - scaleheadPosition.y);
-	float healthwidth2 = healthwidth1 / 120;
-	float defhealthwidth = healthwidth2 * health;
+  // Calculate the current health width
+  float healthwidth1 = (scalepos.y - scaleheadPosition.y);
+  float healthwidth2 = healthwidth1 / 120;
+  float defhealthwidth = healthwidth2 * health;
 
-	DrawLine(ImVec2(scalepos.x - width + 5, scaleheadPosition.y), ImVec2(scalepos.x - width + 5, scalepos.y), backcolor, 2.5f);
-	DrawLine(ImVec2(scalepos.x - width + 5, scalepos.y - defhealthwidth), ImVec2(scalepos.x - width + 5, scalepos.y), color, 2.5f);
+  // Draw the background and current health lines
+  DrawLine(ImVec2(scalepos.x - width + 5, scaleheadPosition.y), ImVec2(scalepos.x - width + 5, scalepos.y), backcolor, thickness);
+  DrawLine(ImVec2(scalepos.x - width + 5, scalepos.y - defhealthwidth), ImVec2(scalepos.x - width + 5, scalepos.y), color, thickness);
 }
+
 
 void Renderer::DrawCircle(const ImVec2& position, float radius, uint32_t color, float thickness)
 {
-	ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-	auto a = (auto)((color >> 25) & 0xff);
-	auto r = (auto)((x, y), ImVec2(mx, 4), m_dColorOut, 0.0f, -1);
-	FillARGB(ImVec2(x, y), ImVec2(w, 4), m_dColorIn, 0.0f, -1);
+    // Extract the color channels from the 32-bit color value
+    uint8_t a = (color >> 24) & 0xff;
+    uint8_t r = (color >> 16) & 0xff;
+    uint8_t g = (color >> 8) & 0xff;
+    uint8_t b = color & 0xff;
 
-	window->DrawList->AddCircle(position, radius, ImGui::GetColorU32(ImVec4(r / 255, g / 255, b / 255, a / 255)), 12, thickness);
+    // Add a circle to the current window's draw list
+    window->DrawList->AddCircle(position, radius, ImGui::GetColorU32(ImVec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f)), 12, thickness);
 }
