@@ -22,8 +22,13 @@ EXTERN_C PVOID ResolveRelativeAddress(
 
 BOOL D3DInitialize(HWND hWnd) {
 	ImGuiIO& io = ImGui::GetIO();
-	
-	Direct3DCreate9Ex(D3D_SDK_VERSION, &pInstance);
+
+	// Check that Direct3D was successfully created
+	if (FAILED(Direct3DCreate9Ex(D3D_SDK_VERSION, &pInstance))) {
+		return FALSE;
+	}
+
+	// Set up the Direct3D device parameters
 	pParams.Windowed = TRUE;
 	pParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	pParams.hDeviceWindow = hWnd;
@@ -34,15 +39,17 @@ BOOL D3DInitialize(HWND hWnd) {
 	pParams.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
 	pParams.EnableAutoDepthStencil = TRUE;
 	pParams.AutoDepthStencilFormat = D3DFMT_D16;
-	pInstance->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &pParams, 0, &pDevice);
-	
-	if (pDevice == NULL) { return FALSE; }
 
-	//ImGui
+	// Check that the Direct3D device was created successfully
+	if (FAILED(pInstance->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &pParams, 0, &pDevice))) {
+		return FALSE;
+	}
+
+	// Initialize the ImGui library
 	ImGui::CreateContext();
 
 	ImFontConfig fontCfg = ImFontConfig();
-	io.DeltaTime = 1.0f / 60.0f;
+	io.DeltaTime = 1.0f / 60.
 	fontCfg.RasterizerFlags = 0x01;
 	fontCfg.OversampleH = fontCfg.OversampleV = 1;
 	fontCfg.PixelSnapH = true;
@@ -51,94 +58,118 @@ BOOL D3DInitialize(HWND hWnd) {
 	return TRUE;
 }
 
-
-
 NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, IN const VOID* base, IN ULONG_PTR size, OUT PVOID* ppFound, int index = 0)
 {
-	ASSERT(ppFound != NULL && pattern != NULL && base != NULL);
-	if (ppFound == NULL || pattern == NULL || base == NULL)
-		return STATUS_ACCESS_DENIED; //STATUS_INVALID_PARAMETER;
-	int cIndex = 0;
-	for (ULONG_PTR i = 0; i < size - len; i++)
-	{
-		BOOLEAN found = TRUE;
-		for (ULONG_PTR j = 0; j < len; j++)
-		{
-			if (pattern[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j])
-			{
-				found = FALSE;
-				break;
-			}
-		}
+    if (pattern == NULL || base == NULL || ppFound == NULL)
+    {
+        return STATUS_INVALID_PARAMETER;
+    }
 
-		if (found != FALSE && cIndex++ == index)
-		{
-			*ppFound = (PUCHAR)base + i;
-	}
-		
-	return STATUS_NOT_FOUND;
+    if (len == 0)
+    {
+        return STATUS_INVALID_BUFFER_SIZE;
+    }
+
+    int cIndex = 0;
+    for (ULONG_PTR i = 0; i < size - len; i++)
+    {
+        BOOLEAN found = TRUE;
+        for (ULONG_PTR j = 0; j < len; j++)
+        {
+            if (pattern[j] != wildcard && pattern[j] != ((PCUCHAR)base)[i + j])
+            {
+                found = FALSE;
+                break;
+            }
+        }
+
+        if (found)
+        {
+            if (cIndex == index)
+            {
+                *ppFound = (PUCHAR)base + i;
+                return STATUS_SUCCESS;
+            }
+            cIndex++;
+        }
+    }
+
+    return STATUS_NOT_FOUND;
 }
+
+
+#define BB_POOL_TAG 'BBBB'
 
 PVOID g_KernelBase = NULL;
 ULONG g_KernelSize = 0;
-PVOID GetKernelBase(OUT PULONG pSize)
+
+NTSTATUS GetKernelBase(OUT PVOID* KernelBase, OUT PULONG KernelSize)
 {
-	NTSTATUS status = STATUS_SUCCESS;
-	ULONG bytes = 0;
-	PRTL_PROCESS_MODULES pMods = NULL;
-	PVOID checkPtr = NULL;
-	UNICODE_STRING routineName;
+    NTSTATUS status = STATUS_SUCCESS;
+    ULONG bytes = 0;
+    PRTL_PROCESS_MODULES pMods = NULL;
+    PVOID checkPtr = NULL;
+    UNICODE_STRING routineName;
 
-	// Already found
-	if (g_KernelBase != NULL)
-	{
-		if (pSize)
-		*pSize = g_KernelSize;
-	}
+    // Already found
+    if (g_KernelBase != NULL)
+    {
+        if (KernelBase)
+            *KernelBase = g_KernelBase;
+        if (KernelSize)
+            *KernelSize = g_KernelSize;
+        return STATUS_SUCCESS;
+    }
 
-	RtlUnicodeStringInit(&routineName, L"NtOpenFile");
+    RtlUnicodeStringInit(&routineName, L"NtOpenFile");
 
-	checkPtr = MmGetSystemRoutineAddress(&routineName);
-	if (checkPtr == NULL)
-		return NULL;
+    checkPtr = MmGetSystemRoutineAddress(&routineName);
+    if (checkPtr == NULL)
+        return STATUS_PROCEDURE_NOT_FOUND;
 
-	// Protect from UserMode AV
-	status = ZwQuerySystemInformation(SystemModuleInformation, 0, bytes, &bytes);
-	if (bytes == 0)
-	{
-		log("Invalid SystemModuleInformation size");
-		return NULL;
-	}
+    // Protect from UserMode AV
+    status = ZwQuerySystemInformation(SystemModuleInformation, 0, bytes, &bytes);
+    if (bytes == 0)
+    {
+        log("Invalid SystemModuleInformation size");
+        return STATUS_INVALID_BUFFER_SIZE;
+    }
 
-	pMods = (PRTL_PROCESS_MODULES)ExAllocatePoolWithTag(NonPagedPool, bytes, BB_POOL_TAG);
-	RtlZeroMemory(pMods, bytes);
+    pMods = (PRTL_PROCESS_MODULES)ExAllocatePoolWithTag(NonPagedPool, bytes, BB_POOL_TAG);
+    if (pMods == NULL)
+        return STATUS_INSUFFICIENT_RESOURCES;
 
-	status = ZwQuerySystemInformation(SystemModuleInformation, pMods, bytes, &bytes);
+    RtlZeroMemory(pMods, bytes);
 
-	if (NT_SUCCESS(status))
-	{
-		PRTL_PROCESS_MODULE_INFORMATION pMod = pMods->Modules;
+    status = ZwQuerySystemInformation(SystemModuleInformation, pMods, bytes, &bytes);
 
-		for (ULONG i = 0; i < pMods->NumberOfModules; i++)
-		{
-			// System routine is inside module
-			if (checkPtr >= pMod[i].ImageBase &&
-				checkPtr < (PVOID)((PUCHAR)pMod[i].ImageBase + pMod[i].ImageSize))
-			{
-				g_KernelBase = pMod[i].ImageBase;
-				g_KernelSize = pMod[i].ImageSize;
-				if (pSize)
-					*pSize = g_KernelSize;
-				break;
-			}
-		}
-	}
+    if (NT_SUCCESS(status))
+    {
+        PRTL_PROCESS_MODULE_INFORMATION pMod = pMods->Modules;
 
-	if (pMods)
-		ExFreePoolWithTag(pMods, BB_POOL_TAG);
-	log("g_KernelBase: %x", g_KernelBase);
-	log("g_KernelSize: %x", g_KernelSize);
-	return g_KernelBase;
+        for (ULONG i = 0; i < pMods->NumberOfModules; i++)
+        {
+            // System routine is inside module
+            if (checkPtr >= pMod[i].ImageBase &&
+                checkPtr < (PVOID)((PUCHAR)pMod[i].ImageBase + pMod[i].ImageSize))
+            {
+                g_KernelBase = pMod[i].ImageBase;
+                g_KernelSize = pMod[i].ImageSize;
+                if (KernelBase)
+                    *KernelBase = g_KernelBase;
+                if (KernelSize)
+                    *KernelSize = g_KernelSize;
+                break;
+            }
+        }
+    }
+
+    if (pMods)
+        ExFreePoolWithTag(pMods, BB_POOL_TAG);
+
+    log("g_KernelBase: %x", g_KernelBase);
+    log("g_KernelSize: %x", g_KernelSize);
+    return status;
 }
 
 extern PDIRECT3DTEXTURE9 my_texture;
