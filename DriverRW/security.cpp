@@ -1,61 +1,62 @@
 #pragma once
+#include <string>
 #include "security.h"
 
 #define log(format, ...) DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, format, __VA_ARGS__)
 #define BB_POOL_TAG 'enoB'
 
-class Affine_Cipher
+class AffineCipher
 {
-    public:
-    string Affine_Enc(string Msg)
+public:
+    static std::string encrypt(const std::string& msg, int a, int b)
     {
-        string CTxt = "";
-        int a = 3;
-        int b = 6;
-        for (int i = 0; i < Msg.length(); i++)
+        std::string ctxt;
+        for (char ch : msg)
         {
-            CTxt = CTxt + (char) ((((a * Msg[i]) + b) % 26) + 65);
+            ctxt += (char)(((a * ch) + b) % 26 + 65);
         }
-        return CTxt;
+        return ctxt;
+    }
+};
+
+namespace Process
+{
+    std::uint32_t find(const char* procName);
+    bool attach(std::uint32_t pid);
+    void detach();
+    bool grantHandleAccess(HANDLE handle, ACCESS_MASK accessRights);
+
+    template<typename T, typename U>
+    T read(U base)
+    {
+        T temp{};
+        read((PVOID)base, &temp, sizeof(T));
+        return temp;
     }
 
-namespace process
-{
-  std::uint32_t find(const char* proc);
-
-  bool attach(std::uint32_t pid);
-  void detach();
-
-  bool grant_handle_access(HANDLE handle, ACCESS_MASK access_rights);
-  
-
-  template<typename T, typename U>
-  T read(U base)
-  {
-    T temp = T{};
-    read((PVOID)base, &temp, sizeof(T));
-    return temp;
-  }
-  template<typename T, typename U>
-  bool write(U base, T value)
-  {
-    return write((PVOID)base, &value, sizeof(T));
-  }
-
-static D3DX11Debug
-{
-    // Helper sets a D3D resource name string (used by PIX and debug layer leak reporting).
-    inline void SetDebugObjectName(_In_ ID3D11DeviceChild* resource, _In_z_ const char *name )
+    template<typename T, typename U>
+    bool write(U base, T value)
     {
-        #if !defined(NO_D3D11_DEBUG_NAME) && ( defined(_DEBUG) || defined(PROFILE) )
-            resource->SetPrivateData( WKPDID_D3DDebugObjectName, static_cast<UINT>(strlen(name)), name );
+        return write((PVOID)base, &value, sizeof(T));
+    }
+}
+
+class D3DX11Debug
+{
+public:
+    static void setDebugObjectName(ID3D11DeviceChild* resource, const char* name)
+    {
+        #if !defined(NO_D3D11_DEBUG_NAME) && (defined(_DEBUG) || defined(PROFILE))
+            resource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(strlen(name)), name);
         #else
             UNREFERENCED_PARAMETER(resource);
             UNREFERENCED_PARAMETER(name);
         #endif
     }
+};
 
-    template<UINT TNameLength>
+
+template<UINT TNameLength>
    Rust::Globals::hack_data.LocalPlayer.pOwnClassObject, 
 	{0x0458, 0x28, 0x20});
 	
