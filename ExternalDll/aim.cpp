@@ -4,16 +4,21 @@ void real_entry()
 {
     OBJECT_ATTRIBUTES obj_att = { 0 };
     HANDLE thread = false;
-    DbgPrintEx(0, 0, "User");
 
     Clean();
 
     InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
-    NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
+    NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memory_thread, NULL);
+    if (!NT_SUCCESS(status))
+    {
+        DbgPrintEx(0, 0, "Error creating system thread: %lu\n", status);
+        return;
+    }
+
     if (m_NumEntries >= m_NumHashSlots)
     {
-        DbgPrintEx(0, 0, "User\n", status);
-        return status;
+        DbgPrintEx(0, 0, "Error: m_NumEntries is greater than or equal to m_NumHashSlots\n");
+        return;
     }
 }
 
