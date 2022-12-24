@@ -238,7 +238,7 @@ void draw_health_bar(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_
 
   // Calculate the percentage of the bar that should be filled
   float percentage = val / max;
-  if (percentage > 1) percentage = 1;
+  percentage = std::clamp(percentage, 0.0f, 1.0f);  // Clamp percentage to the range [0, 1]
 
   // Draw the filled portion of the bar
   d2d_brush->SetColor(D2D1::ColorF(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f));
@@ -250,10 +250,10 @@ void draw_health_bar(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_
 }
 
 void draw_line(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_brush,
-               float x, float y, float x2, float y2, clr color)
+               float x1, float y1, float x2, float y2, clr color)
 {
   d2d_brush->SetColor(D2D1::ColorF(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f));
-  d2d_context->DrawLine(D2D1::Point2F(x, y), D2D1::Point2F(x2, y2), d2d_brush);
+  d2d_context->DrawLine(D2D1::Point2F(x1, y1), D2D1::Point2F(x2, y2), d2d_brush);
 }
 
 void draw_circle(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_brush,
