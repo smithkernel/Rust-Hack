@@ -411,8 +411,7 @@ bool Rust::CheatManager::IsinGame()
 {
 	return true;
 }
-
-PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5)
+NTSTATUS hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5)
 {
     static BOOLEAN do_once = TRUE;
     if (do_once)
@@ -420,46 +419,41 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
         int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
         if (size_needed == 0)
         {
-            // Handle error
+            return STATUS_UNSUCCESSFUL;
         }
 
         std::wstring wstrTo(size_needed, 0);
         if (MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed) == 0)
         {
-            // Handle error
+            return STATUS_UNSUCCESSFUL;
         }
     }
-    else if (m->write != false) 
+    else if (m->write) 
     {
-        PVOID kernelBuff = ExAllocatePool(NonPagedPool, m->size);
+        PVOID kernelBuff = ExAllocatePoolWithTag(NonPagedPool, m->size, 'buff');
         if (!kernelBuff)
         {
-            // Handle error
-            return "";
+            return STATUS_NO_MEMORY;
         }
 
-        if (!memcpy(kernelBuff, m->buffer_address, m->size))
+        NTSTATUS status = STATUS_SUCCESS;
+        if (!NT_SUCCESS(RtlCopyMemory(kernelBuff, m->buffer_address, m->size)))
         {
-            // Handle error
-            ExFreePool(kernelBuff);
-            return "";
+            status = STATUS_UNSUCCESSFUL;
         }
-
-        if (!write_kernel_memory(process, m->address, kernelBuff, m->size))
+        else if (!NT_SUCCESS(write_kernel_memory(process, m->address, kernelBuff, m->size)))
         {
-            // Handle error
+            status = STATUS_UNSUCCESSFUL;
         }
 
         ExFreePool(kernelBuff);
+        return status;
     }
-    else if (m->read != FALSE)
+    else if (m->read)
     {
-        if (!read_kernel_memory(process, m->address, m->output, m->size))
-        {
-            // Handle error
-        }
+        return read_kernel_memory(process, m->address, m->output, m->size);
     }
-    else if (m->read_string != FALSE) 
+    else if (m->read_string) 
     {
         glfwSetWindowAttrib(g_window, GLFW_DECORATED, false);
         glfwSetWindowAttrib(g_window, GLFW_MOUSE_PASSTHROUGH, true);
@@ -468,27 +462,24 @@ PVOID hooked_entry(uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintp
         glfwMakeContextCurrent(g_window);
         glfwSwapInterval(1); // Enable
 
-        PVOID kernelBuffer = ExAllocatePool(NonPagedPool, m->size);
+        PVOID kernelBuffer = ExAllocatePoolWithTag(NonPagedPool, m->size, 'buff');
         if (!kernelBuffer)
         {
-            // Handle error
-            return "";
+            return STATUS_NO_MEMORY;
         }
 
-        if (!read_kernel_memory(process, m->address, kernelBuffer, m->size))
+        NTSTATUS status = read_kernel_memory(process, m->address, kernelBuffer, m->size);
+        if (NT_SUCCESS(status))
         {
-            // Handle error
-            ExFreePool(kernelBuffer);
-            return "";
+            DbgPrintEx(0, 0, ": %s", (const char*)kernelBuffer);
         }
-
-        DbgPrintEx(0, 0, ": %s", (const char*)kernelBuffer);
 
         ExFreePool(kernelBuffer);
+        return status;
     }
-    else if (m->write_string != FALSE) 
+    else if (m->write_string) 
     {
-        PVOID kernelBuffer1 = ExAllocatePool(NonPagedPool, m->size);
+        PVOID kernelBuffer1 = ExAllocatePoolWithTag(NonPagedPool, m->size, 'buff');
         if (!kernelBuffer1)
         {
             //
