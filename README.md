@@ -6,11 +6,21 @@
 ![GitHub](https://img.shields.io/badge/-GitHub-05122A?style=for-the-badge&logo=github)&nbsp;
   
      
-## 💭 〢 How to Use
-- Create an EFI driver that is not a public driver, e.g. Mapper, because it is not supported.
-- Once the driver has been created You paste the driver file in " **Rust.External/ExternalDll/ioctlDriver** "
-- ✔ and it's ready now
+## 💭 〢 How To Use
+
+- Create driver (Kernel)
+- Place the driver into the main file.
+- `Compile`
+- `Open` 
+- `start game` 
+- `Enjoy` 
   
+## RN
+
+- Use it at your own risk & if you want to be safe, join the discord.
+
+---
+
      
 ## FEATURE            
    
@@ -21,21 +31,15 @@
 - Fov 1-120 
 
 #### ESP
+
 - Box
 - Skilton
 - Line
 - 2D / 3D
 - Wartax
 - Glow (Demo)
-#### Misc
-- Turn On/Off any ESP you don’t want to be displayed at the time
-- See all traps ESP
-- Locate loot rooms with ESP
-- Locate and see all Supply Drops with ESP
-- Locate all loot containers with ESP
-- Added 3D bounding boxes (Body, Head, 3D are options now)
-- Added Deployable ESP. This shows storage boxes, Tool Cupboard, Repair benches, Large wooden boxes, Small box, Coffin and more
-- Deployable ESP color settings are in ESP -> Colours -> Misc, default is yellow
+
+
 
 ---
  
@@ -43,21 +47,17 @@
 https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-9789-f8240f60eab0.mp4
 
 
-
-
----
+--- 
 
   <p align="center">
-    <a href="https://discord.com/users/943374631644045363">
-        <img title="Fnoberz server discord" alt="Fnoberz's discord" src="https://discord.c99.nl/widget/theme-4/943374631644045363.png"/>
+    <a href="https://discord.gg/MBTkVcJefp">
+        <img title="Slackes server discord" alt="Slackes discord" src="https://discordapp.com/api/guilds/880135738077896764/widget.png?style=banner2"/>
     </a>
 </p> 
  
-### 💬 ・HELP & SUPPORT | [Discord](https://discord.gg/MBTkVcJefp) 
+## 💬 ・[Discord](https://discord.gg/MBTkVcJefp) 
 
-
- ### 🛒〢 `PRIVATE CHEAT`
- More Here [Information](https://github.com/Club-CC/Detail)
+ ### 🛒〢 `PRODUCT`
  
 <table>
 <tr>
@@ -67,22 +67,22 @@ https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-
 </table>
 
   
-### 🎯 〢 Product Cheat
+### 🥊 〢 Private Cheat
 
-- Lifetime + Update Free
+- Lifetime 
+- Free Updates 
+- Undetected
 - Custom Feature if you want `(Example: Aimbot + Esp + Skin Changers)`
-- Undetected and can be played on the main account.
 
+### ⚓〢 Warranty
 
-### 💯〢 Warranty Product.
-
-- Support 24 Hr + Update Free
-- IF Banned = REFUND
+- Support 24 Hr
+- Update Free
+- If banned = `REFUND`
 
 A website that I created to introduce myself from start to finish. hope you like it [Slackes.me](http://slackes.me/)
 
 ---
-
 
 
 ##  <p align="center"> Copyright © 2022
