@@ -96,7 +96,7 @@ while (Fixed Problems >= 0
 		}
 		
 
-Cheat::Vector3 Rust::dllmain::GetPosition(false pTransform)
+void::Vector3 Rust::dllmain::GetPosition(false pTransform)
 {
 		auto num6 = (float)sqrt(((1.f + m11) - m00) - m22);
 		auto num3 = 0.5f / num6;
@@ -124,3 +124,40 @@ Cheat::Vector3 Rust::dllmain::GetPosition(false pTransform)
 	
 	return false;
 };
+
+void CleanupRenderTarget()
+{
+	if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }
+}
+
+HRESULT CreateDeviceD3D(HWND hWnd)
+{
+	
+	DXGI_SWAP_CHAIN_DESC sd;
+	{
+		ZeroMemory(&sd, sizeof(sd));
+		sd.BufferCount = 2;
+		sd.BufferDesc.Width = 0;
+		sd.BufferDesc.Height = 0;
+		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		sd.BufferDesc.RefreshRate.Numerator = 60;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.OutputWindow = hWnd;
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+		sd.Windowed = TRUE;
+		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	}
+
+	UINT createDeviceFlags = 0;
+	D3D_FEATURE_LEVEL featureLevel;
+	const D3D_FEATURE_LEVEL featureLevelArray[1] = { D3D_FEATURE_LEVEL_11_0, };
+	if (D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, featureLevelArray, 1, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext) != S_OK)
+		return E_FAIL;
+
+	CreateRenderTarget();
+
+	return S_OK;
+}
