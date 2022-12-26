@@ -8,6 +8,9 @@
 #include "driverRW.h"
 #include "tools.h"
 
+#include <d3d11.h>
+#include <dxgi1_3.h>
+
 
 
 using namespace std;
@@ -125,37 +128,48 @@ void::Vector3 Rust::dllmain::GetPosition(false pTransform)
 	return false;
 };
 
+// Global variables for the device, device context, and swap chain
+ID3D11Device* g_pd3dDevice = nullptr;
+ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
+IDXGISwapChain* g_pSwapChain = nullptr;
+ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
+
 void CleanupRenderTarget()
 {
-	if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }
+	if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = nullptr; }
 }
 
 HRESULT CreateDeviceD3D(HWND hWnd)
 {
-	
-	DXGI_SWAP_CHAIN_DESC sd;
+	// Set up the swap chain description
+	DXGI_SWAP_CHAIN_DESC1 sd;
+	sd.Width = 0;
+	sd.Height = 0;
+	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.Stereo = FALSE;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferCount = 2;
+	sd.Scaling = DXGI_SCALING_STRETCH;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+	// Set up the swap chain
+	IDXGISwapChain1* swapChain1 = nullptr;
+	HRESULT hr = CreateDXGISwapChainForHwnd(g_pd3dDevice, hWnd, &sd, nullptr, nullptr, &swapChain1);
+	if (FAILED(hr))
 	{
-		ZeroMemory(&sd, sizeof(sd));
-		sd.BufferCount = 2;
-		sd.BufferDesc.Width = 0;
-		sd.BufferDesc.Height = 0;
-		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		sd.BufferDesc.RefreshRate.Numerator = 60;
-		sd.BufferDesc.RefreshRate.Denominator = 1;
-		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		sd.OutputWindow = hWnd;
-		sd.SampleDesc.Count = 1;
-		sd.SampleDesc.Quality = 0;
-		sd.Windowed = TRUE;
-		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		return hr;
 	}
 
-	UINT createDeviceFlags = 0;
-	D3D_FEATURE_LEVEL featureLevel;
-	const D3D_FEATURE_LEVEL featureLevelArray[1] = { D3D_FEATURE_LEVEL_11_0, };
-	if (D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, featureLevelArray, 1, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext) != S_OK)
-		return E_FAIL;
+	hr = swapChain1->QueryInterface(__uuidof(IDXGISwapChain), reinterpret_cast<void**>(&g_pSwapChain));
+	swapChain1->Release();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
 
 	CreateRenderTarget();
 
