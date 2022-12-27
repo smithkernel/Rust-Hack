@@ -357,3 +357,24 @@ void manual_destruct()
 			return;
 	}
 							
+void ProcessesComponent::ProcessesComponent()
+{
+	LookAndFeel::setDefaultLookAndFeel(&lookAndFeelCustom);
+    addAndMakeVisible(processList);
+    processList.setName("process list");
+
+    addAndMakeVisible(okButton = new TextButton("ok button"));
+    okButton->setButtonText(TRANS("Okay"));
+    okButton->addListener(this);
+
+	hNtdll = (HMODULE)Utils::GetLocalModuleHandle("ntdll.dll");
+	fnQSI = (tNTQSI)Utils::GetProcAddress(hNtdll, "NtQuerySystemInformation");
+
+	FetchProcessList();
+	processList.loadData(false); 
+
+	processList.table.getHeader().addColumn("Process", 1, 140, 18);
+	processList.table.getHeader().addColumn("PID", 2, 50, 18);
+
+	setSize(300, 350);
+}
