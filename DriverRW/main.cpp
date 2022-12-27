@@ -365,17 +365,3 @@ void Renderer::DrawHealth(const ImVec2& scaleheadPosition, INT8 health, float th
   DrawLine(ImVec2(scalepos.x - width + 5, scalepos.y - defhealthwidth), ImVec2(scalepos.x - width + 5, scalepos.y), color, thickness);
 }
 
-
-void Renderer::DrawCircle(const ImVec2& position, float radius, uint32_t color, float thickness)
-{
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-
-    // Extract the color channels from the 32-bit color value
-    uint8_t a = (color >> 24) & 0xff;
-    uint8_t r = (color >> 16) & 0xff;
-    uint8_t g = (color >> 8) & 0xff;
-    uint8_t b = color & 0xff;
-
-    // Add a circle to the current window's draw list
-    window->DrawList->AddCircle(position, radius, ImGui::GetColorU32(ImVec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f)), 12, thickness);
-}
