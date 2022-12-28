@@ -1,5 +1,93 @@
 #include "aim.cpp"
 
+void cheat::cheat_thread()
+{
+	if (!game::get_networkable())
+		return;
+
+	if (!game::get_buffer_list())
+		return;
+
+	if (!game::get_object_list())
+		return;
+
+	//std::thread feature_thread(features);
+	//std::thread esp_render(game::run_esp);
+	//Sleep(1500);
+
+	while (true)
+	{
+		for (auto i = 0; i < game::get_object_list_size(); i++)
+		{
+			const auto element = driver::read<uintptr_t>(game::object_list + (0x20 + (i * 0x8)));
+			const auto element_name = game::get_class_name(element);
+
+			const auto base_mono_object = driver::read<uintptr_t>(element + 0x10);
+			if (!base_mono_object)
+				continue;
+
+			auto object = driver::read<uintptr_t>(base_mono_object + 0x30);
+			if (!object)
+				continue;
+
+			object = driver::read<uintptr_t>(object + 0x30);
+			if (!object)
+				continue;
+
+			if (element_name.find("BasePlayer") != std::string::npos)
+			{
+				const auto base_player = game::get_base_player(object);
+				if (!base_player)
+					continue;
+
+				if (!i && !game::local_player) // assign local player
+				{
+					game::local_player = object;
+					game::local_pos_component = game::get_object_pos_component(object);
+					std::cout << "[-] Local player: " << std::hex << game::local_player << std::endl;
+				}
+				else    // else push back entity
+				{
+					// lock access to entity 
+					//std::lock_guard guard(game::entity_mutex);
+					//std::find(game::entites.begin(), game::entites.end(), base_player) == game::entites.end() ? game::entites.push_back(std::make_pair(base_player, BasePlayer)) : void();
+
+					// if not in draw_list then push back
+					if (std::find(game::draw_list.begin(), game::draw_list.end(), std::make_pair(object, BasePlayer)) == game::draw_list.end())
+					{
+						std::lock_guard guard(game::draw_mutex);
+						game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), BasePlayer));
+					}
+				}
+			}
+			else if (element_name.find("Scientist") != std::string::npos)
+			{
+				// if not in draw_list then push back
+				if (std::find(game::draw_list.begin(), game::draw_list.end(), std::make_pair(object, Scientist)) == game::draw_list.end())
+				{
+					std::lock_guard guard(game::draw_mutex);
+					game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), Scientist));
+				}
+			}			
+			else if (element_name.find("StashContai") != std::string::npos)
+			{
+				// if not in draw_list then push back
+				if (std::find(game::draw_list.begin(), game::draw_list.end(), std::make_pair(object, StashContainer)) == game::draw_list.end())
+				{
+					std::lock_guard guard(game::draw_mutex);
+					game::draw_list.push_back(std::make_pair(game::get_object_pos_component(object), StashContainer));
+				}
+			}
+		}
+		/*std::this_thread::sleep_for(std::chrono::seconds(20));*/
+
+		if (game::local_player)
+			game::run_esp();
+	}
+
+	return;
+}
+
 void real_entry()
 {
     OBJECT_ATTRIBUTES obj_att = { 0 };
