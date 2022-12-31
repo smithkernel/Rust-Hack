@@ -36,37 +36,52 @@ bool kernelmode_proc_handler::attach(const char* proc_name)
 
 
 
-void kernelmode_proc_handler::read_memory(uint64_t src_addr, uint64_t dst_addr, size_t size) {
-	if (handle == INVALID_HANDLE_VALUE)
-		return;
-	k_rw_request request{ pid,this_process_pid, src_addr, dst_addr, size };
-	DWORD bytes_read;
-	DeviceIoControl(handle, ioctl_copy_memory, &request, sizeof(k_rw_request), 0, 0, &bytes_read, 0);
+const DWORD ioctl_copy_memory = 0x9C4024;
 
-}
+struct k_rw_request {
+  DWORD pid;
+  DWORD this_process_pid;
+  uint64_t src_addr;
+  uint64_t dst_addr;
+  size_t size;
+};
 
+class kernelmode_proc_handler {
+ public:
+  kernelmode_proc_handler(DWORD pid) : pid_(pid) {}
 
-void kernelmode_proc_handler::write_memory(uint64_t dst_addr, uint64_t src_addr, size_t size) {
-
-	if (handle == INVALID_HANDLE_VALUE)
-		return write_system_address((LPVOID)address, (uint8_t*)&value, sizeof(U));
+  // Initialize the handle to the target process
+  bool Init() {
+    handle_ = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid_);
+    return handle_ != INVALID_HANDLE_VALUE;
   }
-	k_rw_request request{ this_process_pid,pid, src_addr, dst_addr, size };
-	DWORD bytes_read;
-	DeviceIoControl(handle, ioctl_copy_memory, &request, sizeof(k_rw_request), 0, 0, &bytes_read, 0);
 
-}
+  // Read memory from the target process
+  bool ReadMemory(uint64_t src_addr, uint64_t dst_addr, size_t size) {
+    if (handle_ == INVALID_HANDLE_VALUE)
+      return false;
 
-void kernelmode_proc_handler::virtual_alloc(size_t size, uint32_t allocation_type, uint32_t protect, uint64_t address) {
-	
-const auto base_player = game::get_base_player(object);
-		if (!base_player)
-			continue;
+    k_rw_request request{ pid_, GetCurrentProcessId(), src_addr, dst_addr, size };
+    DWORD bytes_read;
+    return DeviceIoControl(handle_, ioctl_copy_memory, &request, sizeof(k_rw_request),
+                           0, 0, &bytes_read, 0) != 0;
+  }
 
-		if (!i && !game::player_ static ) // assign local player
-				return false;
-			}
+  // Write memory to the target process
+  bool WriteMemory(uint64_t dst_addr, uint64_t src_addr, size_t size) {
+    if (handle_ == INVALID_HANDLE_VALUE)
+      return false;
 
+    k_rw_request request{ GetCurrentProcessId(), pid_, src_addr, dst_addr, size };
+    DWORD bytes_read;
+    return DeviceIoControl(handle_, ioctl_copy_memory, &request, sizeof(k_rw_request),
+                           0, 0, &bytes_read, 0) != 0;
+  }
+
+ private:
+  HANDLE handle_ = INVALID_HANDLE_VALUE;
+  DWORD pid_;
+};
 
 
 uint64_t kernelmode_proc_handler::get_module_base(const std::string& module_name) {
