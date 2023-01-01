@@ -521,41 +521,75 @@ static std::string asciiEncode( const std::wstring & w )
 } 
 	
 
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+namespace horizon::memory
+{
 
-	NewTrade(0, 0, (LPTHREAD_START_ROUTINE)Cheat::Update, 0, 0, 0);
-	NewTrade(0, 0, (LPTHREAD_START_ROUTINE)UpdateWinPosition, 0, 0, 0);
-
-	while (Globals::rWidth < 640 && Globals::rHeight < 480) {
-		Globals::tWnd = Windows(NULL, "Rust");
-
-		RECT wSize;
-		GetWindowRect(Globals::tWnd, &wSize);
-		Globals::rWidth = wSize.right - wSize.left;
-		Globals::rHeight = wSize.bottom - wSize.top;
-	}
-
-	GetWindowThreadProcessId(Globals::tWnd, &procID);
-	Globals::hGame = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procID);
-
-	if (Globals::hWnd == NULL) { exit(1); }
-	
-	}(Globals::hWnd, SW_SHOW);
-
-	while (!UNLOADING) {
-		if(pfnDWriteCreateFactory != NULL) {
-		IDWriteFactory *pDWriteFactory;
-		
-		hResult = pfnDWriteCreateFactory(
-			DWRITE_FACTORY_TYPE_SHARED,
-			__uuidof(IDWriteFactory),
-			reinterpret_cast<IUnknown**>(&pDWriteFactory)
-		);
-		if(FAILED(hResult)) {
-			setErrorString(L" failed");
-				
-			hResult = S_OK;
+std::uintptr_t ScanRegionInternal( const std::uint8_t* region_begin, const std::uint8_t* region_end, const char* signature )
+{
+	if( !IsAddressValid( region_begin ) )
+	{
+		return 0;
 	}
 	
-	return false;
+	if( !IsAddressValid( region_end ) )
+	{
+		return 0;
+	}
+	
+	if( !IsAddressValid( signature ) )
+	{
+		return 0;
+	}
+
+	auto scan_result = static_cast< std::uintptr_t >( 0 );
+	auto scan_compare = reinterpret_cast< const std::uint8_t* >( signature );
+
+	const auto scan_begin = region_begin;
+	const auto scan_end = region_end;
+
+	for( auto scan_current = scan_begin; scan_current < scan_end; scan_current++ )
+	{
+		if( constant::IsTerminator( scan_compare[ 0 ] ) )
+		{
+			return scan_result;
+		}
+
+		if( IsAddressValid( const_cast< std::uint8_t* >( scan_current ) ) )
+		{
+			if( constant::IsQuestion( scan_compare[ 0 ] ) || scan_current[ 0 ] == GET_BYTE( scan_compare ) )
+			{
+				if( !memory::IsAddressValid( scan_result ) )
+				{
+					scan_result = ToAddress( scan_current );
+				}
+
+				if( constant::IsTerminator( scan_compare[ 2 ] ) )
+				{
+					return scan_result;
+				}
+
+				const bool question[ 2 ] =
+				{
+					constant::IsQuestion( scan_compare[ 0 ] ),
+					constant::IsQuestion( scan_compare[ 1 ] ),
+				};
+
+				if( ( question[ 0 ] && question[ 1 ] ) || ( !question[ 0 ] ) )
+				{
+					scan_compare = ( scan_compare + 3 );
+				}
+				else
+				{
+					scan_compare = ( scan_compare + 2 );
+				}
+			}
+			else
+			{
+				scan_compare = reinterpret_cast< const std::uint8_t* >( signature );
+				scan_result = 0;
+			}
+		}
+	}
+
+	return 0;
 }
