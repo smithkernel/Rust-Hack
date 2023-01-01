@@ -323,29 +323,21 @@ std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTable
 	    return (PTE & 0x195122) + (va & 0xFFF);
 }
 
-	
-static LRESULT WindowProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
-  switch (uMessage) {
-    case WM_CREATE:
-      DwmExtendFrameIntoClientArea(hWnd, &MARGIN);
-      break;
+std::uintptr_t ScanImageSectionInternal( std::uintptr_t image, std::uint64_t hash, const char* const signature )
+{
+	if( hash )
+	{
+		std::size_t section_size = 0;
+		const auto section_begin = win32::GetImageSection< const std::uint8_t* >( image, hash, &section_size );
 
-    case WM_PAINT:
-      D3DRender();
-      break;
+		if( memory::IsAddressValid( section_begin ) )
+		{
+			const auto section_end = ( section_begin + section_size );
+			return ScanRegionInternal( section_begin, section_end, signature );
+		}
+	}
 
-    case WM_DESTROY:
-      ImGui::Shutdown();
-      DeleteObject(wndClass.hbrBackground);
-      DestroyCursor(wndClass.hCursor);
-      DestroyIcon(wndClass.hIcon);
-      DestroyIcon(wndClass.hIconSm);
-
-      PostQuitMessage(1);
-      break;
-  }
-
-  return DefWindowProc(hWnd, uMessage, wParam, lParam);
+	return 0;
 }
 
 	
