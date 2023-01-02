@@ -181,54 +181,77 @@ void set_view_offset(vector3 offset) {
 
 
 void sendReceivePacket(char* packet, char* addr, void * out) {
-	int iResult = getaddrinfo(addr, "9999", &hints, &result);
-	int length = modifiedLen(packet);
-	
-	s = socket(hints.ai_family, hints.ai_socktype,
-		hints.ai_protocol);
-	iResult = connect(s, result->ai_addr, (int)result->ai_addrlen);
+    // Initialize variables
+    int iResult, length;
+    SOCKET s;
+    struct addrinfo hints, *result;
+    RECT rc;
+    POINT xy;
 
-	
-	ZeroMemory(&rc, sizeof(RECT));
-	ZeroMemory(&xy, sizeof(POINT));
-	iResult = send(s, e, 512, 0);
-	
-	 if(Process32First(snapshot, &pe)) {
-	{
+    // Get address information for the server
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    iResult = getaddrinfo(addr, "9999", &hints, &result);
+    if (iResult != 0) {
+        printf("getaddrinfo failed: %d\n", iResult);
+        exit(1);
+    }
 
-		numOfErrors++;
-		if (numOfErrors == 3) {
-			Sleep(2000);
-			exit(0);
-		}
+    // Create a socket for the connection
+    s = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    if (s == INVALID_SOCKET) {
+        printf("socket failed: %d\n", WSAGetLastError());
+        freeaddrinfo(result);
+        exit(1);
+    }
+
+    // Connect to the server
+    iResult = connect(s, result->ai_addr, (int)result->ai_addrlen);
+    if (iResult == SOCKET_ERROR) {
+        printf("connect failed: %d\n", WSAGetLastError());
+        closesocket(s);
+        freeaddrinfo(result);
+        exit(1);
+    }
+
+    // Send the packet
+    length = modifiedLen(packet);
+    iResult = send(s, packet, length, 0);
+    if (iResult == SOCKET_ERROR) {
+        printf("send failed: %d\n", WSAGetLastError());
+        closesocket(s);
+        exit(1);
+    }
+
+    // Receive a response
+    char recvbuf[512];
+    ZeroMemory(recvbuf, 512);
+    iResult = recv(s, recvbuf, 512, 0);
+    if (iResult == SOCKET_ERROR) {
+        printf("recv failed: %d\n", WSAGetLastError());
+        closesocket(s);
+        exit(1);
+    }
+
+    // Process the response
+    // (TODO: Add code to process the response here)
+
+    // Enter the main loop to handle key presses and render something
+    while (!glfwWindowShouldClose(g_window)) {
+        handleKeyPresses();
+        runRenderTick();
+    }
+
+    // Close the socket and clean up
+    closesocket(s);
+    freeaddrinfo(result);
 	}
-	ZeroMemory(recvbuf, 512);
-	ZeroMemory(d, sizeof(d));
-	iResult = recv(s, recvbuf, 512, 0);
-	if (iResult == -1)
-	{
-		numOfErrors++;
-		if (numOfErrors == 3) {
-			Sleep(2000);
-			exit(0);
-		}
-	}
-	while (!glfwWindowShouldClose(g_window))
-	{
-		handleKeyPresses();
-		runRenderTick();
-	}
 
-	
-}
-
-	vector3 get_new_velocity() {
-	auto player_model = *reinterpret_cast<uintptr_t*>((uintptr_t)this + playerModel);
-}
-
-NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
-	IoCompleteRequest(irp, IO_NO_INCREMENT);
-	return STATUS_SUCCESS;
+	NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
+		IoCompleteRequest(irp, IO_NO_INCREMENT);
+		return STATUS_SUCCESS;
 }
 
 __inline NTSTATUS copy_memory(PEPROCESS src_proc, PEPROCESS target_proc, PVOID src, PVOID dst, SIZE_T size) {
