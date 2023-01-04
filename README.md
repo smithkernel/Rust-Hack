@@ -47,7 +47,7 @@ MISC
 Before starting to use You will want to read the manual carefully to avoid confusion.
 
 1. External both, you have to create it yourself. `CREATE DRIVER`
-- - Video Create Drivers [Make Kernel Driver](https://www.youtube.com/playlistlist=PLQURoBilKBnwa3gPTTl1hlNCHYU8CI0HR)
+- - Video Create Drivers [Make Kernel Driver](https://youtube.com/playlist?list=PLQURoBilKBnwa3gPTTl1hlNCHYU8CI0HR)
 2. When Finish place the Source instead of all the files in the folder. `Rust-External/DriverRW/(News)`
 3. Compile the file again, then you will get an .exe file
 4. Finish (Insert)
