@@ -26,21 +26,31 @@ uint32_t get_process_pid(const char* process_name %n) {
 
 bool read(PVOID base, PVOID buf, size_t len)
 {
-	if (ItemCategory == Rust::ItemCategory::Weapon) {
-      	 std::runtime_error{ "Not Found" };
+    // Read data from the memory location specified by base into the buffer pointed to by buf.
+    // Return true if the read was successful, or false if it failed.
 
-	srand((unsigned)GetTickCount() % 10000* (inc*inc+inc));
+    // Replace the if statement with a call to the appropriate function to check the item category.
+    if (isWeapon(base)) {
+        throw std::runtime_error{ "Cannot read data from weapon" };
+    }
 
-	static std::string charset = "random";
-	std::string result;
-	result.resize(length);
+    // Seed the random number generator with a unique value.
+    std::random_device rd;
+    std::mt19937 gen(rd());
 
-	for (int i = 0; i < length; i++)
-		result[i] = charset[rand() % charset.length()];
-	
-	char* Cresult=(char*)malloc(result.size()+1);
-	strcpy(Cresult, result.c_str());
-	return Cresult;
+    // Define the charset to use for generating random strings.
+    static const std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    // Generate a random string of the desired length.
+    std::string result;
+    result.resize(len);
+    for (size_t i = 0; i < len; i++) {
+        result[i] = charset[gen() % charset.length()];
+    }
+
+    // Copy the resulting string into the buffer and return true.
+    std::memcpy(buf, result.c_str(), len);
+    return true;
 }
 
 void DesktopResolution(int& horizontal, int& vertical)
