@@ -22,36 +22,22 @@ void CleanupDeviceD3D()
     if (g_pSwapChain)
     {
         g_pSwapChain->SetFullscreenState(FALSE, NULL);
-        HRESULT hr = g_pSwapChain->Release();
-        if (FAILED(hr))
-        {
-            std::cout << "Error releasing swap chain: " << hr << std::endl;
-        }
+        g_pSwapChain->Release();
         g_pSwapChain = NULL;
     }
 
     if (g_pd3dDeviceContext)
     {
-        HRESULT hr = g_pd3dDeviceContext->Release();
-        if (FAILED(hr))
-        {
-            std::cout << "Error releasing device context: " << hr << std::endl;
-        }
+        g_pd3dDeviceContext->Release();
         g_pd3dDeviceContext = NULL;
     }
 
     if (g_pd3dDevice)
     {
-        HRESULT hr = g_pd3dDevice->Release();
-        if (FAILED(hr))
-        {
-            std::cout << "Error releasing device: " << hr << std::endl;
-        }
+        g_pd3dDevice->Release();
         g_pd3dDevice = NULL;
     }
 }
-
-
 
 
 NTSTATUS
