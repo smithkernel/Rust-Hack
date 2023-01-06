@@ -25,22 +25,21 @@
 
 ## <a id="features"></a>🛑 〢 Features
 
-```
-FEATURE
  
-AIMBOT
+### AIMBOT
 - Head , Body , etc
 - Silent Aim (70% not safe)
 
-ESP
+### ESP
 - 3D Bounding Box  
 - Corner Box
 - Basic Box
 - Snaplines
 
-MISC
+### MISC
 - Save & Config
-````
+---
+
 
 ## <a id="setup"></a> 📁 〢 Install
 
