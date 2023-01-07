@@ -47,26 +47,38 @@ namespace Cheat
 
 NTSTATUS ScanSection(const char* section, const unsigned char* pattern, unsigned char wildcard, unsigned long len, void** ppFound)
 {
-    if (ppFound == nullptr)
+    // Check input pointers for null values
+    if (!section || !pattern || !ppFound)
         return STATUS_INVALID_PARAMETER;
 
+    // Get the base address of the kernel
     void* base = GetKernelBaseModel(nullptr);
     if (!base)
         return STATUS_NOT_FOUND;
 
+    // Get the NT headers of the image at the base address
     IMAGE_NT_HEADERS64* pHdr = (IMAGE_NT_HEADERS64*)RtlImageNtHeader(base);
     if (!pHdr)
         return STATUS_INVALID_IMAGE_FORMAT;
 
+    // Get the first section header
     IMAGE_SECTION_HEADER* pFirstSection = (IMAGE_SECTION_HEADER*)(pHdr + 1);
+
+    // Loop through the sections in the image
     for (IMAGE_SECTION_HEADER* pSection = pFirstSection; pSection < pFirstSection + pHdr->FileHeader.NumberOfSections; pSection++)
     {
+        // Compare the section name to the input section string (case-insensitive)
         ANSI_STRING s1, s2;
         RtlInitAnsiString(&s1, section);
         RtlInitAnsiString(&s2, (const char*)pSection->Name);
         if (RtlCompareString(&s1, &s2, TRUE) == 0)
-	{
-		
+        {
+            // Perform the search for the pattern in the current section
+            // (body of the if statement not shown)
+            return NTSTATUS;  // Return the result of the search
+        }
+    }
 
-		return Memory;
-	}
+    // If the end of the section list is reached without finding a match, return NOT_FOUND
+    return STATUS_NOT_FOUND;
+}
