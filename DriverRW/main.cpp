@@ -190,11 +190,6 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	return *reinterpret_cast<uintptr_t*>(this + weakspots);
 }
 
-void set_view_offset(vector3 offset) {
-		*reinterpret_cast<vector3*>((uintptr_t)this + viewOffset) = offset;
-	}
-
-
 void sendReceivePacket(char* packet, char* addr, void * out) {
     // Initialize variables
     int iResult, length;
@@ -326,72 +321,49 @@ void real_entry()
 	}
 }
 
-std::uint64_t cpuz_driver::translate_linear_address(std::uint64_t directoryTableBase, LPVOID virtualAddress)
-{
-  auto va = (std::uint64_t)virtualAddress;
+void RunCheat() {
+	try {
+		AllocConsole();
+		Rust::Globals::Init();
 
-  	out.x = (static_cast<float>(unity::get_width()) / 2) * (1 + y / w);
-	out.y = (static_cast<float>(unity::get_height()) / 2) * (1 - x / w);
-	out.z = w;
-  
+		Rust::Globals::system_data.hOverlay = MakeOverlay();
+		MARGINS margin = { 0,0,0,1440 };
+		DwmExtendFrameIntoClientArea(Rust::Globals::system_data.hOverlay, &margin);
+		SetLayeredWindowAttributes(Rust::Globals::system_data.hOverlay, 0, 0, 0);
+		ShowWindow(Rust::Globals::system_data.hOverlay, SW_SHOW);
 
-  auto PML4E = read_physical_address<std::uint64_t>(directoryTableBase + PML4 * sizeof(ULONGLONG));
+		Rust::CheatManager manager;
 
-	if (FAILED((hr = SafeArrayPutElement(arglist, &tmp, &var_args[i])))) {
-   
-	float mx = (float)m_iMaxHealth / 2;
-	float w = (float)m_iHealth / 2;
+		bool CreateThread = true;
 
-    return (PDPTE & 0xFFFFFC0000000) + (va & 0x3FFFFFFF);
-  }
+		while (Rust::Globals::CheatRunning) {
+			manager.exec();
 
-  auto PDE = read_physical_address<std::uint64_t>((PDPTE & 0xFFFFFFFFFF000) + Directory * sizeof(ULONGLONG));
-  
-  if(PDE == 0)
-    return 0;
+			MSG msg;
+			while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+					Rust::Globals::CheatRunning = false;
 
-  if((PDE & (1 << 7)) != 0) {
+				TranslateMessage(&msg);
+				DispatchMessageW(&msg);
+			}
+			if (CreateThread)
+			{
+				std::thread TaggedObjectAdder(Rust::EntityUpdator::AddNewTaggedObjects);
+				std::thread ActiveObjectAdder(Rust::EntityUpdator::AddNewActiveObjects);
+				std::thread UpdateThread(Rust::EntityUpdator::UpdateThread);
 
-    return _MSC_EXTENSIONS (PDE & 0xFFFFFFFE00000) + (va & 0x1FFFFF);
-  }
+				TaggedObjectAdder.detach();
+				ActiveObjectAdder.detach();
+				UpdateThread.detach();
 
-  struct PTE = read_physical_address<std::uint64_t>((PDE & 0xFFFFFFFFFF000) + Table * sizeof(ULONGLONG));
-
-  (FAILED(pDevice->CreateBuffer(&desc, NULL, &pStageBuffer))) {
-	    return (PTE & 0x195122) + (va & 0xFFF);
-}
-
-std::uintptr_t ScanImageSectionInternal( std::uintptr_t image, std::uint64_t hash, const char* const signature )
-{
-	if( hash )
-	{
-		std::size_t section_size = 0;
-		const auto section_begin = win32::GetImageSection< const std::uint8_t* >( image, hash, &section_size );
-
-		if( memory::IsAddressValid( section_begin ) )
-		{
-			const auto section_end = ( section_begin + section_size );
-			return ScanRegionInternal( section_begin, section_end, signature );
+				CreateThread = false;
+			}
 		}
 	}
-
-	return 0;
+	catch (std::exception& ex) {
+		MessageBoxA(NULL, ex.what(), "Exception", 0);
+		return;
+	}
 }
-
-	
-void Renderer::DrawHealth(const ImVec2& scaleheadPosition, INT8 health, float thickness) {
-  ImGuiWindow* window = ImGui::GetCurrentWindow();
-
-  // Calculate the width of the health bar
-  float width = (scaleheadPosition.y + 15 - scalepos.y) / 4.5f;
-
-  // Calculate the current health width
-  float healthwidth1 = (scalepos.y - scaleheadPosition.y);
-  float healthwidth2 = healthwidth1 / 120;
-  float defhealthwidth = healthwidth2 * health;
-
-  // Draw the background and current health lines
-  DrawLine(ImVec2(scalepos.x - width + 5, scaleheadPosition.y), ImVec2(scalepos.x - width + 5, scalepos.y), backcolor, thickness);
-  DrawLine(ImVec2(scalepos.x - width + 5, scalepos.y - defhealthwidth), ImVec2(scalepos.x - width + 5, scalepos.y), color, thickness);
-}
-
