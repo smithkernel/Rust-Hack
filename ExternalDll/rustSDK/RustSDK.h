@@ -65,7 +65,7 @@ enum  BoneList : int
 	l_forearm,
 	l_hand,
 	l_index1,
-	l_index2,
+	l_index2, 
 	l_index3,
 	l_little1,
 	l_little2,
@@ -146,7 +146,7 @@ public:
 	Item() :this_ptr(NULL) {};
 
 	DWORD64 get_addr();
-	bool set_addr(DWORD64 ptr); //если оружие уже активно,вернет false
+	bool set_addr(DWORD64 ptr); //ГҐГ±Г«ГЁ Г®Г°ГіГ¦ГЁГҐ ГіГ¦ГҐ Г ГЄГІГЁГўГ­Г®,ГўГҐГ°Г­ГҐГІ false
 
 	DWORD64 GetID();
 	void no_recoil(float factor);
@@ -186,8 +186,8 @@ public:
 class LocalPlayer :public BasePlayer
 {
 public:
-	DWORD64 BaseEntityCamera = {0}; //адресс класса камеры(Обновляется в GOM)
-	DWORD64 ObjectClassCamera = { 0 }; //обьект камеры (c классом Transform 0x8)
+	DWORD64 BaseEntityCamera = {0}; //Г Г¤Г°ГҐГ±Г± ГЄГ«Г Г±Г±Г  ГЄГ Г¬ГҐГ°Г»(ГЋГЎГ­Г®ГўГ«ГїГҐГІГ±Гї Гў GOM)
+	DWORD64 ObjectClassCamera = { 0 }; //Г®ГЎГјГҐГЄГІ ГЄГ Г¬ГҐГ°Г» (c ГЄГ«Г Г±Г±Г®Г¬ Transform 0x8)
 	Matrix4x4 pViewMatrix = {0};
 
 	Item myActiveWeapon;
