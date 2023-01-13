@@ -65,13 +65,13 @@ NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len
         return STATUS_INVALID_PARAMETER;
     }
 
-    if (len == 0)
+    if (len == 0 || len > size)
     {
         return STATUS_INVALID_BUFFER_SIZE;
     }
 
     int cIndex = 0;
-    for (ULONG_PTR i = 0; i < size - len; i++)
+    for (ULONG_PTR i = 0; i <= size - len; i++)
     {
         BOOLEAN found = TRUE;
         for (ULONG_PTR j = 0; j < len; j++)
@@ -96,6 +96,7 @@ NTSTATUS BBSearchPattern(IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len
 
     return STATUS_NOT_FOUND;
 }
+
 
 
 #define BB_POOL_TAG 'BBBB'
