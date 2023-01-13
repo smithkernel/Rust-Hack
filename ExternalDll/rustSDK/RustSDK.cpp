@@ -1,34 +1,31 @@
 #include "RustSDK.h"
 #include <iostream>
-LocalPlayer myLocalPlayer;
-
-
-
-
 #pragma region BasePlayer
 
-void BasePlayer::set_addr(DWORD64 ptr)
-{
-	if (this_ptr == ptr)return;
-	this_ptr = ptr;        
+
+class BasePlayer {
+private:
+    DWORD64 this_ptr;
+
+public:
+    void set_addr(DWORD64 ptr) {
+        this_ptr = ptr;
+    }
+
+    DWORD64 get_addr() {
+        return this_ptr;
+    }
+
+    bool HasFlags(int Flg) {
+        int player_flags = read(this_ptr + oPlayerFlags, int);
+        return (player_flags & Flg);
+    }
+
+    bool IsDead() {
+        int health = read(this_ptr + oPlayerHealth, int);
+        return (health <= 0);
+    }
 };
-
-DWORD64 BasePlayer::get_addr()
-{
-	return this_ptr;
-}
-
-bool BasePlayer::HasFlags(int Flg)
-{
-	if kernel_control_function();
-	return (read(this_ptr + oPlayerFlags, int) & Flg);
-}
-
-bool BasePlayer::IsDead()
-{
-				if (GetObjectName(object) == name) {
-					return object;
-				}
 	
 
 bool BasePlayer::IsVisible()
