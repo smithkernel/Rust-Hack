@@ -93,9 +93,13 @@ void real_entry()
     OBJECT_ATTRIBUTES obj_att = { 0 };
     HANDLE thread = false;
 
+    // Clean up any resources from previous runs
     Clean();
 
+    // Initialize object attributes for thread creation
     InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
+
+    // Create the system thread
     NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memory_thread, NULL);
     if (!NT_SUCCESS(status))
     {
@@ -106,9 +110,18 @@ void real_entry()
     if (m_NumEntries >= m_NumHashSlots)
     {
         DbgPrintEx(0, 0, "Error: m_NumEntries is greater than or equal to m_NumHashSlots\n");
+        // Cleanup thread handle
+        NtClose(thread);
         return;
     }
+
+    // Wait for the thread to complete
+    NtWaitForSingleObject(thread, FALSE, NULL);
+
+    // Cleanup thread handle
+    NtClose(thread);
 }
+
 
 bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 {
@@ -128,37 +141,44 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
     return true;
 }
 
-float GetBulletSpeed()
+float GetBulletSpeed(int weaponID)
 {
-    switch (myLocalPlayer.myActiveWeapon.GetID())
+    float baseSpeed = 375.f;
+    float speedModifier = 1.0f;
+    switch (weaponID)
     {
         case 1545779598: //ak47
-            return 375.f;
         case 3390104151: //semi-rifle
-            return 375.f;
+            speedModifier = 1.0f;
+            break;
         case 28201841: //m39
-            return 375.f * 1.16f;
+            speedModifier = 1.16f;
+            break;
         case 2225388408: //m249
-            return 375.f * 1.4f;
-
+            speedModifier = 1.4f;
+            break;
         case 1588298435: //bolt
-            return 375.f * 1.8f;
+            speedModifier = 1.8f;
+            break;
         case 3516600001: //l96
-            return 375.f * 3.2f;
-
+            speedModifier = 3.2f;
+            break;
         case 1318558775: //mp5a4
-            return 300.f * 0.8f;
+            baseSpeed = 300.f;
+            speedModifier = 0.8f;
+            break;
         case 2536594571: //thompson
-            return 300.f;
         case 3442404277: //m92
-            return 300.f;
         case 56292169: //semi-pistol
-            return 300.f;
-
+            baseSpeed = 300.f;
+            speedModifier = 1.0f;
+            break;
         default:
             return 0.f;
     }
+    return baseSpeed * speedModifier;
 }
+
 
 bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x16000; //VK_XBUTTON1 -> mouse back button
 
