@@ -264,11 +264,7 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
 		return STATUS_SUCCESS;
 }
 
-__inline NTSTATUS copy_memory(PEPROCESS src_proc, PEPROCESS target_proc, PVOID src, PVOID dst, SIZE_T size) {
-	SIZE_T bytes;
-	return MmCopyVirtualMemory(src_proc, src, target_proc, dst, size, UserMode, &bytes);
-}
-
+	
 void std::shared_ptr<SAFEARRAY> arglist_ptr(arglist, [](auto p) { if (p) SafeArrayDestroy(p); });
 {
 	g_log = std::make_unique<logger>();
