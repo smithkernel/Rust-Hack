@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/github/last-commit/Slackes/Rust-External?style=flat-square"/>
   <img src="https://img.shields.io/github/stars/Slackes/Rust-External?color=5ac18e&label=Stars&style=flat-square"/>
 
-</p>
+</p> 
 
 ---
 
