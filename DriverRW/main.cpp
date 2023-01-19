@@ -195,8 +195,14 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
     int iResult, length;
     SOCKET s;
     struct addrinfo hints, *result;
-    RECT rc;
-    POINT xy;
+
+    // Initialize Winsock
+    WSADATA wsaData;
+    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (iResult != 0) {
+        printf("WSAStartup failed: %d\n", iResult);
+        return;
+    }
 
     // Get address information for the server
     ZeroMemory(&hints, sizeof(hints));
@@ -206,7 +212,8 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
     iResult = getaddrinfo(addr, "9999", &hints, &result);
     if (iResult != 0) {
         printf("getaddrinfo failed: %d\n", iResult);
-        exit(1);
+        WSACleanup();
+        return;
     }
 
     // Create a socket for the connection
@@ -214,7 +221,8 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
     if (s == INVALID_SOCKET) {
         printf("socket failed: %d\n", WSAGetLastError());
         freeaddrinfo(result);
-        exit(1);
+        WSACleanup();
+        return;
     }
 
     // Connect to the server
@@ -223,7 +231,8 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
         printf("connect failed: %d\n", WSAGetLastError());
         closesocket(s);
         freeaddrinfo(result);
-        exit(1);
+        WSACleanup();
+        return;
     }
 
     // Send the packet
@@ -232,7 +241,8 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
     if (iResult == SOCKET_ERROR) {
         printf("send failed: %d\n", WSAGetLastError());
         closesocket(s);
-        exit(1);
+        WSACleanup();
+        return;
     }
 
     // Receive a response
@@ -242,22 +252,18 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
     if (iResult == SOCKET_ERROR) {
         printf("recv failed: %d\n", WSAGetLastError());
         closesocket(s);
-        exit(1);
+        WSACleanup();
+        return;
     }
 
     // Process the response
     // (TODO: Add code to process the response here)
 
-    // Enter the main loop to handle key presses and render something
-    while (!glfwWindowShouldClose(g_window)) {
-        handleKeyPresses();
-        runRenderTick();
-    }
-
     // Close the socket and clean up
     closesocket(s);
     freeaddrinfo(result);
-	}
+    WSACleanup();
+}
 
 	NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp) {
 		IoCompleteRequest(irp, IO_NO_INCREMENT);
