@@ -22,32 +22,20 @@ public:
     {
         // Generate a random name for the window class
         _name.reserve(16u);
-        std::generate_n(std::back_inserter(_name), 16u, []
+        std::mt19937_64 mersenne_engine(std::random_device{}());
+        std::uniform_int_distribution<> distribution(97, 122); // 'a', 'z'
+        std::generate_n(std::back_inserter(_name), 16u, [&]()
         {
-            thread_local std::mt19937_64 mersenne_engine(std::random_device{}());
-            const std::uniform_int_distribution<> distribution(97, 122); // 'a', 'z'
             return static_cast<char>(distribution(mersenne_engine));
         });
 
         // Register the window class
-        WNDCLASSEXA window_class
-        {
-            sizeof(WNDCLASSEXA),
-            CS_HREDRAW | CS_VREDRAW,
-            [](const HWND window, const UINT message, const WPARAM wparam, const LPARAM lparam) -> LRESULT
-            {
-                return DefWindowProcA(window, message, wparam, lparam);
-            },
-            0,
-            0,
-            GetModuleHandleW(nullptr),
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            _name.c_str(),
-            nullptr
-        };
+        WNDCLASSEXA window_class = { 0 };
+        window_class.cbSize = sizeof(WNDCLASSEXA);
+        window_class.style = CS_HREDRAW | CS_VREDRAW;
+        window_class.lpfnWndProc = DefWindowProcA;
+        window_class.hInstance = GetModuleHandleW(nullptr);
+        window_class.lpszClassName = _name.c_str();
         if (!RegisterClassExA(&window_class))
         {
             std::cerr << "Failed to register window class\n";
@@ -55,13 +43,16 @@ public:
         }
 
         // Create the window
-        _handle = CreateWindowExA(0, _name.c_str(), "", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, window_class.hInstance, nullptr);
+        _handle = CreateWindowExA(0, _name.c_str(), "", WS_OVERLAPPEDWINDOW, 
+            CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, 
+            nullptr, nullptr, window_class.hInstance, nullptr);
         if (_handle == nullptr)
         {
             std::cerr << "Failed to create window\n";
             return;
         }
     }
+};
 
     ~d2d_window_t()
     {
