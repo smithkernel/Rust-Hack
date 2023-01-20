@@ -33,9 +33,9 @@ void Skeleton(BasePlayer* BasePlayer)
 
 bool DrawEsp::InFov(Vector2& screenPos)
 {
-	return Math::Calc2D_Dist(Vector2(Vars::Config::ScreenWidth / 2, Vars::Config::ScreenHigh / 2), screenPos) <= Vars::Aim::fov; // Fixed Probleem 
+    Vector2 screenCenter(Vars::Config::ScreenWidth / 2.0f, Vars::Config::ScreenHeight / 2.0f);
+    return Math::Calc2D_Dist(screenCenter, screenPos) <= Vars::Aim::fov;
 }
-
 
 
 void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring name,bool isNPC)
