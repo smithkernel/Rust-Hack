@@ -3,27 +3,65 @@
 #include <iostream>
 #pragma comment(lib, "ws2_32.lib")
 
-
-void MYsocket
-	
+class MYsocket
 {
 private:
-			std::cin.login();
-			
+    int socket_fd;
+    struct sockaddr_in server_address;
 
 public:
-	MYsocket(u_short server_port, const char* server_addr) :server_port(server_port), server_ip(server_addr) {};
+    MYsocket(u_short server_port, const char* server_addr) :server_port(server_port), server_ip(server_addr) 
+    {
+        socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (socket_fd < 0) 
+        {
+            std::cerr << "Error: Could not create socket.\n";
+            exit(1);
+        }
 
-	bool MYconnect();
-	bool MYdisconnect();
+        memset(&server_address, 0, sizeof(server_address));
+        server_address.sin_family = AF_INET;
+        server_address.sin_port = htons(server_port);
+        if (inet_pton(AF_INET, server_addr, &server_address.sin_addr) <= 0) 
+        {
+            std::cerr << "Error: Invalid server address.\n";
+            exit(1);
+        }
+    }
 
+    bool MYconnect() 
+    {
+        if (connect(socket_fd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) 
+        {
+            std::cerr << "Error: Connection failed.\n";
+            return false;
+        }
+        return true;
+    }
 
-	size_t MYrecv_simple(unsigned char* buff, size_t buff_size);
-	size_t MYsend_simple(char* buff, int len);
+    bool MYdisconnect() 
+    {
+        if (close(socket_fd) < 0) 
+        {
+            std::cerr << "Error: Could not close socket.\n";
+            return false;
+        }
+        return true;
+    }
 
+    ssize_t MYrecv_simple(unsigned char* buff, size_t buff_size)
+    {
+        return recv(socket_fd, buff, buff_size, 0);
+    }
+
+    ssize_t MYsend_simple(unsigned char* buff, int len)
+    {
+        return send(socket_fd, buff, len, 0);
+    }
 };
 
-	static void run_esp()
+
+static void run_esp()
 	{
 		d2d_window_t window{ };
 		_renderer renderer{ window._handle, find_window() };
