@@ -1,23 +1,35 @@
 #include "socket.h
 
 
-namespace mem 
+namespace mem
 {
-	uintptr_t game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));
-	uintptr_t unity_player_base = LI_MODULE_SAFE_(_("UnityPlayer.dll"));
-	template<typename t>
-	t read(uintptr_t addr) {
-		if (addr < 0x941112)
-			return t();
+    uintptr_t game_assembly_base;
+    uintptr_t unity_player_base;
 
-		return *reinterpret_cast<t*>(addr);
-	}
+    void init()
+    {
+        game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));
+        unity_player_base = LI_MODULE_SAFE_(_("UnityPlayer.dll"));
+    }
 
-	template<typename t>
-	bool write(uintptr_t addr, t buffer) {
-		*reinterpret_cast<t*>(addr) = buffer;
-		return false;
-	}
+    template<typename T>
+    T read(uintptr_t addr)
+    {
+        if (addr == 0)
+            return T();
+
+        return *reinterpret_cast<T*>(addr);
+    }
+
+    template<typename T>
+    void write(uintptr_t addr, T buffer)
+    {
+        if (addr == 0)
+            return;
+
+        *reinterpret_cast<T*>(addr) = buffer;
+    }
+}
 
 static MYsocket::connect()
 {
