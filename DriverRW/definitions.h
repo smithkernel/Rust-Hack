@@ -1,4 +1,5 @@
-#pragma once 
+#pragma once
+
 #include <ntdef.h>
 #include <ntifs.h>
 #include <ntddk.h>
@@ -6,28 +7,22 @@
 #include <ntimage.h>
 #include <ntstrsafe.h>
 
-//most of those structures comes from http://nirsoft.net/
-
-..
-	
-
 typedef unsigned long long QWORD;
 typedef unsigned short WORD;
 
 typedef struct _RTL_PROCESS_MODULE_INFORMATION
 {
-	HANDLE Section;
-	PVOID MappedBase;
-	PVOID ImageBase;
-	ULONG ImageSize;
-	ULONG Flags;
-	USHORT LoadOrderIndex;
-	USHORT InitOrderIndex;
-	USHORT LoadCount;
-	USHORT OffsetToFileName;
-	UCHAR  FullPathName[256];
-} RTL_PROCESS_MODULE_INFORMATION, * PRTL_PROCESS_MODULE_INFORMATION;
-
+    HANDLE Section;
+    PVOID MappedBase;
+    PVOID ImageBase;
+    ULONG ImageSize;
+    ULONG Flags;
+    USHORT LoadOrderIndex;
+    USHORT InitOrderIndex;
+    USHORT LoadCount;
+    USHORT OffsetToFileName;
+    UNICODE_STRING FullPathName;
+} RTL_PROCESS_MODULE_INFORMATION, *PRTL_PROCESS_MODULE_INFORMATION;
 
 
 typedef struct _KLDR_DATA_TABLE_ENTRY
