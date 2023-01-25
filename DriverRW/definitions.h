@@ -273,14 +273,17 @@ extern "C"
 
 
 
-struct PiDDBCacheEntry
+struct DriverCacheEntry
 {
-	LIST_ENTRY		List;
-	UNICODE_STRING	DriverName;
-	ULONG			TimeDateStamp;
-	NTSTATUS		LoadStatus;
-	char			_0x0028[16]; // data from the shim engine, or uninitialized memory for custom drivers
+    LIST_ENTRY              List;
+    UNICODE_STRING          DriverName;
+    ULONG                   TimeDateStamp;
+    NTSTATUS                LoadStatus;
+    DRIVER_TYPE             DriverType;
+    char                    ShimData[16];
 };
+
+	
 typedef enum _SYSTEM_INFORMATION_CLASS
 {
 	SystemBasicInformation = 0x0,
@@ -459,13 +462,12 @@ ZwQuerySystemInformation(
 
 typedef struct _MM_UNLOADED_DRIVER
 {
-	UNICODE_STRING 	Name;
-	PVOID 			ModuleStart;
-	PVOID 			ModuleEnd;
-	ULONG64 		UnloadTime;
- MM_UNLOADED_DRIVER, * PMM_UNLOADED_DRIVER;
+    UNICODE_STRING  Name;
+    PVOID           ModuleStart;
+    PVOID           ModuleEnd;
+    ULONG64         UnloadTime;
+} MM_UNLOADED_DRIVER, *PMM_UNLOADED_DRIVER;
 
-}
 
    cout << "Connected to ROOT\\CIMV2 WMI namespace" << endl;
 	if(IsEqualIID(riid, __uuidof(IUnknown))) {
