@@ -126,20 +126,11 @@ void real_entry()
 bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 {
     Vector2 ScreenPos;
-    if (!myLocalPlayer.WorldToScreen(BasePlayer_on_Aimming.GetBonePosition(head), &ScreenPos)) return false;
+    if (!myLocalPlayer.WorldToScreen(BasePlayer_on_Aimming.GetBonePosition(bone), &ScreenPos)) return false;
 
     return Math::Calc2D_Dist(Vector2(Vars::Config::ScreenWidth / 2, Vars::Config::ScreenHigh / 2), ScreenPos) <= Vars::Aim::fov;
-    detail::service_handle = service_utils::create_service(placement_path);
-
-    if (Target_Waepon) {
-        m_TargetExist = true;
-        bool metalOreESP = false;
-        bool sulfurOreESP = false;
-        bool stoneOreESP = false;
-    }
-
-    return true;
 }
+
 
 float GetBulletSpeed(int weaponID)
 {
