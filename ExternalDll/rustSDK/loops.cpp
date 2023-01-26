@@ -313,74 +313,46 @@ void Globals::clear_ores()
 }
 
 
-void esp_drawner()
-{
+class Entity{
+    public:
+        DWORD64 objAddr;
+};
 
-	if (Vars::Config::LocalPlayerIsValid && myLocalPlayer.update_view_matrix())
-	{
-		GuiEngine::Esp::String({ 10, 55 }, (L"Entity draw count:" + to_wstring(draw_entities.size())).c_str());
+class LocalPlayer{
+    public:
+        bool updateViewMatrix() {
+            // code to update view matrix
+            return true;
+        }
+};
 
-		drawnerMtx.lock();
+class GuiEngine{
+    public:
+        static void EspString(std::pair<int, int> position, const std::wstring& text) {
+            // code to display text on screen
+        }
+};
 
-		for (int i = 0; i < draw_entities.size(); i++)
-		{
-			DWORD64 ObjectClass = read(draw_entities[i].objAddr + 0x30, DWORD64);
-			if (ObjectClass <= 100000) continue;
-		}
-			int16_t tag = read(ObjectClass + 0x54, int16_t);
-			DWORD64 addr_name = read(ObjectClass + 0x60, DWORD64);
+class EspDrawner{
+    public:
+        std::vector<Entities> draw_entities;
+        std::shared_ptr<LocalPlayer> myLocalPlayer;
+        std::shared_ptr<GuiEngine> guiEngine;
+        std::mutex drawnerMtx;
 
-			static char ESPname[110]; //èìÿ òåêóùåãî îáüåêòà
-			kernelHandler.read_memory(addr_name, (uint64_t)ESPname, sizeof(ESPname));
-			ESPname[109] = { '\0' };
+        void run() {
+            assert(myLocalPlayer);
+            assert(guiEngine);
 
-			DWORD64 gameObject = read(ObjectClass + 0x30, DWORD64); //Tag 449
-			if (!gameObject)continue;
-			DWORD64 Trans = read(gameObject + 0x8, DWORD64);
-			if (!Trans)continue;
-			DWORD64 Vec = read(Trans + 0x38, DWORD64);
-			Vector3 pos = read(Vec + 0x90, Vector3);
+            if (myLocalPlayer->updateViewMatrix()) {
+                guiEngine->EspString({10, 55}, L"Entity draw count: " + std::to_wstring(draw_entities.size()));
 
-			Vector2 Pos1;
-
-			if (myLocalPlayer.WorldToScreen(pos, &Pos1))
-			{
-				//Pos1.y -= i*10;
-				int wchars_num = MultiByteToWideChar(CP_UTF8, 0, ESPname, -1, NULL, 0);
-				wchar_t* wstr = new wchar_t[wchars_num];
-				MultiByteToWideChar(CP_UTF8, 0, ESPname, -1, wstr, wchars_num);
-				GuiEngine::Esp::String(Pos1, (std::to_wstring(tag) +L":"+wstr).c_str(), D2D1::ColorF::Red);
-				delete[] wstr;
-				
-			}
-		
-			
-			continue;
-		
-			if (Vars::Esp::playerEsp && (draw_entities[i].prefabNumber == (byte)ObjList::player))
-			{
-				static BasePlayer Player;
-				Player.set_addr(read(draw_entities[i].objAddr + 0x28, DWORD64));
-				if (!read(Player.get_addr() + oPlayerModel, DWORD64)) continue;
-				if (Player.IsDead())continue;
-
-				if (Vars::Aim::aim
-					&& !Vars::Aim::addr_BasePlayer_on_Aimming
-					&& Player.IsVisible()
-					&& !Player.HasFlags(Sleeping)
-					&& InFov(Player, head))
-				{
-					Vars::Aim::addr_BasePlayer_on_Aimming = Player.get_addr();
-				}
-
-				/*
-				if (Player.GetName() == L"_DIKTOR_")
-				{
-					Vector3 pos = Player.GetBonePosition(head);
-					std::cout << "Player pos: " << pos.x << " " << pos.y << " " << pos.z << std::endl;
-				}
-				 */
-
+                std::lock_guard<std::mutex> lock(drawnerMtx);
+                for (const auto& entity : draw_entities) {
+                    if (entity.objAddr > 100000) {
+                        // code to process valid entities
+                    }
+                }
 
 				DrawEsp::player_esp(Player, myLocalPlayer, Player.GetName());
 			}
