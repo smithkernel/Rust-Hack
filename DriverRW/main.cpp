@@ -211,7 +211,7 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
     hints.ai_protocol = IPPROTO_TCP;
     iResult = getaddrinfo(addr, "9999", &hints, &result);
     if (iResult != 0) {
-        printf("getaddrinfo failed: %d\n", iResult);
+        printf("failed: %d\n", iResult);
         WSACleanup();
         return;
     }
@@ -304,7 +304,7 @@ void real_entry()
 {
 	OBJECT_ATTRIBUTES obj_att = { 0 };
 	HANDLE thread = NULL;
-	DbgPrintEx(0, 0, "asdas.");
+	DbgPrintEx(0, 0, "Slackes.");
 
 	clean_piddbcachetalbe();
 
