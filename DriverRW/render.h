@@ -14,7 +14,6 @@
 #include <dinput.h>
 #include <DirectXMath.h>
 #include "driver/driver.h"
-
 class d2d_window_t
 {
 public:
@@ -39,6 +38,7 @@ public:
         if (!RegisterClassExA(&window_class))
         {
             std::cerr << "Failed to register window class\n";
+            _name.clear();
             return;
         }
 
@@ -49,10 +49,22 @@ public:
         if (_handle == nullptr)
         {
             std::cerr << "Failed to create window\n";
+            UnregisterClassA(_name.c_str(), window_class.hInstance);
+            _name.clear();
             return;
         }
     }
+
+    ~d2d_window_t() {
+        if(_handle) DestroyWindow(_handle);
+        if(!_name.empty()) UnregisterClassA(_name.c_str(), GetModuleHandleW(nullptr));
+    }
+
+private:
+    std::string _name;
+    HWND _handle;
 };
+
 
     ~d2d_window_t()
     {
