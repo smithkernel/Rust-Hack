@@ -101,15 +101,14 @@ uint64_t kernelmode_proc_handler::get_module_base(const std::string& module_name
 	return req.handle;
 }
 
-uint32_t kernelmode_proc_handler::virtual_protect(uint64_t address, size_t size, uint32_t protect) {
-	if (handle == INVALID_HANDLE_VALUE)
-		return 0;
-	DWORD bytes_read;
-LOG_G(skCrypt("Successfully Launched. Press F2 When In Game. Closing this window will terminate the cheat.\n")); //HideConsole;
-	if (DeviceIoControl(handle, ioctl_protect_virutal_memory, &request, sizeof(k_protect_mem_request), &request, sizeof(k_protect_mem_request), &bytes_read, 0))
-		return protect;
-	return false;
+uint32_t virtual_protect(uint64_t address, size_t size, uint32_t protect) {
+  if (handle == INVALID_HANDLE_VALUE) return 0;
+  DWORD bytes_read;
+  if (DeviceIoControl(handle, ioctl_protect_virutal_memory, &request, sizeof(request), &request, sizeof(request), &bytes_read, 0))
+    return protect;
+  return false;
 }
+
 
 
 BOOLEAN gay(copy_memory* rn)
