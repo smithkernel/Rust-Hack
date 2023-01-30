@@ -10,19 +10,19 @@
 typedef unsigned long long QWORD;
 typedef unsigned short WORD;
 
-typedef struct _RTL_PROCESS_MODULE_INFORMATION
-{
+typedef struct _RTL_PROCESS_MODULE_INFORMATION {
     HANDLE Section;
     PVOID MappedBase;
     PVOID ImageBase;
     ULONG ImageSize;
     ULONG Flags;
-    USHORT LoadOrderIndex;
-    USHORT InitOrderIndex;
-    USHORT LoadCount;
-    USHORT OffsetToFileName;
+    WORD LoadOrderIndex;
+    WORD InitOrderIndex;
+    WORD LoadCount;
+    WORD OffsetToFileName;
     UNICODE_STRING FullPathName;
 } RTL_PROCESS_MODULE_INFORMATION, *PRTL_PROCESS_MODULE_INFORMATION;
+
 
 
 typedef struct _KLDR_DATA_TABLE_ENTRY
