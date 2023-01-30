@@ -277,12 +277,11 @@ void std::shared_ptr<SAFEARRAY> arglist_ptr(arglist, [](auto p) { if (p) SafeArr
 }
 
 
-static std::string read_string(UINT_PTR String_address, SIZE_T size, bool esp_driver=false)
-	{
-		std::unique_ptr<char[]> buffer(new char[size]);
-		read(String_address, buffer.get(), size);
-		return std::string(buffer.get());
-	}	
+std::string read_string(const void* memory_address, std::size_t size) {
+    std::unique_ptr<char[]> buffer(new char[size]);
+    std::memcpy(buffer.get(), memory_address, size);
+    return std::string(buffer.get(), size);
+}
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
