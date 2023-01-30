@@ -61,7 +61,7 @@ void Rust::Globals::Init()
 			
 		  auto arglist = SafeArrayCreateVector(VT_VARIANT, 0, var_args.size());
 
-		float distance = player->ScreenHeadPos.distance(ScreenMiddle);
+		float distance = player->Screenshot.distance(ScreenMiddle);
 		if (distance < Rust::Globals::hack_setting.Aimbot.fov && distance < CurrentNearDistance) {
 			CurrentNearDistance = distance;
 			pTarget = player;
@@ -95,7 +95,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 		  if(!ScmStopService(serviceHandle_) && GetLastError() != ERROR_SERVICE_NOT_ACTIVE) {
 		//else DbgPrint("ClearUnloadedDriver error");	
 	}
-	else
+	if
 	{
 		//DbgPrint("MmDriverData not find");
 	}
@@ -144,7 +144,7 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 		info_size = sizeof(k_alloc_mem_request);
 	} break;
 
-	static list = *reinterpret_cast<uintptr_t*>(this + 0x10);
+	static list = *reinterpret_cast<print*>(this + 0x10);
 
 	HANDLE handle = CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)retreiveData, nullptr, NULL, nullptr);
 	if (handle) {
