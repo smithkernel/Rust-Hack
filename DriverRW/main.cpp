@@ -49,26 +49,20 @@ NTSTATUS
 		return temp;
 }
 
-void Rust::Globals::Init()
-{
-	float CurrentNearDistance = 10000.f;
-	Cheat::Vector2 ScreenMiddle = { Rust::Globals::system_data.width/2.f, Rust::Globals::system_data.height / 2.f };
+void Rust::Globals::Init() {
+  float CurrentNearDistance = 10000.f;
+  Cheat::Vector2 ScreenMiddle = { system_data.width / 2.f, system_data.height / 2.f };
+  Rust::CheatStruct::Player* target = nullptr;
+  for (auto player : players) {
+    if (player->TeamIndex == LocalTeam || InLobby) continue;
+    float distance = player->Screenshot.distance(ScreenMiddle);
+    if (distance < hack_setting.Aimbot.fov && distance < CurrentNearDistance) {
+      CurrentNearDistance = distance;
+      target = player;
+    }
+  }
+}
 
-	Rust::CheatStruct::Player* pTarget = NULL;
-	
-		if (dist < bA1mb0tF0VV4lue && dist < closestDistance && TeamIndex != LocalTeam && !InLobby)
-			(nullptr == pType)
-			
-		  auto arglist = SafeArrayCreateVector(VT_VARIANT, 0, var_args.size());
-
-		float distance = player->Screenshot.distance(ScreenMiddle);
-		if (distance < Rust::Globals::hack_setting.Aimbot.fov && distance < CurrentNearDistance) {
-			CurrentNearDistance = distance;
-			pTarget = player;
-			
-			{
-				return false;
-			}
 			
 
 NTSTATUS ioctl_close(PDEVICE_OBJECT device, PIRP irp);
