@@ -71,14 +71,8 @@ https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-
 
 
 --- 
-
-  <p align="center">
-    <a href="https://discord.gg/MBTkVcJefp">
-        <img title="Slackes server discord" alt="Slackes discord" src="https://discordapp.com/api/guilds/880135738077896764/widget.png?style=banner2"/>
-    </a>
-</p> 
  
-## 💬 ・[Discord](https://discord.gg/MBTkVcJefp) 
+## 💬 ・[Telegram](https://t.me/Slackes) 
 
  ### 🛒〢 `SHOP`
  
@@ -107,13 +101,10 @@ A website that I created to introduce myself from start to finish. hope you like
 
 ---
 
+
   <br>
 
 <p align="center">
   Copyright © 2021 - 2022
 <br>
 
-
-
-
-  
