@@ -46,15 +46,20 @@ struct k_rw_request {
   size_t size;
 };
 
-class kernelmode_proc_handler {
+class KernelmodeProcHandler {
  public:
-  kernelmode_proc_handler(DWORD pid) : pid_(pid) {}
+  explicit KernelmodeProcHandler(DWORD pid) : pid_(pid), handle_(INVALID_HANDLE_VALUE) {}
 
   // Initialize the handle to the target process
   bool Init() {
     handle_ = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid_);
     return handle_ != INVALID_HANDLE_VALUE;
   }
+
+ private:
+  DWORD pid_;
+  HANDLE handle_;
+}
 
   // Read memory from the target process
   bool ReadMemory(uint64_t src_addr, uint64_t dst_addr, size_t size) {
