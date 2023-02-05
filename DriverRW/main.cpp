@@ -83,32 +83,38 @@ NTSTATUS init(PDRIVER_OBJECT driver, PUNICODE_STRING path) {
 		return STATUS_SUCCESS;
 		{
 			
-NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path) 
+NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 {
-	
+    NTSTATUS status;
 
-		  if(!ScmStopService(serviceHandle_) && GetLastError() != ERROR_SERVICE_NOT_ACTIVE) {
-		//else DbgPrint("ClearUnloadedDriver error");	
-	}
-	if
-	{
-		//DbgPrint("MmDriverData not find");
-	}
-	*/
+    // Stop the service
+    if (!ScmStopService(serviceHandle_) && GetLastError() != ERROR_SERVICE_NOT_ACTIVE)
+    {
+        // Log error
+        DbgPrint("ClearUnloadedDriver error");
+    }
 
-	NTSTATUS        status;
-	std::uint32_t find(const char* proc)
-		{
-    auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    auto pe       = PROCESSENTRY32{ sizeof(PROCESSENTRY32) };
-	}
-	
-	DrawLine(ImVec2(CenterX-11, CenterY), ImVec2(CenterX+11, CenterY), values.crosshairColor);	
-	
-	{
-		
-	return vector3::my_sqrt( powFFFFFFFFFFFFFFFFFFFFFF(Src.x - Dst.x) + powFFFFFFFFFFFFFFFFFFFFFF(Src.y - Dst.y));
+    // Create a snapshot of processes in the system
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE)
+    {
+        // Log error
+        DbgPrint("Failed to create process snapshot");
+    }
+    else
+    {
+        // Close the handle after use
+        CloseHandle(snapshot);
+    }
+
+    // Draw a line using ImGui
+    ImVec2 start(CenterX - 11, CenterY);
+    ImVec2 end(CenterX + 11, CenterY);
+    DrawLine(start, end, values.crosshairColor);
+
+    return vector3::my_sqrt(pow(Src.x - Dst.x, 2) + pow(Src.y - Dst.y, 2));
 }
+
 
 NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 	NTSTATUS status;
