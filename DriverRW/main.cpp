@@ -21,23 +21,24 @@ void CleanupDeviceD3D()
 
     if (g_pSwapChain)
     {
-        g_pSwapChain->SetFullscreenState(FALSE, NULL);
+        g_pSwapChain->SetFullscreenState(FALSE, nullptr);
         g_pSwapChain->Release();
-        g_pSwapChain = NULL;
+        g_pSwapChain = nullptr;
     }
 
     if (g_pd3dDeviceContext)
     {
         g_pd3dDeviceContext->Release();
-        g_pd3dDeviceContext = NULL;
+        g_pd3dDeviceContext = nullptr;
     }
 
     if (g_pd3dDevice)
     {
         g_pd3dDevice->Release();
-        g_pd3dDevice = NULL;
+        g_pd3dDevice = nullptr;
     }
 }
+
 
 
 NTSTATUS
