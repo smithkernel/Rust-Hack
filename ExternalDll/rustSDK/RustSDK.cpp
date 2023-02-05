@@ -225,17 +225,20 @@ std::wstring BasePlayer::get_active_weapon_name()
 	}
 	return L"dick";
 }
+	
 bool LocalPlayer::update_view_matrix()
 {
-	if (BaseEntityCamera != NULL)
-	{
-		pViewMatrix = read(BaseEntityCamera + 0x2E4, Matrix4x4);
-		return true;
-		//  std::cout <<std::hex <<"game: "<<BaseEntityCamera + 0x2E4 << std::endl;
-		//  std::cout << std::hex <<"cheat: "<< &pViewMatrix << std::endl;
-	}
-	else return false;
+  if (BaseEntityCamera != nullptr)
+  {
+    pViewMatrix = readMatrix4x4(BaseEntityCamera + 0x2E4);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
+
 
 bool LocalPlayer::WorldToScreen(Vector3 world, Vector2* screen)
 {
