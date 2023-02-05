@@ -19,27 +19,35 @@ public:
     }
 };
 
-namespace Process
-{
-    std::uint32_t find(const char* procName);
-    bool attach(std::uint32_t pid);
-    void detach();
-    bool grantHandleAccess(HANDLE handle, ACCESS_MASK accessRights);
+namespace Process {
+    std::uint32_t findProcessId(const std::string& processName);
+    bool attachToProcess(std::uint32_t pid);
+    void detachFromProcess();
+    bool grantHandleAccess(HANDLE handle, DWORD accessRights);
 
-    template<typename T, typename U>
-    T read(U base)
+    template <typename T>
+    T readMemory(void* address)
     {
-        T temp{};
-        read((PVOID)base, &temp, sizeof(T));
-        return temp;
+        T result;
+        SIZE_T bytesRead;
+        if (ReadProcessMemory(handle, address, &result, sizeof(T), &bytesRead) == 0 ||
+            bytesRead != sizeof(T)) {
+            throw std::runtime_error("Failed to read memory from process");
+        }
+        return result;
     }
 
-    template<typename T, typename U>
-    bool write(U base, T value)
+    template <typename T>
+    void writeMemory(void* address, T value)
     {
-        return write((PVOID)base, &value, sizeof(T));
+        SIZE_T bytesWritten;
+        if (WriteProcessMemory(handle, address, &value, sizeof(T), &bytesWritten) == 0 ||
+            bytesWritten != sizeof(T)) {
+            throw std::runtime_error("Failed to write memory to process");
+        }
     }
 }
+
 
 class D3DX11Debug
 {
