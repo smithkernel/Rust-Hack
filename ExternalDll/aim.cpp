@@ -134,39 +134,38 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 
 float GetBulletSpeed(int weaponID)
 {
-    float baseSpeed = 375.f;
+    const float baseSpeed = 375.f;
     float speedModifier = 1.0f;
     switch (weaponID)
     {
-        case 1545779598: //ak47
-        case 3390104151: //semi-rifle
+        case 1545779598: // ak47
+        case 3390104151: // semi-rifle
             speedModifier = 1.0f;
             break;
-        case 28201841: //m39
+        case 28201841: // m39
             speedModifier = 1.16f;
             break;
-        case 2225388408: //m249
+        case 2225388408: // m249
             speedModifier = 1.4f;
             break;
-        case 1588298435: //bolt
+        case 1588298435: // bolt
             speedModifier = 1.8f;
             break;
-        case 3516600001: //l96
+        case 3516600001: // l96
             speedModifier = 3.2f;
             break;
-        case 1318558775: //mp5a4
-            baseSpeed = 300.f;
+        case 1318558775: // mp5a4
             speedModifier = 0.8f;
             break;
-        case 2536594571: //thompson
-        case 3442404277: //m92
-        case 56292169: //semi-pistol
-            baseSpeed = 300.f;
+        case 2536594571: // thompson
+        case 3442404277: // m92
+        case 56292169: // semi-pistol
             speedModifier = 1.0f;
             break;
         default:
             return 0.f;
     }
+
     return baseSpeed * speedModifier;
 }
 
