@@ -89,30 +89,63 @@ class KernelmodeProcHandler {
 };
 
 
-uint64_t kernelmode_proc_handler::get_module_base(const std::string& module_name) {
-	if (handle == INVALID_HANDLE_VALUE)
-		return 0;
-	k_get_base_module_request req;
-	req.pid = pid;
-	req.handle = 0;
-	std::wstring wstr{ std::wstring(module_name.begin(), module_name.end()) };
-	memset(req.name, 0, sizeof(WCHAR) * 720);
-	wcscpy(req.name, wstr.c_str());
-	DWORD bytes_read;
-	if (DeviceIoControl(handle, ioctl_get_module_base, &req,
-		sizeof(k_get_base_module_request), &req, sizeof(k_get_base_module_request), &bytes_read, 0)) {
-		return req.handle;
-	}
-	return req.handle;
-}
+class kernelmode_proc_handler
+{
+public:
+    kernelmode_proc_handler() : handle(INVALID_HANDLE_VALUE), pid(0) {}
 
-uint32_t virtual_protect(uint64_t address, size_t size, uint32_t protect) {
-  if (handle == INVALID_HANDLE_VALUE) return 0;
-  DWORD bytes_read;
-  if (DeviceIoControl(handle, ioctl_protect_virutal_memory, &request, sizeof(request), &request, sizeof(request), &bytes_read, 0))
-    return protect;
-  return false;
-}
+    uint64_t get_module_base(const std::string& module_name) {
+        if (handle == INVALID_HANDLE_VALUE)
+            return 0;
+
+        k_get_base_module_request req;
+        req.pid = pid;
+        req.handle = 0;
+        std::wstring wstr{ std::wstring(module_name.begin(), module_name.end()) };
+        memset(req.name, 0, sizeof(WCHAR) * 720);
+        wcscpy_s(req.name, 720, wstr.c_str());
+        DWORD bytes_read;
+        if (DeviceIoControl(handle, ioctl_get_module_base, &req,
+            sizeof(k_get_base_module_request), &req, sizeof(k_get_base_module_request), &bytes_read, 0)) {
+            return req.handle;
+        }
+        return 0;
+    }
+
+    uint32_t virtual_protect(uint64_t address, size_t size, uint32_t protect) {
+        if (handle == INVALID_HANDLE_VALUE) return 0;
+
+        k_protect_virtual_memory_request request;
+        request.address = address;
+        request.size = size;
+        request.protect = protect;
+
+        DWORD bytes_read;
+        if (DeviceIoControl(handle, ioctl_protect_virutal_memory, &request, sizeof(request), &request, sizeof(request), &bytes_read, 0))
+            return protect;
+        return 0;
+    }
+
+private:
+    HANDLE handle;
+    DWORD pid;
+    const DWORD ioctl_get_module_base = 0x800;
+    const DWORD ioctl_protect_virutal_memory = 0x801;
+
+    struct k_get_base_module_request
+    {
+        DWORD pid;
+        uint64_t handle;
+        WCHAR name[720];
+    };
+
+    struct k_protect_virtual_memory_request
+    {
+        uint64_t address;
+        size_t size;
+        uint32_t protect;
+    };
+};
 
 
 
