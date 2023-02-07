@@ -126,24 +126,25 @@ public:
         return 0;
     }
 
-private:
+private PrivateData
+{
     HANDLE handle;
-    DWORD pid;
-    const DWORD ioctl_get_module_base = 0x800;
-    const DWORD ioctl_protect_virutal_memory = 0x801;
+    DWORD process_id;
+    const DWORD IOCTL_GET_MODULE_BASE = 0x800;
+    const DWORD IOCTL_PROTECT_VIRTUAL_MEMORY = 0x801;
 
-    struct k_get_base_module_request
+    struct GetModuleBaseRequest
     {
-        DWORD pid;
+        DWORD process_id;
         uint64_t handle;
-        WCHAR name[720];
+        WCHAR module_name[720];
     };
 
-    struct k_protect_virtual_memory_request
+    struct ProtectVirtualMemoryRequest
     {
         uint64_t address;
         size_t size;
-        uint32_t protect;
+        DWORD protection_flags;
     };
 };
 
