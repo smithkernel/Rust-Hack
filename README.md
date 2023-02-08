@@ -79,6 +79,7 @@ https://user-images.githubusercontent.com/94861415/179345465-ac9ff961-1cda-4c50-
 </p> 
  
 ## 💬 ・[Discord Server](https://discord.gg/2euDQqzD8Y) 
+`CLICK BLUE BUTTON FOR JOIN SERVER.`
 
  ### 🛒〢 `PRODUCT`
  
