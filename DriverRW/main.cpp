@@ -284,21 +284,36 @@ std::string read_string(const void* memory_address, std::size_t size) {
     return std::string(buffer.get(), size);
 }
 
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+    // Create two threads for updating the cheat and window position
+    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Cheat::Update, NULL, 0, NULL);
+    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)UpdateWinPosition, NULL, 0, NULL);
 
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Cheat::Update, 0, 0, 0);
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)UpdateWinPosition, 0, 0, 0);
+    // Get the window handle for the "Rust" window
+    HWND hWnd = FindWindow(_T("NULL"), _T("Rust"));
+    if (hWnd == NULL)
+    {
+        MessageBox(NULL, _T("Unable to find the 'Rust' window"), _T("Error"), MB_OK | MB_ICONERROR);
+        return 1;
+    }
 
-	while (Globals::rWidth < 640 && Globals::rHeight < 480) {
-		Globals::tWnd = FindWindow(NULL, "Rust");
+    // Get the client rectangle for the window
+    RECT clientRect;
+    GetClientRect(hWnd, &clientRect);
+    int clientWidth = clientRect.right - clientRect.left;
+    int clientHeight = clientRect.bottom - clientRect.top;
 
-		ioctl_create(float x, float y/*top left*/, float x_rightsize, float y_downsize) {
-				this->x = x;
-				this->y = y;
-				wid = x_rightsize;
-				hei = y_downsize; {
-					return
-					}
+    // Check the resolution of the window
+    while (clientWidth < 640 || clientHeight < 480)
+    {
+        GetClientRect(hWnd, &clientRect);
+        clientWidth = clientRect.right - clientRect.left;
+        clientHeight = clientRect.bottom - clientRect.top;
+    }
+
+    return 0;
+}
 
 void real_entry()
 {
