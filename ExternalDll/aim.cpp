@@ -132,41 +132,28 @@ bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 }
 
 
+constexpr float baseSpeed = 375.f;
+
+std::map<int, float> speedModifiers = {
+    {1545779598, 1.0f},
+    {3390104151, 1.0f},
+    {28201841, 1.16f},
+    {2225388408, 1.4f},
+    {1588298435, 1.8f},
+    {3516600001, 3.2f},
+    {1318558775, 0.8f},
+    {2536594571, 1.0f},
+    {3442404277, 1.0f},
+    {56292169, 1.0f}
+};
+
 float GetBulletSpeed(int weaponID)
 {
-    const float baseSpeed = 375.f;
-    float speedModifier = 1.0f;
-    switch (weaponID)
-    {
-        case 1545779598: // ak47
-        case 3390104151: // semi-rifle
-            speedModifier = 1.0f;
-            break;
-        case 28201841: // m39
-            speedModifier = 1.16f;
-            break;
-        case 2225388408: // m249
-            speedModifier = 1.4f;
-            break;
-        case 1588298435: // bolt
-            speedModifier = 1.8f;
-            break;
-        case 3516600001: // l96
-            speedModifier = 3.2f;
-            break;
-        case 1318558775: // mp5a4
-            speedModifier = 0.8f;
-            break;
-        case 2536594571: // thompson
-        case 3442404277: // m92
-        case 56292169: // semi-pistol
-            speedModifier = 1.0f;
-            break;
-        default:
-            return 0.f;
+    auto it = speedModifiers.find(weaponID);
+    if (it == speedModifiers.end()) {
+        return 0.f;
     }
-
-    return baseSpeed * speedModifier;
+    return baseSpeed * it->second;
 }
 
 
