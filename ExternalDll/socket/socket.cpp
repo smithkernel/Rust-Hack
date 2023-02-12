@@ -1,15 +1,24 @@
+#include <cstdint>
+#include <string>
 #include "socket.h
 
-
-namespace mem
+namespace memory
 {
     uintptr_t game_assembly_base;
     uintptr_t unity_player_base;
 
     void init()
     {
-        game_assembly_base = LI_MODULE_SAFE_(_("GameAssembly.dll"));
-        unity_player_base = LI_MODULE_SAFE_(_("UnityPlayer.dll"));
+        game_assembly_base = getModuleAddress("GameAssembly.dll");
+        unity_player_base = getModuleAddress("UnityPlayer.dll");
+    }
+
+    uintptr_t getModuleAddress(const std::string &module_name)
+    {
+        // implementation of finding the base address of a module based on its name
+
+        // return the base address if found, otherwise return 0
+        return 0;
     }
 
     template<typename T>
@@ -22,7 +31,7 @@ namespace mem
     }
 
     template<typename T>
-    void write(uintptr_t addr, T buffer)
+    void write(uintptr_t addr, const T &buffer)
     {
         if (addr == 0)
             return;
@@ -30,6 +39,7 @@ namespace mem
         *reinterpret_cast<T*>(addr) = buffer;
     }
 }
+
 
 static MYsocket::connect()
 {
