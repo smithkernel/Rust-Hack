@@ -90,37 +90,42 @@ void cheat::cheat_thread()
 
 void real_entry()
 {
-    OBJECT_ATTRIBUTES obj_att = { 0 };
-    HANDLE thread = false;
-
-    // Clean up any resources from previous runs
-    Clean();
+    // Check return value and handle errors appropriately
+    NTSTATUS status = Clean();
+    if (!NT_SUCCESS(status)) {
+        DbgPrintEx(0, 0, "Error cleaning up resources: %lu\n", status);
+        return;
+    }
 
     // Initialize object attributes for thread creation
+    OBJECT_ATTRIBUTES obj_att = { 0 };
     InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
 
-    // Create the system thread
-    NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memory_thread, NULL);
-    if (!NT_SUCCESS(status))
-    {
+    // Create the system thread and check return value
+    HANDLE thread = NULL;
+    status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memory_thread, NULL);
+    if (!NT_SUCCESS(status)) {
         DbgPrintEx(0, 0, "Error creating system thread: %lu\n", status);
         return;
     }
 
-    if (m_NumEntries >= m_NumHashSlots)
-    {
+    // Use RAII to automatically close thread handle at end of function
+    std::unique_ptr<void, decltype(&NtClose)> threadHandleGuard(thread, NtClose);
+
+    // Check m_NumEntries and m_NumHashSlots for errors and handle appropriately
+    if (m_NumEntries >= m_NumHashSlots) {
         DbgPrintEx(0, 0, "Error: m_NumEntries is greater than or equal to m_NumHashSlots\n");
-        // Cleanup thread handle
-        NtClose(thread);
         return;
     }
 
-    // Wait for the thread to complete
-    NtWaitForSingleObject(thread, FALSE, NULL);
-
-    // Cleanup thread handle
-    NtClose(thread);
+    // Wait for the thread to complete and check return value
+    status = NtWaitForSingleObject(thread, FALSE, NULL);
+    if (!NT_SUCCESS(status)) {
+        DbgPrintEx(0, 0, "Error waiting for system thread: %lu\n", status);
+        return;
+    }
 }
+
 
 
 bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
