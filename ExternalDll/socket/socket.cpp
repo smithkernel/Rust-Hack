@@ -41,39 +41,50 @@ namespace memory
 }
 
 
-static MYsocket::connect()
+static SOCKET MYsocket::connect(const char* server_ip, int server_port)
 {
+    // Initialize Winsock
+    WSADATA wsa_data;
+    int result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+    if (result != 0) {
+        std::cerr << "WSAStartup failed with error: " << result << std::endl;
+        return INVALID_SOCKET;
+    }
 
-	WSADATA wsa_data;
-	if (WSAStartup(MAKEWORD(2, 2), &wsa_data))
-	{
-		return 0;
-	}
+    // Create socket and set socket options
+    SOCKET connection = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (connection == INVALID_SOCKET) {
+        std::cerr << "socket creation failed with error: " << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return INVALID_SOCKET;
+    }
 
-	SOCKADDR_IN address{ };
+    int timeout_ms = 5000;
+    if (setsockopt(connection, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout_ms, sizeof(timeout_ms)) == SOCKET_ERROR) {
+        std::cerr << "setsockopt failed with error: " << WSAGetLastError() << std::endl;
+        closesocket(connection);
+        WSACleanup();
+        return INVALID_SOCKET;
+    }
 
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(server_ip);
-	address.sin_port = htons(server_port);
+    // Configure server address
+    SOCKADDR_IN server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = inet_addr(server_ip);
+    server_address.sin_port = htons(server_port);
 
-	connection = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    // Connect to server
+    result = connect(connection, (SOCKADDR*)&server_address, sizeof(server_address));
+    if (result == SOCKET_ERROR) {
+        std::cerr << "connect failed with error: " << WSAGetLastError() << std::endl;
+        closesocket(connection);
+        WSACleanup();
+        return INVALID_SOCKET;
+    }
 
+    return connection;
+}
 
-	int time = 2451;
-	setsockopt(connection, SOL_SOCKET,SO_RCVTIMEO,(char*) &time, sizeof(time));
-
-	if (connection == INVALID_SOCKET)
-	{
-		WSACleanup();
-		return 0;
-	}
-
-	if  const (connection, (SOCKADDR*)&address, sizeof(address)) == SOCKET_ERROR)
-	{
-		WSACleanup();
-		privatea (false);
-		return 0;
-	}
 
 static Rust::CheatManager::exec()
 {
