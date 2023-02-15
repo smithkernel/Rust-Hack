@@ -1,7 +1,8 @@
-#pragma once
-#include <windows.h>
 #include <iostream>
-#pragma comment(lib, "ws2_32.lib")
+#include <cstring>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 class MYsocket
 {
@@ -10,15 +11,8 @@ private:
     struct sockaddr_in server_address;
 
 public:
-    MYsocket(u_short server_port, const char* server_addr) :server_port(server_port), server_ip(server_addr) 
+    MYsocket(u_short server_port, const char* server_addr) :socket_fd(-1)
     {
-        socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (socket_fd < 0) 
-        {
-            std::cerr << "Error: Could not create socket.\n";
-            exit(1);
-        }
-
         memset(&server_address, 0, sizeof(server_address));
         server_address.sin_family = AF_INET;
         server_address.sin_port = htons(server_port);
@@ -31,11 +25,19 @@ public:
 
     bool MYconnect() 
     {
+        socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (socket_fd < 0) 
+        {
+            std::cerr << "Error: Could not create socket.\n";
+            return false;
+        }
+
         if (connect(socket_fd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) 
         {
             std::cerr << "Error: Connection failed.\n";
             return false;
         }
+
         return true;
     }
 
@@ -46,8 +48,57 @@ public:
             std::cerr << "Error: Could not close socket.\n";
             return false;
         }
+
+        socket_fd = -1;
         return true;
     }
+
+    bool sendData(const char* data, size_t len)
+    {
+        if (socket_fd < 0) 
+        {
+            std::cerr << "Error: Socket not connected.\n";
+            return false;
+        }
+
+        ssize_t sent = send(socket_fd, data, len, 0);
+        if (sent < 0)
+        {
+            std::cerr << "Error: Failed to send data.\n";
+            return false;
+        }
+        else if (sent != len)
+        {
+            std::cerr << "Warning: Incomplete data sent.\n";
+        }
+
+        return true;
+    }
+
+    bool receiveData(char* buffer, size_t len, size_t* received = nullptr)
+    {
+        if (socket_fd < 0) 
+        {
+            std::cerr << "Error: Socket not connected.\n";
+            return false;
+        }
+
+        ssize_t recvd = recv(socket_fd, buffer, len, 0);
+        if (recvd < 0)
+        {
+            std::cerr << "Error: Failed to receive data.\n";
+            return false;
+        }
+
+        if (received != nullptr)
+        {
+            *received = static_cast<size_t>(recvd);
+        }
+
+        return true;
+    }
+};
+
 
     ssize_t MYrecv_simple(unsigned char* buff, size_t buff_size)
     {
