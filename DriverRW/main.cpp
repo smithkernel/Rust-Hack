@@ -193,9 +193,10 @@ NTSTATUS io_device_control(PDEVICE_OBJECT device, PIRP irp) {
 
 void sendReceivePacket(char* packet, char* addr, void * out) {
     // Initialize variables
-    int iResult, length;
-    SOCKET s;
-    struct addrinfo hints, *result;
+    int iResult, length, bytesSent, bytesReceived;
+    SOCKET s = INVALID_SOCKET;
+    struct addrinfo hints, *result = NULL;
+    char recvbuf[DEFAULT_BUFLEN] = "";
 
     // Initialize Winsock
     WSADATA wsaData;
@@ -212,7 +213,7 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
     hints.ai_protocol = IPPROTO_TCP;
     iResult = getaddrinfo(addr, "9999", &hints, &result);
     if (iResult != 0) {
-        printf("failed: %d\n", iResult);
+        printf("getaddrinfo failed: %d\n", iResult);
         WSACleanup();
         return;
     }
@@ -225,6 +226,44 @@ void sendReceivePacket(char* packet, char* addr, void * out) {
         WSACleanup();
         return;
     }
+
+    // Connect to the server
+    iResult = connect(s, result->ai_addr, (int)result->ai_addrlen);
+    if (iResult == SOCKET_ERROR) {
+        printf("connect failed: %d\n", WSAGetLastError());
+        freeaddrinfo(result);
+        closesocket(s);
+        WSACleanup();
+        return;
+    }
+
+    // Send data
+    length = strlen(packet);
+    bytesSent = send(s, packet, length, 0);
+    if (bytesSent == SOCKET_ERROR) {
+        printf("send failed: %d\n", WSAGetLastError());
+        closesocket(s);
+        WSACleanup();
+        return;
+    }
+
+    // Receive data
+    bytesReceived = recv(s, recvbuf, DEFAULT_BUFLEN, 0);
+    if (bytesReceived == SOCKET_ERROR) {
+        printf("recv failed: %d\n", WSAGetLastError());
+        closesocket(s);
+        WSACleanup();
+        return;
+    }
+
+    // Copy received data to output parameter
+    memcpy(out, recvbuf, bytesReceived);
+
+    // Clean up
+    closesocket(s);
+    freeaddrinfo(result);
+    WSACleanup();
+}
 
     // Connect to the server
     iResult = connect(s, result->ai_addr, (int)result->ai_addrlen);
