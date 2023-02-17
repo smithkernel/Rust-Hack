@@ -16,47 +16,46 @@ D2D1_COLOR_F color_brush = { 0.0f,0.0f, 0.0f, 1.0f }; //öâåò êèñòè
 WNDCLASSEX wcEsp; //êëàññ îêíà åñï
 
 
-bool GuiEngine::Esp::init_window_Esp(const char* windowsName,const char* className)
+bool GuiEngine::Esp::init_window_Esp(const char* windowsName, const char* className)
 {
-	strcpy(gameName, windowsName);
-	gameHWND = FindWindow(className, gameName);
-	if (gameHWND <= NULL)
+	gameHWND = FindWindow(className, windowsName);
+	if (!gameHWND)
 	{
-		MessageBox(0, "[ GuiEngine Menu ] Not find Game", "404", MB_OK | MB_ICONERROR); // Fixed ERROR TO 404
-		return 0;
+		MessageBox(0, "[GuiEngine Menu] Game not found", "404", MB_OK | MB_ICONERROR);
+		return false;
 	}
 
-	wcEsp = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, GuiEngine::WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, (HBRUSH)CreateSolidBrush(RGB(0, 0, 0)), NULL,randomStrGen(10), NULL };
-	RegisterClassEx(&wcEsp);
-
-
+	WNDCLASS wc = { 0 };
+	wc.lpfnWndProc = GuiEngine::WndProc;
+	wc.hInstance = GetModuleHandle(nullptr);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	wc.lpszClassName = randomStrGen(10);
+	RegisterClass(&wc);
 
 	RECT rc;
 	GetClientRect(gameHWND, &rc);
-	cheatEspHWND = CreateWindowExA(WS_EX_TOPMOST | WS_EX_LAYERED  | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW , wcEsp.lpszClassName, wcEsp.lpszMenuName, WS_POPUP, 0, 0, rc.right - rc.left, rc.bottom - rc.top, 0, 0, 0, 0);  // |  WS_EX_CLIENTEDGE| WS_EX_TRANSPARENT
-	
-	SetLayeredWindowAttributes(cheatEspHWND, RGB(0, 0, 0), 255, /*ULW_COLORKEY | */LWA_ALPHA);
+	cheatEspHWND = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
+								  wc.lpszClassName, nullptr, WS_POPUP, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+								  nullptr, nullptr, nullptr, nullptr);
+	SetLayeredWindowAttributes(cheatEspHWND, 0, 255, LWA_ALPHA);
 
-
-	MARGINS Margin = { -1};
-	DwmExtendFrameIntoClientArea(cheatEspHWND, &Margin);
-
-
+	DwmExtendFrameIntoClientArea(cheatEspHWND, nullptr);
 
 	if (!GuiEngine::Esp::init_render())
 	{
 		MessageBox(0, "[GuiEngine] init_render error", "ERROR", MB_OK | MB_ICONERROR);
 		cleanup_canvas();
-		UnregisterClass(wcEsp.lpszClassName, wcEsp.hInstance);
-		return 0;
+		UnregisterClass(wc.lpszClassName, wc.hInstance);
+		return false;
 	}
 
-	
 	ShowWindow(cheatEspHWND, SW_SHOWDEFAULT);
 	UpdateWindow(cheatEspHWND);
 
-	return 1;
+	return true;
 }
+
+
 bool GuiEngine::Esp::init_render()
 {
 	D2D1_FACTORY_OPTIONS CreateOpt = { D2D1_DEBUG_LEVEL_NONE };
