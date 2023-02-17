@@ -28,6 +28,8 @@ void CleanupDeviceD3D()
 
     if (g_pd3dDeviceContext)
     {
+        g_pd3dDeviceContext->ClearState();
+        g_pd3dDeviceContext->Flush();
         g_pd3dDeviceContext->Release();
         g_pd3dDeviceContext = nullptr;
     }
@@ -38,8 +40,6 @@ void CleanupDeviceD3D()
         g_pd3dDevice = nullptr;
     }
 }
-
-
 
 NTSTATUS
 {
