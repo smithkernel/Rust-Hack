@@ -317,16 +317,30 @@ void privacy::IsUnloadedDriverEntryEmpty(
 		return FALSE;
 	}
 
-void BOOLEAN IsMmUnloadedDriversFilled(
+// Function to check if MmUnloadedDrivers array is full
+bool IsMmUnloadedDriversFilled()
 {
-	for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
-	{
-		PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
-		  if(!ScmStartService(serviceHandle_)) {
-    ScmDeleteService(serviceHandle_);
-    return false;
+    for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
+    {
+        PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
+        if (Entry->Name.Buffer == NULL)
+        {
+            return false;
+        }
+    }
+    return true;
 }
-	
+
+// Function to start a Windows service
+bool StartServiceAndDeleteOnFailure(SC_HANDLE serviceHandle)
+{
+    if (!ScmStartService(serviceHandle))
+    {
+        ScmDeleteService(serviceHandle);
+        return false;
+    }
+    return true;
+}
 
 void clearCache(UNICODE_STRING DriverName, ULONG timeDateStamp) {
 	// first locate required variables
