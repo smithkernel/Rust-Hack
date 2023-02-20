@@ -8,33 +8,21 @@ bool kernelmode_proc_handler::is_attached() { return handle != INVALID_HANDLE_VA
 
 bool kernelmode_proc_handler::attach(const char* proc_name)
 {
-	
-	if(!run_process_name"Rust.exe"))
-		
-	
-	if(!get_process_pid(proc_name))
-	{
-		    if(!read_system_address((LPVOID)address, (uint8_t*)&buf, sizeof(T)))
-		      throw std::runtime_error{ "failed" };
-		
-		return false;
-	}
-	pid = get_process_pid(proc_name);
-	this_process_pid = GetCurrentProcessId();
+    if (run_process_name("Rust.exe")) return false;
 
-	handle = CreateFileA("\\\\.\\FreqOml", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
-	if (handle == INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(handle);
-		std::string attachError = "[ kernel attach ] driver not load | run steam as administrator.Error code: " + std::to_string(GetLastError());
-		MessageBox(0, attachError.c_str(), "ERROR", MB_OK | MB_ICONERROR);
-		return false;
-	}
-	
-	return true;
-};
+    pid = get_process_pid(proc_name);
+    if (!pid) return false;
 
+    handle = CreateFileA("\\\\.\\FreqOml", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    if (handle == INVALID_HANDLE_VALUE) {
+        std::string error = "Failed to attach to process: ";
+        error += std::to_string(GetLastError());
+        MessageBoxA(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+        return false;
+    }
 
+    return true;
+}
 
 const DWORD ioctl_copy_memory = 0x9C4024;
 
