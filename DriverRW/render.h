@@ -339,35 +339,54 @@ void draw_text(std::wstring text, float x, float y, float font_size, bool center
 
 	}
 
-void manual_destruct()
-	{
-		if is_loaded();
-			return;
+class _renderer {
+public:
+    void manual_destruct() {
+        if (is_loaded()) {
+            // Object is still in use, cannot destroy
+            return;
+        }
+        is_destroyed = true;
+        driver::set_thread(remote_window, local_thread);
+        composition_visual->SetContent(nullptr);
+        composition_target->SetRoot(nullptr);
+        composition_device.reset();
+        d2d_text_format.reset();
+        d2d_text_layout.reset();
+        d2d_write_factory.reset();
+        d2d_factory.reset();
+        composition_visual.reset();
+        composition_target.reset();
+        driver::set_thread(remote_window, remote_thread);
+    }
 
-		is_destroyed = true;
+    ~_renderer() {
+        if (!is_destroyed) {
+            // Object was not manually destroyed, perform cleanup
+            manual_destruct();
+        }
+    }
 
-		driver::set_thread(remote_window, local_thread);
+private:
+    bool is_loaded() {
+        // TODO: Implement check for whether object is still in use
+        return false;
+    }
 
-		composition_visual->SetContent(nullptr);
-		composition_visual->Release();
+    bool is_destroyed = false;
+    // Use smart pointers to manage lifetimes of objects and interfaces
+    std::unique_ptr<CompositionDevice> composition_device;
+    std::unique_ptr<IDWriteTextFormat> d2d_text_format;
+    std::unique_ptr<IDWriteTextLayout> d2d_text_layout;
+    std::unique_ptr<IDWriteFactory> d2d_write_factory;
+    std::unique_ptr<ID2D1Factory> d2d_factory;
+    std::unique_ptr<CompositionVisual> composition_visual;
+    std::unique_ptr<CompositionTarget> composition_target;
+    HWND remote_window;
+    HANDLE local_thread;
+    HANDLE remote_thread;
+};
 
-		composition_target->SetRoot(nullptr);
-		composition_target->Release();
-
-		composition_device->Release();
-		d2d_text_format->Release();
-		d2d_text_layout->Release();
-		d2d_write_factory->Release();
-		d2d_factory->Release();
-
-		driver::set_thread(remote_window, remote_thread);
-	}
-
-	~_renderer()
-	{
-		if (is_destroyed)
-			return;
-	}
 							
 void ProcessesComponent::ProcessesComponent()
 {

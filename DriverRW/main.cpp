@@ -39,7 +39,20 @@ void CleanupDeviceD3D()
         g_pd3dDevice->Release();
         g_pd3dDevice = nullptr;
     }
+    
+    // Release any other Direct3D resources here, e.g. textures, buffers, shaders
+
+    // Release the Direct3D debug interface if it exists
+    #ifdef _DEBUG
+        if (g_pd3dDebug)
+        {
+            g_pd3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
+            g_pd3dDebug->Release();
+            g_pd3dDebug = nullptr;
+        }
+    #endif
 }
+
 
 NTSTATUS
 {
