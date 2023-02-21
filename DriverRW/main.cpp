@@ -14,7 +14,6 @@ catch (std::exception& ex) {
 	}
 }
 
-
 void CleanupDeviceD3D()
 {
     CleanupRenderTarget();
@@ -336,37 +335,64 @@ std::string read_string(const void* memory_address, std::size_t size) {
     return std::string(buffer.get(), size);
 }
 
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+// Define the minimum dimensions for the game window
+const int MIN_WIDTH = 640;
+const int MIN_HEIGHT = 480;
+
+// Function to update the cheat
+DWORD WINAPI UpdateCheat(LPVOID lpParam)
+{
+    // Code to update the cheat goes here
+    return 0;
+}
+
+// Function to update the window position
+DWORD WINAPI UpdateWindowPosition(LPVOID lpParam)
+{
+    // Code to update the window position goes here
+    return 0;
+}
+
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
     // Create two threads for updating the cheat and window position
-    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Cheat::Update, NULL, 0, NULL);
-    CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)UpdateWinPosition, NULL, 0, NULL);
+    HANDLE hThread1 = CreateThread(NULL, 0, UpdateCheat, NULL, 0, NULL);
+    HANDLE hThread2 = CreateThread(NULL, 0, UpdateWindowPosition, NULL, 0, NULL);
 
-    // Get the window handle for the "Rust" window
-    HWND hWnd = FindWindow(_T("NULL"), _T("Rust"));
-    if (hWnd == NULL)
+    if (hThread1 == NULL || hThread2 == NULL)
     {
-        MessageBox(NULL, _T("Unable to find the 'Rust' window"), _T("Error"), MB_OK | MB_ICONERROR);
+        MessageBox(NULL, _T("Failed to create threads"), _T("Error"), MB_OK | MB_ICONERROR);
         return 1;
     }
+
+    // Find the window handle for the game window
+    HWND hWnd = FindWindow(NULL, _T("Rust"));
+    if (hWnd == NULL)
+    {
+        MessageBox(NULL, _T("Failed to find game window"), _T("Error"), MB_OK | MB_ICONERROR);
+        return 1;
+    }
+
+    // Wait for the threads to finish updating
+    WaitForSingleObject(hThread1, INFINITE);
+    WaitForSingleObject(hThread2, INFINITE);
 
     // Get the client rectangle for the window
     RECT clientRect;
     GetClientRect(hWnd, &clientRect);
-    int clientWidth = clientRect.right - clientRect.left;
-    int clientHeight = clientRect.bottom - clientRect.top;
 
-    // Check the resolution of the window
-    while (clientWidth < 640 || clientHeight < 480)
+    // Check the window dimensions
+    while (clientRect.right - clientRect.left < MIN_WIDTH || clientRect.bottom - clientRect.top < MIN_HEIGHT)
     {
+        MessageBox(NULL, _T("Game window does not meet minimum dimensions"), _T("Error"), MB_OK | MB_ICONERROR);
+        Sleep(1000); // wait for 1 second
         GetClientRect(hWnd, &clientRect);
-        clientWidth = clientRect.right - clientRect.left;
-        clientHeight = clientRect.bottom - clientRect.top;
     }
+
+    // Do other processing here
 
     return 0;
 }
-
 void real_entry()
 {
 	OBJECT_ATTRIBUTES obj_att = { 0 };
