@@ -393,30 +393,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 
     return 0;
 }
-void real_entry()
-{
-	OBJECT_ATTRIBUTES obj_att = { 0 };
-	HANDLE thread = NULL;
-	DbgPrintEx(0, 0, "Slackes.");
 
-	clean_piddbcachetalbe();
-
-	InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
-	 NTSTATUS status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memeory_thread, NULL);
-		
-	if (pTarget) {
-		m_TargetExist = true;
-		m_TargetData.pCoreObject = pTarget->pCoreObject;
-		m_TargetData.pGameObject = pTarget->pGameObject;
-		m_TargetData.pVisuaState = pTarget->pVisuaState;
-		m_TargetData.pOwnClassObject = pTarget->pOwnClassObject;
-	{
-		struct(0, 0, "sad asdsad:\n", status);
-		return 0;
-	}
-}
-
-void RunCheat() {
+void Run() {
 	try {
 		AllocConsole();
 		Rust::Globals::Init();
