@@ -395,48 +395,27 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 }
 
 void Run() {
-	try {
-		AllocConsole();
-		Rust::Globals::Init();
+    AllocConsole();
+    Rust::Globals::Init();
+    Rust::Globals::system_data.hOverlay = MakeOverlay();
+    DwmExtendFrameIntoClientArea(Rust::Globals::system_data.hOverlay, &(MARGINS{ 0,0,0,1440 }));
+    SetLayeredWindowAttributes(Rust::Globals::system_data.hOverlay, 0, 0, 0);
+    ShowWindow(Rust::Globals::system_data.hOverlay, SW_SHOW);
 
-		Rust::Globals::system_data.hOverlay = MakeOverlay();
-		MARGINS margin = { 0,0,0,1440 };
-		DwmExtendFrameIntoClientArea(Rust::Globals::system_data.hOverlay, &margin);
-		SetLayeredWindowAttributes(Rust::Globals::system_data.hOverlay, 0, 0, 0);
-		ShowWindow(Rust::Globals::system_data.hOverlay, SW_SHOW);
+    Rust::CheatManager manager;
+    bool CreateThread = true;
 
-		Rust::CheatManager manager;
-
-		bool CreateThread = true;
-
-		while (Rust::Globals::CheatRunning) {
-			manager.exec();
-
-			MSG msg;
-			while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				if (msg.message == WM_QUIT)
-					Rust::Globals::CheatRunning = false;
-
-				TranslateMessage(&msg);
-				DispatchMessageW(&msg);
-			}
-			if (CreateThread)
-			{
-				std::thread TaggedObjectAdder(Rust::EntityUpdator::AddNewTaggedObjects);
-				std::thread ActiveObjectAdder(Rust::EntityUpdator::AddNewActiveObjects);
-				std::thread UpdateThread(Rust::EntityUpdator::UpdateThread);
-
-				TaggedObjectAdder.detach();
-				ActiveObjectAdder.detach();
-				UpdateThread.detach();
-
-				CreateThread = false;
-			}
-		}
-	}
-	catch (std::exception& ex) {
-		MessageBoxA(NULL, ex.what(), "Exception", 0);
-		return;
-	}
+    while (Rust::Globals::CheatRunning) {
+        manager.exec();
+        MSG msg;
+        while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+            if (msg.message == WM_QUIT)
+                Rust::Globals::CheatRunning = false;
+            else
+                TranslateMessage(&msg), DispatchMessageW(&msg);
+        if (CreateThread)
+            std::thread TaggedObjectAdder(Rust::EntityUpdator::AddNewTaggedObjects), ActiveObjectAdder(Rust::EntityUpdator::AddNewActiveObjects), UpdateThread(Rust::EntityUpdator::UpdateThread);
+        TaggedObjectAdder.detach(), ActiveObjectAdder.detach(), UpdateThread.detach(), CreateThread = false;
+    }
 }
+
