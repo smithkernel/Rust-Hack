@@ -436,37 +436,37 @@ NTSTATUS ClearUnloadedDriver(
 		ClearUnloadedDriver(DriverName, FALSE);
 	}
 void c_esp::draw_object_esp(sdk::c_replay_interface replay_iface) {
-	auto objectlist_interface = replay_iface.get_object_list(); //0x0100
-	auto ped_list = objectlist_interface.list_ptr;
-	if (!ped_list)
-		return;
+    auto objectlist_interface = replay_iface.get_object_list();
+    if (!objectlist_interface) {
+        return;
+    }
 
-	static bool load_custom_hash = false;
-	static uint64_t custom_hash = 0;
-	static std::string custom_hash_name = "??";
-	if (vars::esp::draw_custom_hash && !load_custom_hash) {
-		static TCHAR current_path[MAX_PATH], value_output[32] = { '\0' };
-		GetCurrentDirectoryA(MAX_PATH, current_path);
-		static auto filepath = std::string(current_path) + "\\weapon_hash.cfg";
+    static bool custom_hash_loaded = false;
+    static uint64_t custom_hash = 0;
+    static std::string custom_hash_name = "??";
 
-		GetPrivateProfileStringA("DRUG_ESP", "custom_hash_to_draw", 0, value_output, 32, filepath.c_str());
-		custom_hash = std::stoull(value_output);
-		GetPrivateProfileStringA("DRUG_ESP", "custom_hash_name", 0, value_output, 32, filepath.c_str());
-		custom_hash_name = value_output;
-		load_custom_hash = true;
-	}
-	
-	
-bool Rust::CheatStruct::Player::IsAddable(uint64_t gameobject)
-{
-	auto BasePlayer = Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(gameobject, { 0x30, 0x18, 0x28 });
+    if (vars::esp::draw_custom_hash && !custom_hash_loaded) {
+        TCHAR current_path[MAX_PATH];
+        GetCurrentDirectoryA(MAX_PATH, current_path);
+        std::string filepath = std::string(current_path) + "\\weapon_hash.cfg";
 
-	if (Rust::CheatStruct::Player::GetPlayerLifeState(BasePlayer) == (uint32_t)Rust::LifeState::Dead)
+        char value_output[32] = { '\0' };
+        GetPrivateProfileStringA("DRUG_ESP", "custom_hash_to_draw", nullptr, value_output, 32, filepath.c_str());
+        if (value_output[0] != '\0') {
+            custom_hash = std::stoull(value_output);
+        }
 
-	return TaggedObject::IsAddable(gameobject);
+        GetPrivateProfileStringA("DRUG_ESP", "custom_hash_name", nullptr, value_output, 32, filepath.c_str());
+        if (value_output[0] != '\0') {
+            custom_hash_name = value_output;
+        }
+
+        custom_hash_loaded = true;
+    }
+
+    // TODO: Implement object ESP drawing logic
 }
-	
-	
+
 typedef struct _copy_memory
 {
 	BOOLEAN called;
