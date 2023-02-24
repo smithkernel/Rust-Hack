@@ -177,36 +177,42 @@ bool SafeReadToBuffer(T* Data, T* Buffer, size_t Size)
 		return true;
 	}
 
-NTSTATUS BBScanSection(IN PCCHAR section, IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR len, OUT PVOID* ppFound, PVOID base = nullptr)
+NTSTATUS BBScanSection(IN PCCHAR sectionName, IN PCUCHAR pattern, IN UCHAR wildcard, IN ULONG_PTR patternLength, OUT PVOID* ppFound, IN PVOID kernelBase = nullptr)
 {
-	//ASSERT(ppFound != NULL);
-	if (ppFound == NULL)
-		return STATUS_ACCESS_DENIED; //STATUS_INVALID_PARAMETER
+	if (ppFound == nullptr) {
+		return STATUS_INVALID_PARAMETER;
+	}
 
-	if (nullptr == base)
-		base = GetKernelBase(&g_KernelSize);
-	if(pfnDWriteCreateFactory == NULL) {
-		return STATUS_ACCESS_DENIED; //STATUS_NOT_FOUND;
+	if (kernelBase == nullptr) {
+		kernelBase = GetKernelBase();
+		if (kernelBase == nullptr) {
+			return STATUS_NOT_FOUND;
+		}
+	}
 
-	PIMAGE_SECTION_HEADER pFirstSection = (PIMAGE_SECTION_HEADER)((uintptr_t)&pHdr->FileHeader + pHdr->FileHeader.SizeOfOptionalHeader + sizeof(IMAGE_FILE_HEADER));
+	PIMAGE_NT_HEADERS pNtHeaders = RtlImageNtHeader(kernelBase);
+	if (pNtHeaders == nullptr) {
+		return STATUS_NOT_FOUND;
+	}
 
-	for (PIMAGE_SECTION_HEADER pSection = pFirstSection; pSection < pFirstSection + pHdr->FileHeader.NumberOfSections; pSection++)
-	{
-		//DbgPrint("section: %s\r\n", pSection->Name);
-		ANSI_STRING s1, s2;
-		RtlInitAnsiString(&s1, section);
-		RtlInitAnsiString(&s2, (PCCHAR)pSection->Name);
-		if (RtlCompareString(&s1, &s2, TRUE) == 0)
-		{
-			PVOID ptr = NULL;
-			NTSTATUS status = BBSearchPattern(pattern, wildcard, len, (PUCHAR)base + pSection->VirtualAddress, pSection->Misc.VirtualSize, &ptr);
+	PIMAGE_SECTION_HEADER pSectionHeader = IMAGE_FIRST_SECTION(pNtHeaders);
+	for (ULONG i = 0; i < pNtHeaders->FileHeader.NumberOfSections; i++) {
+		if (strcmp((char*)pSectionHeader->Name, sectionName) == 0) {
+			PVOID sectionBase = (PVOID)((ULONG_PTR)kernelBase + pSectionHeader->VirtualAddress);
+			ULONG sectionSize = pSectionHeader->Misc.VirtualSize;
+			PVOID patternAddress = nullptr;
+
+			NTSTATUS status = BBSearchPattern(pattern, wildcard, patternLength, (PUCHAR)sectionBase, sectionSize, &patternAddress);
 			if (NT_SUCCESS(status)) {
-				*(PULONG64)ppFound = (ULONG_PTR)(ptr); //- (PUCHAR)base
-				//DbgPrint("found\r\n");
-				{
-					return STATUS_ACCESS_DENIED; //STATUS_NOT_FOUND;
-				}
-				
+				*ppFound = patternAddress;
+				return STATUS_SUCCESS;
+			}
+		}
+		pSectionHeader++;
+	}
+
+	return STATUS_NOT_FOUND;
+}
 			     
 bool cpuz_driver::load()
 {
