@@ -114,26 +114,41 @@ public:
         return 0;
     }
 
-private PrivateData
+// Enum to define IOCTL control codes
+enum class IoctlControlCode : DWORD
 {
-    HANDLE handle;
-    DWORD process_id;
-    const DWORD IOCTL_GET_MODULE_BASE = 0x800;
-    const DWORD IOCTL_PROTECT_VIRTUAL_MEMORY = 0x801;
+    GET_MODULE_BASE = 0x800,
+    PROTECT_VIRTUAL_MEMORY = 0x801
+};
 
-    struct GetModuleBaseRequest
+class ProcessMemory
+{
+public:
+    ProcessMemory(DWORD processId, HANDLE processHandle);
+    ~ProcessMemory();
+
+    // Struct to request the base address of a module within a process
+    struct ModuleBaseRequest
     {
-        DWORD process_id;
-        uint64_t handle;
-        WCHAR module_name[720];
+        DWORD processId;
+        uint64_t processHandle;
+        std::wstring moduleName;
     };
 
-    struct ProtectVirtualMemoryRequest
+    // Struct to request protection for a range of virtual memory within a process
+    struct ProtectMemoryRequest
     {
         uint64_t address;
         size_t size;
-        DWORD protection_flags;
+        DWORD protectionFlags;
     };
+
+    bool GetModuleBase(const ModuleBaseRequest& request, uint64_t& moduleBase);
+    bool ProtectVirtualMemory(const ProtectMemoryRequest& request);
+
+private:
+    HANDLE m_processHandle;
+    DWORD m_processId;
 };
 
 
