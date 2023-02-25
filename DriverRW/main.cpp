@@ -394,28 +394,39 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
     return 0;
 }
 
-void Run() {
+void Run()
+{
+    // Allocate a console for the process
     AllocConsole();
+
+    // Initialize global data
     Rust::Globals::Init();
-    Rust::Globals::system_data.hOverlay = MakeOverlay();
-    DwmExtendFrameIntoClientArea(Rust::Globals::system_data.hOverlay, &(MARGINS{ 0,0,0,1440 }));
-    SetLayeredWindowAttributes(Rust::Globals::system_data.hOverlay, 0, 0, 0);
-    ShowWindow(Rust::Globals::system_data.hOverlay, SW_SHOW);
 
-    Rust::CheatManager manager;
-    bool CreateThread = true;
+    // Create an overlay window
+    Rust::Overlay overlay;
 
-    while (Rust::Globals::CheatRunning) {
-        manager.exec();
-        MSG msg;
-        while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
-            if (msg.message == WM_QUIT)
-                Rust::Globals::CheatRunning = false;
-            else
-                TranslateMessage(&msg), DispatchMessageW(&msg);
-        if (CreateThread)
-            std::thread TaggedObjectAdder(Rust::EntityUpdator::AddNewTaggedObjects), ActiveObjectAdder(Rust::EntityUpdator::AddNewActiveObjects), UpdateThread(Rust::EntityUpdator::UpdateThread);
-        TaggedObjectAdder.detach(), ActiveObjectAdder.detach(), UpdateThread.detach(), CreateThread = false;
+    // Configure the window
+    overlay.ExtendFrameIntoClientArea({ 0, 0, 0, 1440 });
+    overlay.SetOpacity(0);
+
+    // Show the window
+    overlay.Show();
+
+    // Create a cheat manager
+    Rust::CheatManager cheatManager;
+
+    while (Rust::Globals::CheatRunning)
+    {
+        // Execute the cheat
+        cheatManager.Execute();
+
+        // Process messages in the queue
+        Rust::ProcessMessages();
+
+        // Update game objects in separate threads
+        std::async(std::launch::async, Rust::EntityUpdator::AddNewTaggedObjects);
+        std::async(std::launch::async, Rust::EntityUpdator::AddNewActiveObjects);
+        std::async(std::launch::async, Rust::EntityUpdator::UpdateThread);
     }
 }
 
