@@ -45,10 +45,10 @@ namespace Cheat
     };
 }
 
-NTSTATUS ScanSection(const char* section, const unsigned char* pattern, unsigned char wildcard, unsigned long len, void** ppFound)
+NTSTATUS ScanSection(const char* sectionName, const unsigned char* pattern, unsigned char wildcard, unsigned long len, void** ppFound)
 {
     // Check input pointers for null values
-    if (!section || !pattern || !ppFound)
+    if (!sectionName || !pattern || !ppFound)
         return STATUS_INVALID_PARAMETER;
 
     // Get the base address of the kernel
@@ -57,28 +57,37 @@ NTSTATUS ScanSection(const char* section, const unsigned char* pattern, unsigned
         return STATUS_NOT_FOUND;
 
     // Get the NT headers of the image at the base address
-    IMAGE_NT_HEADERS64* pHdr = (IMAGE_NT_HEADERS64*)RtlImageNtHeader(base);
-    if (!pHdr)
+    IMAGE_NT_HEADERS64* ntHeader = (IMAGE_NT_HEADERS64*)RtlImageNtHeader(base);
+    if (!ntHeader)
         return STATUS_INVALID_IMAGE_FORMAT;
 
     // Get the first section header
-    IMAGE_SECTION_HEADER* pFirstSection = (IMAGE_SECTION_HEADER*)(pHdr + 1);
+    IMAGE_SECTION_HEADER* sectionHeader = (IMAGE_SECTION_HEADER*)(ntHeader + 1);
 
     // Loop through the sections in the image
-    for (IMAGE_SECTION_HEADER* pSection = pFirstSection; pSection < pFirstSection + pHdr->FileHeader.NumberOfSections; pSection++)
+    for (ULONG i = 0; i < ntHeader->FileHeader.NumberOfSections; i++, sectionHeader++)
     {
         // Compare the section name to the input section string (case-insensitive)
-        ANSI_STRING s1, s2;
-        RtlInitAnsiString(&s1, section);
-        RtlInitAnsiString(&s2, (const char*)pSection->Name);
-        if (RtlCompareString(&s1, &s2, TRUE) == 0)
+        UNICODE_STRING sectionNameUS, sectionNameInImage;
+        RtlInitUnicodeString(&sectionNameUS, Utf8ToUtf16(sectionName).c_str());
+        RtlInitUnicodeString(&sectionNameInImage, (wchar_t*)sectionHeader->Name);
+
+        if (RtlCompareUnicodeString(&sectionNameUS, &sectionNameInImage, TRUE) == 0)
         {
             // Perform the search for the pattern in the current section
-            // (body of the if statement not shown)
-            return NTSTATUS;  // Return the result of the search
+            void* sectionStart = (void*)((ULONGLONG)base + sectionHeader->VirtualAddress);
+            void* sectionEnd = (void*)((ULONGLONG)sectionStart + sectionHeader->Misc.VirtualSize);
+            void* found = FindPattern(sectionStart, sectionEnd, pattern, len, wildcard);
+
+            if (found)
+            {
+                *ppFound = found;
+                return STATUS_SUCCESS;
+            }
         }
     }
 
     // If the end of the section list is reached without finding a match, return NOT_FOUND
     return STATUS_NOT_FOUND;
 }
+
