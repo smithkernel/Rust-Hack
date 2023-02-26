@@ -162,9 +162,21 @@ float GetBulletSpeed(int weaponID)
 }
 
 
-bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2)) && 0x16000; //VK_XBUTTON1 -> mouse back button
+// Check if XButton2 on the mouse is pressed
+bool buttonPressed = (GetAsyncKeyState(VK_XBUTTON2) & 0x8000) != 0;
 
-//missing closing curly brace added here
+// If buttonPressed is true, get the position of the target's head and the local player's head
+if (buttonPressed)
 {
-    auto TargetHeadPos = Rust::MainCam::GetPosition(Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(m_TargetData.pOwnClassObject, {0x80, 0x28, 0x10 }));
-    auto LocalHeadPos = Rust::MainCam
+    // Get the target's head position
+    uint64_t targetHeadAddr = Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(m_TargetData.pOwnClassObject, {0x80, 0x28, 0x10});
+    Vector3 targetHeadPos = Rust::MainCam::GetPosition(targetHeadAddr);
+
+    // Get the local player's head position
+    uint64_t localPlayerAddr = Rust::Globals::hack_data.RustMemory->GetObject(Rust::Globals::hack_data.RustMemory->GetBaseObject() + 0x10);
+    uint64_t localHeadAddr = Rust::Globals::hack_data.RustMemory->ReadFromChain<uint64_t>(localPlayerAddr, { 0x30, 0x18, 0x28, 0x30, 0x18, 0x38 });
+    Vector3 localHeadPos = Rust::MainCam::GetPosition(localHeadAddr);
+
+    // Rest of the code here...
+}
+
