@@ -134,44 +134,92 @@ ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
 IDXGISwapChain* g_pSwapChain = nullptr;
 ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
+ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
+IDXGISwapChain* g_pSwapChain = nullptr;
+
 void CleanupRenderTarget()
 {
-	if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = nullptr; }
+	if (g_mainRenderTargetView)
+	{
+		g_mainRenderTargetView->Release();
+		g_mainRenderTargetView = nullptr;
+	}
 }
 
 HRESULT CreateDeviceD3D(HWND hWnd)
 {
-	// Set up the swap chain description
-	DXGI_SWAP_CHAIN_DESC1 sd;
-	sd.Width = 0;
-	sd.Height = 0;
-	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.Stereo = FALSE;
+	// Create the device and swap chain
+	UINT createDeviceFlags = 0;
+#ifdef _DEBUG
+	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+	DXGI_SWAP_CHAIN_DESC sd = {};
+	sd.BufferCount = 2;
+	sd.BufferDesc.Width = 0;
+	sd.BufferDesc.Height = 0;
+	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.BufferDesc.RefreshRate.Numerator = 60;
+	sd.BufferDesc.RefreshRate.Denominator = 1;
+	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = 2;
-	sd.Scaling = DXGI_SCALING_STRETCH;
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
-	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-	// Set up the swap chain
-	IDXGISwapChain1* swapChain1 = nullptr;
-	HRESULT hr = CreateDXGISwapChainForHwnd(g_pd3dDevice, hWnd, &sd, nullptr, nullptr, &swapChain1);
+	sd.OutputWindow = hWnd;
+	sd.Windowed = TRUE;
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+	HRESULT hr = D3D11CreateDeviceAndSwapChain(
+		nullptr,
+		D3D_DRIVER_TYPE_HARDWARE,
+		nullptr,
+		createDeviceFlags,
+		&featureLevel,
+		1,
+		D3D11_SDK_VERSION,
+		&sd,
+		&g_pSwapChain,
+		&g_pd3dDevice,
+		nullptr,
+		&g_pd3dDeviceContext);
 	if (FAILED(hr))
 	{
 		return hr;
 	}
 
-	hr = swapChain1->QueryInterface(__uuidof(IDXGISwapChain), reinterpret_cast<void**>(&g_pSwapChain));
-	swapChain1->Release();
+	// Create the main render target view
+	hr = CreateRenderTarget();
+	if (FAILED(hr))
+	{
+		g_pSwapChain->Release();
+		g_pSwapChain = nullptr;
+		g_pd3dDevice->Release();
+		g_pd3dDevice = nullptr;
+		g_pd3dDeviceContext->Release();
+		g_pd3dDeviceContext = nullptr;
+		return hr;
+	}
+
+	return S_OK;
+}
+
+HRESULT CreateRenderTarget()
+{
+	// Get the back buffer of the swap chain
+	ID3D11Texture2D* pBackBuffer = nullptr;
+	HRESULT hr = g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
 	if (FAILED(hr))
 	{
 		return hr;
 	}
 
-	CreateRenderTarget();
+	// Create the render target view
+	hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_mainRenderTargetView);
+	pBackBuffer->Release();
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+	// Set the render target view
+	g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
 
 	return S_OK;
 }
