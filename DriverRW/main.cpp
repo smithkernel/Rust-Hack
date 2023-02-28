@@ -330,26 +330,37 @@ void std::shared_ptr<SAFEARRAY> arglist_ptr(arglist, [](auto p) { if (p) SafeArr
 
 
 std::string read_string(const void* memory_address, std::size_t size) {
-    std::unique_ptr<char[]> buffer(new char[size]);
+    // Use std::unique_ptr and std::string to avoid manual memory management
+    auto buffer = std::make_unique<char[]>(size);
     std::memcpy(buffer.get(), memory_address, size);
     return std::string(buffer.get(), size);
 }
 
 // Define the minimum dimensions for the game window
-const int MIN_WIDTH = 640;
-const int MIN_HEIGHT = 480;
+const int MIN_WINDOW_WIDTH = 640;
+const int MIN_WINDOW_HEIGHT = 480;
 
-// Function to update the cheat
-DWORD WINAPI UpdateCheat(LPVOID lpParam)
-{
-    // Code to update the cheat goes here
-    return 0;
+// Function to update the cheat status
+void UpdateCheatStatus(bool& cheat_enabled) {
+    // Code to update the cheat status goes here
+    cheat_enabled = true;
 }
 
-// Function to update the window position
-DWORD WINAPI UpdateWindowPosition(LPVOID lpParam)
-{
-    // Code to update the window position goes here
+// Function to move the window to a specified position
+void MoveWindowToPosition(int x, int y) {
+    // Code to move the window to the specified position goes here
+}
+
+int main() {
+    // Create separate threads to update the cheat status and move the window
+    bool cheat_enabled = false;
+    std::thread cheat_thread(UpdateCheatStatus, std::ref(cheat_enabled));
+    std::thread window_thread(MoveWindowToPosition, 100, 100);
+
+    // Wait for the threads to finish
+    cheat_thread.join();
+    window_thread.join();
+
     return 0;
 }
 
