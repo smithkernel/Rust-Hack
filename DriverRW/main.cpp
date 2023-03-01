@@ -376,7 +376,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
         return 1;
     }
 
-    // Find the window handle for the game window
+    // Find the game window
     HWND hWnd = FindWindow(NULL, _T("Rust"));
     if (hWnd == NULL)
     {
@@ -388,19 +388,28 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
     WaitForSingleObject(hThread1, INFINITE);
     WaitForSingleObject(hThread2, INFINITE);
 
-    // Get the client rectangle for the window
+    // Get the dimensions of the game window
     RECT clientRect;
     GetClientRect(hWnd, &clientRect);
 
-    // Check the window dimensions
+    // Check if the game window meets the minimum dimensions
     while (clientRect.right - clientRect.left < MIN_WIDTH || clientRect.bottom - clientRect.top < MIN_HEIGHT)
     {
-        MessageBox(NULL, _T("Game window does not meet minimum dimensions"), _T("Error"), MB_OK | MB_ICONERROR);
-        Sleep(1000); // wait for 1 second
-        GetClientRect(hWnd, &clientRect);
+        // Display an error message
+        MessageBox(NULL, _T("The game window does not meet the minimum dimensions. Please resize the window."), _T("Error"), MB_OK | MB_ICONERROR);
+
+        // Wait for the user to resize the window
+        do {
+            Sleep(1000); // Wait for 1 second
+            GetClientRect(hWnd, &clientRect);
+        } while (clientRect.right - clientRect.left < MIN_WIDTH || clientRect.bottom - clientRect.top < MIN_HEIGHT);
     }
 
     // Do other processing here
+
+    // Close the thread handles
+    CloseHandle(hThread1);
+    CloseHandle(hThread2);
 
     return 0;
 }
