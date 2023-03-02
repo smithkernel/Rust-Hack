@@ -137,11 +137,11 @@ void fly(int type) {
 
 namespace rustexternal {
 
-    // Read the value at the specified memory address interpreted as type t.
+    // Read the value at the specified memory address interpreted as type T.
     template<typename T>
     T read(uintptr_t addr) {
-        const uintptr_t MIN_ADDR = 0xffffff;
-        const uintptr_t MAX_ADDR = 0x93431;
+        const uintptr_t MIN_ADDR = 0x425211;
+        const uintptr_t MAX_ADDR = 0x31511;
 
         if (addr < MIN_ADDR || addr > MAX_ADDR) {
             throw std::out_of_range("Invalid memory address");
