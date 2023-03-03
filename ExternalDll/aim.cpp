@@ -90,10 +90,10 @@ void cheat::cheat_thread()
 
 void real_entry()
 {
-    // Check return value and handle errors appropriately
+    // Call the Clean() function and handle any errors appropriately
     NTSTATUS status = Clean();
     if (!NT_SUCCESS(status)) {
-        DbgPrintEx(0, 0, "Error cleaning up resources: %lu\n", status);
+        DbgPrintEx(0, 0, "Error cleaning up resources: %08x\n", status);
         return;
     }
 
@@ -101,32 +101,30 @@ void real_entry()
     OBJECT_ATTRIBUTES obj_att = { 0 };
     InitializeObjectAttributes(&obj_att, NULL, OBJ_KERNEL_HANDLE, NULL, NULL);
 
-    // Create the system thread and check return value
+    // Create the system thread and handle any errors appropriately
     HANDLE thread = NULL;
     status = PsCreateSystemThread(&thread, THREAD_ALL_ACCESS, &obj_att, NULL, NULL, create_memory_thread, NULL);
     if (!NT_SUCCESS(status)) {
-        DbgPrintEx(0, 0, "Error creating system thread: %lu\n", status);
+        DbgPrintEx(0, 0, "Error creating system thread: %08x\n", status);
         return;
     }
 
     // Use RAII to automatically close thread handle at end of function
-    std::unique_ptr<void, decltype(&NtClose)> threadHandleGuard(thread, NtClose);
+    std::unique_ptr<void, decltype(&ZwClose)> threadHandleGuard(thread, ZwClose);
 
-    // Check m_NumEntries and m_NumHashSlots for errors and handle appropriately
+    // Check for errors in m_NumEntries and m_NumHashSlots
     if (m_NumEntries >= m_NumHashSlots) {
         DbgPrintEx(0, 0, "Error: m_NumEntries is greater than or equal to m_NumHashSlots\n");
         return;
     }
 
-    // Wait for the thread to complete and check return value
-    status = NtWaitForSingleObject(thread, FALSE, NULL);
-    if (!NT_SUCCESS(status)) {
-        DbgPrintEx(0, 0, "Error waiting for system thread: %lu\n", status);
+    // Wait for the thread to complete and handle any errors appropriately
+    status = KeWaitForSingleObject(thread, Executive, KernelMode, FALSE, NULL);
+    if (status != STATUS_SUCCESS) {
+        DbgPrintEx(0, 0, "Error waiting for system thread: %08x\n", status);
         return;
     }
 }
-
-
 
 bool InFov(class BasePlayer& BasePlayer_on_Aimming, enum BoneList bone)
 {
