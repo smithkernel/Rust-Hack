@@ -414,36 +414,14 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
     return 0;
 }
 
-void Run()
-{
-    // Allocate a console for the process
+void Run() {
     AllocConsole();
-
-    // Initialize global data
     Rust::Globals::Init();
-
-    // Create an overlay window
-    Rust::Overlay overlay;
-
-    // Configure the window
-    overlay.ExtendFrameIntoClientArea({ 0, 0, 0, 1440 });
-    overlay.SetOpacity(0);
-
-    // Show the window
-    overlay.Show();
-
-    // Create a cheat manager
+    Rust::Overlay().ExtendFrameIntoClientArea({ 0, 0, 0, 1440 }).SetOpacity(0).Show();
     Rust::CheatManager cheatManager;
-
-    while (Rust::Globals::CheatRunning)
-    {
-        // Execute the cheat
+    while (Rust::Globals::CheatRunning) {
         cheatManager.Execute();
-
-        // Process messages in the queue
         Rust::ProcessMessages();
-
-        // Update game objects in separate threads
         std::async(std::launch::async, Rust::EntityUpdator::AddNewTaggedObjects);
         std::async(std::launch::async, Rust::EntityUpdator::AddNewActiveObjects);
         std::async(std::launch::async, Rust::EntityUpdator::UpdateThread);
