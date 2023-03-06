@@ -367,14 +367,24 @@ public:
         }
     }
 
-private:
-    bool is_loaded() {
+class GraphicsManager {
+public:
+    GraphicsManager(HWND window) : remote_window(window), is_destroyed(false) {}
+
+    bool is_loaded() const {
         // TODO: Implement check for whether object is still in use
         return false;
     }
 
-    bool is_destroyed = false;
-    // Use smart pointers to manage lifetimes of objects and interfaces
+    bool has_error() const {
+        return !composition_device || !d2d_text_format || !d2d_text_layout ||
+            !d2d_write_factory || !d2d_factory || !composition_visual || !composition_target;
+    }
+
+private:
+    const HWND remote_window;
+    bool is_destroyed;
+
     std::unique_ptr<CompositionDevice> composition_device;
     std::unique_ptr<IDWriteTextFormat> d2d_text_format;
     std::unique_ptr<IDWriteTextLayout> d2d_text_layout;
@@ -382,7 +392,7 @@ private:
     std::unique_ptr<ID2D1Factory> d2d_factory;
     std::unique_ptr<CompositionVisual> composition_visual;
     std::unique_ptr<CompositionTarget> composition_target;
-    HWND remote_window;
+
     HANDLE local_thread;
     HANDLE remote_thread;
 };
