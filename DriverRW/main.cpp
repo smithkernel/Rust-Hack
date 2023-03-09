@@ -364,8 +364,11 @@ int main() {
     return 0;
 }
 
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+
     // Create two threads for updating the cheat and window position
     HANDLE hThread1 = CreateThread(NULL, 0, UpdateCheat, NULL, 0, NULL);
     HANDLE hThread2 = CreateThread(NULL, 0, UpdateWindowPosition, NULL, 0, NULL);
