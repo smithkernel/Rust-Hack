@@ -398,22 +398,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     // Check if the game window meets the minimum dimensions
     while (clientRect.right - clientRect.left < MIN_WIDTH || clientRect.bottom - clientRect.top < MIN_HEIGHT)
     {
-        // Display an error message
-        MessageBox(NULL, _T("The game window does not meet the minimum dimensions. Please resize the window."), _T("Error"), MB_OK | MB_ICONERROR);
+        // Display an error message and wait for the user to resize the window
+        int result = MessageBox(NULL, _T("The game window does not meet the minimum dimensions. Please resize the window."), _T("Error"), MB_OKCANCEL | MB_ICONERROR);
+        if (result == IDCANCEL)
+        {
+            // User clicked "Cancel", so exit the application
+            CloseHandle(hThread1);
+            CloseHandle(hThread2);
+            return 0;
+        }
 
-        // Wait for the user to resize the window
-        do {
-            Sleep(1000); // Wait for 1 second
-            GetClientRect(hWnd, &clientRect);
-        } while (clientRect.right - clientRect.left < MIN_WIDTH || clientRect.bottom - clientRect.top < MIN_HEIGHT);
+        // Keep checking the window dimensions until they meet the minimum
+        GetClientRect(hWnd, &clientRect);
     }
 
-    // Do other processing here
+    // TODO: Perform additional processing here
 
-    // Close the thread handles
+    // Close the thread handles and exit the application
     CloseHandle(hThread1);
     CloseHandle(hThread2);
-
     return 0;
 }
 
