@@ -1,41 +1,65 @@
 #include <cstdint>
 #include <string>
-#include "socket.h
+#include "socket.h"
 
 namespace memory
 {
-    uintptr_t game_assembly_base;
-    uintptr_t unity_player_base;
+    // Define constants for maximum read/write sizes
+    constexpr size_t MAX_READ_SIZE = 4096; // 4KB
+    constexpr size_t MAX_WRITE_SIZE = 4096; // 4KB
 
+    // Declare variables for module base addresses
+    std::uintptr_t game_assembly_base = 0;
+    std::uintptr_t unity_player_base = 0;
+
+    // Forward declare getModuleAddress function
+    std::uintptr_t getModuleAddress(const std::string& module_name);
+
+    // Initialize module base addresses
     void init()
     {
         game_assembly_base = getModuleAddress("GameAssembly.dll");
         unity_player_base = getModuleAddress("UnityPlayer.dll");
     }
 
-    uintptr_t getModuleAddress(const std::string &module_name)
+    // Find the base address of a loaded module with the given name
+    std::uintptr_t getModuleAddress(const std::string& module_name)
     {
         // implementation of finding the base address of a module based on its name
 
-        // return the base address if found, otherwise return 0
-        return 0;
+        // return the base address if found, otherwise throw an exception
+        throw std::runtime_error("Module not found: " + module_name);
     }
 
+    // Read data of type T from the specified address in the process's memory space
     template<typename T>
-    T read(uintptr_t addr)
+    T read(std::uintptr_t addr)
     {
+        // Check for null address
         if (addr == 0)
-            return T();
+            throw std::runtime_error("Null address");
 
+        // Check for invalid read size
+        if (sizeof(T) > MAX_READ_SIZE)
+            throw std::runtime_error("Invalid read size");
+
+        // Cast the address to a pointer of type T and dereference it to read the data
         return *reinterpret_cast<T*>(addr);
     }
 
+    // Write data of type T to the specified address in the process's memory space
     template<typename T>
-    void write(uintptr_t addr, const T &buffer)
+    void write(std::uintptr_t addr, const T& buffer)
     {
+        // Check for null address
         if (addr == 0)
-            return;
+            throw std::runtime_error("Null address");
 
+        // Check for invalid write size
+        if (sizeof(T) > MAX_WRITE_SIZE)
+            throw std::runtime_error("Invalid write size");
+
+        // Cast the address to a pointer of type T and dereference it to write the data
         *reinterpret_cast<T*>(addr) = buffer;
     }
 }
