@@ -23,23 +23,37 @@ public:
         }
     }
 
-    bool MYconnect() 
+bool MYconnect(const char* server_ip, int server_port) 
+{
+    // Create a socket for the client
+    int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_fd < 0) 
     {
-        socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (socket_fd < 0) 
-        {
-            std::cerr << "Error: Could not create socket.\n";
-            return false;
-        }
-
-        if (connect(socket_fd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) 
-        {
-            std::cerr << "Error: Connection failed.\n";
-            return false;
-        }
-
-        return true;
+        std::cerr << "Error: Could not create socket.\n";
+        return false;
     }
+
+    // Initialize the server address structure
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(server_port);
+    if (inet_pton(AF_INET, server_ip, &server_address.sin_addr) <= 0)
+    {
+        std::cerr << "Error: Invalid server IP address.\n";
+        close(socket_fd);
+        return false;
+    }
+
+    // Connect to the server
+    if (connect(socket_fd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) 
+    {
+        std::cerr << "Error: Connection failed.\n";
+        close(socket_fd);
+        return false;
+    }
+
+    return true;
+}
 
     bool MYdisconnect() 
     {
