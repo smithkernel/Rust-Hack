@@ -1,38 +1,108 @@
 #include "driverRW.h"
 
-kernelmode_proc_handler::kernelmode_proc_handler() :handle{ INVALID_HANDLE_VALUE }, pid{ 0 }, this_process_pid{0}{}
+class KernelModeProcHandler {
+public:
+    KernelModeProcHandler() : handle{ INVALID_HANDLE_VALUE }, pid{ 0 } {}
+    ~KernelModeProcHandler() { Detach(); }
 
-kernelmode_proc_handler::~kernelmode_proc_handler() { if (is_attached()) CloseHandle(handle); }
+    bool IsAttached() const { return handle != INVALID_HANDLE_VALUE; }
 
-bool kernelmode_proc_handler::is_attached() { return handle != INVALID_HANDLE_VALUE; }
+    bool Attach(const char* procName) {
+        if (IsAttached()) {
+            Detach();
+        }
 
-bool kernelmode_proc_handler::attach(const char* proc_name)
-{
-    if (run_process_name("Rust.exe")) return false;
+        if (RunProcessName("Rust.exe")) {
+            return false;
+        }
 
-    pid = get_process_pid(proc_name);
-    if (!pid) return false;
+        pid = GetProcessIdByName(procName);
+        if (pid == 0) {
+            return false;
+        }
 
-    handle = CreateFileA("\\\\.\\FreqOml", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
-    if (handle == INVALID_HANDLE_VALUE) {
-        std::string error = "Failed to attach to process: ";
-        error += std::to_string(GetLastError());
-        MessageBoxA(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+        handle = CreateFileA("\\\\.\\FreqOml", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+        if (handle == INVALID_HANDLE_VALUE) {
+            std::string error = "Failed to attach to process: ";
+            error += std::to_string(GetLastError());
+            MessageBoxA(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+            return false;
+        }
+
+        return true;
+    }
+
+    void Detach() {
+        if (IsAttached()) {
+            CloseHandle(handle);
+            handle = INVALID_HANDLE_VALUE;
+            pid = 0;
+        }
+    }
+
+private:
+    HANDLE handle;
+    DWORD pid;
+
+    bool IsProcessRunning(DWORD pid) {
+        HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+        if (hProcess != NULL) {
+            CloseHandle(hProcess);
+            return true;
+        }
         return false;
     }
 
-    return true;
-}
+    bool RunProcessName(const char* procName) {
+        DWORD pidList[1024], cbNeeded;
+        if (!EnumProcesses(pidList, sizeof(pidList), &cbNeeded)) {
+            return true;
+        }
 
-const DWORD ioctl_copy_memory = 0x9C4024;
+        DWORD procCount = cbNeeded / sizeof(DWORD);
+        for (DWORD i = 0; i < procCount; i++) {
+            if (IsProcessRunning(pidList[i])) {
+                char filename[MAX_PATH];
+                HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidList[i]);
+                if (hProcess != NULL) {
+                    if (GetModuleFileNameExA(hProcess, NULL, filename, MAX_PATH)) {
+                        if (_stricmp(filename, procName) == 0) {
+                            CloseHandle(hProcess);
+                            return true;
+                        }
+                    }
+                    CloseHandle(hProcess);
+                }
+            }
+        }
+        return false;
+    }
 
-struct k_rw_request {
-  DWORD pid;
-  DWORD this_process_pid;
-  uint64_t src_addr;
-  uint64_t dst_addr;
-  size_t size;
+    DWORD GetProcessIdByName(const char* procName) {
+        DWORD pidList[1024], cbNeeded;
+        if (!EnumProcesses(pidList, sizeof(pidList), &cbNeeded)) {
+            return 0;
+        }
+
+        DWORD procCount = cbNeeded / sizeof(DWORD);
+        for (DWORD i = 0; i < procCount; i++) {
+            char filename[MAX_PATH];
+            HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidList[i]);
+            if (hProcess != NULL) {
+                if (GetModuleFileNameExA(hProcess, NULL, filename, MAX_PATH)) {
+                    if (_stricmp(filename, procName) == 0) {
+                        CloseHandle(hProcess);
+                        return pidList[i];
+                    }
+                }
+                CloseHandle(hProcess);
+            }
+        }
+        return 0;
+    }
 };
+
+
 
 class KernelmodeProcHandler {
  public:
