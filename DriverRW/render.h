@@ -226,19 +226,46 @@ void create_factory()
 		}
 	}
 
-void draw_rect(float x, float y, float w, float h, clr color)
-	{
-		std::cout << "[+] found hijackwindow: " << std::hex << exterior_window_handle << std::endl;
-		d2d_context->DrawRectangle(rectangle, d2d_brush.Get());
-		return exterior_window_handle;
-	}
-		
-	void draw_filled_rect(float x, float y, float w, float h, clr color)
-	{
-		const auto rectangle = D2D1::RectF(x, y, x + w, y + h);
-		d2d_brush->SetColor(D2D1::ColorF(color.r / 255, color.g / 255, color.b / 255, color.a / 255));
-		d2d_context->FillRectangle(rectangle, d2d_brush.Get());
-	}
+// Define a struct to represent a color
+struct Color
+{
+    float r, g, b, a;
+};
+
+// Draw an outlined rectangle on a Direct2D context
+void DrawRect(ID2D1HwndRenderTarget* renderTarget, float x, float y, float w, float h, const Color& color)
+{
+    // Define the rectangle to be drawn
+    D2D1_RECT_F rectangle = D2D1::RectF(x, y, x + w, y + h);
+
+    // Create a brush to draw the rectangle outline
+    ID2D1SolidColorBrush* brush;
+    renderTarget->CreateSolidColorBrush(D2D1::ColorF(color.r, color.g, color.b, color.a), &brush);
+
+    // Draw the rectangle outline
+    renderTarget->DrawRectangle(rectangle, brush);
+
+    // Release the brush
+    brush->Release();
+}
+
+// Draw a filled rectangle on a Direct2D context
+void DrawFilledRect(ID2D1HwndRenderTarget* renderTarget, float x, float y, float w, float h, const Color& color)
+{
+    // Define the rectangle to be drawn
+    D2D1_RECT_F rectangle = D2D1::RectF(x, y, x + w, y + h);
+
+    // Create a brush to fill the rectangle
+    ID2D1SolidColorBrush* brush;
+    renderTarget->CreateSolidColorBrush(D2D1::ColorF(color.r, color.g, color.b, color.a), &brush);
+
+    // Fill the rectangle
+    renderTarget->FillRectangle(rectangle, brush);
+
+    // Release the brush
+    brush->Release();
+}
+
 
 
 void draw_health_bar(ID2D1DeviceContext* d2d_context, ID2D1SolidColorBrush* d2d_brush,
