@@ -2,28 +2,44 @@
 #include "imports.h"
 #include <string_view>
 #include <mutex>
+#include <chrono>
 
 static std::mutex mtx;
 
-#include <chrono>
 
-class timer 
+class Timer 
 {
 private:
-	std::chrono::time_point<std::chrono::steady_clock> m_StartTime;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTime;
 
 public:
-	void Start()
-	{
-		m_StartTime = std::chrono::high_resolution_clock::now();
-	}
-	float GetDuration()
-	{
-		auto stop = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - m_StartTime);
-		return duration.count();
-	}
+    void Start()
+    {
+        m_StartTime = std::chrono::high_resolution_clock::now();
+    }
+
+    double GetDurationInSeconds()
+    {
+        auto endTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> duration = endTime - m_StartTime;
+        return duration.count();
+    }
+
+    long long GetDurationInMilliseconds()
+    {
+        auto endTime = std::chrono::high_resolution_clock::now();
+        std::chrono::milliseconds::rep duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
+        return duration;
+    }
+
+    long long GetDurationInMicroseconds()
+    {
+        auto endTime = std::chrono::high_resolution_clock::now();
+        std::chrono::microseconds::rep duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - m_StartTime).count();
+        return duration;
+    }
 };
+
 
 namespace mem {
     // Declare constants with descriptive names instead of using macros.
