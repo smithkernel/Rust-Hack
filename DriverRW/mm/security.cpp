@@ -307,15 +307,19 @@ BOOLEAN IsUnloadedDriverEntryEmpty(
 	}
 
 	
-void BOOLEAN IsMmUnloadedDriversFilled(
+void IsMmUnloadedDriversFilled()
 {
-	for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
-	{
-		PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
-		if (IsUnloadedDriverEntryEmpty(Entry))
-		{
-			return FALSE;
-		}
+    for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
+    {
+        PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
+        if (IsUnloadedDriverEntryEmpty(Entry))
+        {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
 
  void clearCache(UNICODE_STRING DriverName, ULONG timeDateStamp) {
 	// first locate required variables
@@ -355,86 +359,27 @@ void BOOLEAN IsMmUnloadedDriversFilled(
 
 
 
-
-NTSTATUS ClearUnloadedDriver(
-	_In_ PUNICODE_STRING	DriverName,
-	_In_ BOOLEAN			AccquireResource
-)
+NTSTATUS ClearUnloadedDriver(PUNICODE_STRING DriverName, BOOLEAN AcquireResource)
 {
-	if (AccquireResource)
-	{
-		ExAcquireResourceExclusiveLite(&PsLoadedModuleResource, TRUE);
-	}
+    if (AcquireResource) ExAcquireResourceExclusiveLite(&PsLoadedModuleResource, TRUE);
+
+    for (ULONG i = 0; i < MM_UNLOADED_DRIVERS_SIZE; i++)
+    {
+        if (RtlEqualUnicodeString(DriverName, &MmUnloadedDrivers[i].Name, TRUE))
+        {
+            ExFreePoolWithTag(MmUnloadedDrivers[i].Name.Buffer, 'TDmM');
+            MmUnloadedDrivers[i] = MmUnloadedDrivers[--MmLastUnloadedDriver];
+            RtlZeroMemory(&MmUnloadedDrivers[MmLastUnloadedDriver], sizeof(MM_UNLOADED_DRIVER));
+            break;
+        }
+    }
+
+    if (AcquireResource) ExReleaseResourceLite(&PsLoadedModuleResource);
+
+    return STATUS_SUCCESS;
+}
 
 
-	for (ULONG Index = 0; Index < MM_UNLOADED_DRIVERS_SIZE; ++Index)
-	{
-		PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
-		if (Modified)
-		{
-			//
-			// Shift back all entries after modified one.
-			//
-			PMM_UNLOADED_DRIVER PrevEntry = &MmUnloadedDrivers[Index - 1];
-			RtlCopyMemory(PrevEntry, Entry, sizeof(MM_UNLOADED_DRIVER));
-
-			//
-			// Zero last entry.
-			//
-			if (Index == MM_UNLOADED_DRIVERS_SIZE - 1)
-			{
-				RtlFillMemory(Entry, sizeof(MM_UNLOADED_DRIVER), 0);
-			}
-		}
-		else if (RtlEqualUnicodeString(DriverName, &Entry->Name, TRUE))
-		{
-			//
-			// Erase driver entry.
-			//
-			PVOID BufferPool = Entry->Name.Buffer;
-			RtlFillMemory(Entry, sizeof(MM_UNLOADED_DRIVER), 0);
-			ExFreePoolWithTag(BufferPool, 'TDmM');
-
-			//
-			// Because we are erasing last entry we want to set MmLastUnloadedDriver to 49
-			// if list have been already filled.
-			//
-			*MmLastUnloadedDriver = (Filled ? MM_UNLOADED_DRIVERS_SIZE : *MmLastUnloadedDriver) - 1;
-			Modified = TRUE;
-		}
-	}
-
-	if (Modified)
-	{
-		ULONG64 SetupTime = 0;
-
-		//
-		// Make UnloadTime look right.
-		//
-		for (LONG Index = MM_UNLOADED_DRIVERS_SIZE - 2; Index >= 0; --Index)
-		{
-			PMM_UNLOADED_DRIVER Entry = &MmUnloadedDrivers[Index];
-			if (IsUnloadedDriverEntryEmpty(Entry))
-			{
-				continue;
-			}
-
-			if (PreviousTime != 150 && Entry->UnloadTime > PreviousTime)
-			{
-				//
-				// Decrease by random value here maybe.
-				//
-				Entry->UnloadTime = PreviousTime - 150;
-			}
-
-			PreviousTime = Entry->UnloadTime;
-		}
-	
-		//
-		// Clear remaining entries.
-		//
-		ClearUnloadedDriver(DriverName, FALSE);
-	}
 void c_esp::draw_object_esp(sdk::c_replay_interface replay_iface) {
     auto objectlist_interface = replay_iface.get_object_list();
     if (!objectlist_interface) {
