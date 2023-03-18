@@ -38,36 +38,42 @@ bool DrawEsp::InFov(Vector2& screenPos)
 }
 
 
-void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring name,bool isNPC)
-{
-	Vector2 Vec2topBoxPos;
-
-	Vector3 Vec3topBoxPos = player.GetBonePosition(head); Vec3topBoxPos.y += 0.35f;
-
-	if (myLocalPlayer.WorldToScreen(Vec3topBoxPos, &Vec2topBoxPos))
-	{
-
-		static short dist;
-		dist = Math::Calc3D_Dist(Vec3topBoxPos, myLocalPlayer.GetBonePosition(head));
-
-		if (player.HasFlags(Sleeping))//åñëè ñïèò
+		void DrawEsp::player_esp(BasePlayer player, LocalPlayer myPlayer, std::wstring name, bool isNPC)
 		{
-			if (Vars::Esp::playerSleepers)GuiEngine::Esp::CenterString(Vec2topBoxPos, (name + L" [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF(D2D1::ColorF::Orange));
-			
+		    Vector3 headPos = player.GetBonePosition(head);
+		    headPos.y += 0.35f;
+
+		    Vector2 headScreenPos;
+		    if (!myPlayer.WorldToScreen(headPos, &headScreenPos)) {
 			return;
-		}
+		    }
 
-		GuiEngine::Esp::CenterString({ Vec2topBoxPos.x, Vec2topBoxPos.y - 18 }, (name + std::wstring(L" [")+ std::to_wstring(dist) + std::wstring(L"m") + std::wstring(L"]")).c_str()   );
-		//GuiEngine::Esp::CenterString({ Vec2topBoxPos.x, Vec2topBoxPos.y - 10 }, (std::to_wstring(dist) + std::wstring(L"m")).c_str());
-		if (isNPC)return;
+		    float dist = Math::Calc3D_Dist(headPos, myPlayer.GetBonePosition(head));
 
-		Vector2 Vec2playerFoot;
-		myLocalPlayer.WorldToScreen(player.GetBonePosition(l_foot), &Vec2playerFoot);
-		static short boxHeight;
-		static short boxWidth;
-		boxHeight = Vec2playerFoot.y - Vec2topBoxPos.y;
-		if (boxHeight <= 5)boxHeight =5;
-		boxWidth = boxHeight / 2;
+		    if (player.HasFlags(Sleeping)) {
+			if (Vars::Esp::playerSleepers) {
+			    GuiEngine::Esp::CenterString(headScreenPos, (name + L" [" + std::to_wstring(dist) + L"m]").c_str(), D2D1::ColorF(D2D1::ColorF::Orange));
+			}
+			return;
+		    }
+
+		    GuiEngine::Esp::CenterString({ headScreenPos.x, headScreenPos.y - 18 }, (name + L" [" + std::to_wstring(dist) + L"m]").c_str());
+
+		    if (isNPC) {
+			return;
+		    }
+
+		    Vector2 footScreenPos;
+		    if (!myPlayer.WorldToScreen(player.GetBonePosition(l_foot), &footScreenPos)) {
+			return;
+		    }
+
+		    float boxHeight = footScreenPos.y - headScreenPos.y;
+		    float boxWidth = boxHeight / 2;
+
+		    if (boxHeight <= 5) {
+			boxHeight = 5;
+		    }
 
 		//Box
 		if (Vars::Esp::drawBox)
