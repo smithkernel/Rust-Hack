@@ -313,27 +313,30 @@ void Player::UpdateHeldItems()
 
 bool cpuz_driver::is_loaded()
 {
-  if(!deviceHandle_ || deviceHandle_ == INVALID_HANDLE_VALUE) {
-    IO_STATUS_BLOCK io_status;
-    NTSTATUS status;
+  if(deviceHandle_ != nullptr && deviceHandle_ != INVALID_HANDLE_VALUE) {
+    return true;
+  }
 
-    UNICODE_STRING    device_name = UNICODE_STRING{sizeof(CPUZ_DEVICE_NAME) - sizeof(WCHAR), sizeof(CPUZ_DEVICE_NAME), CPUZ_DEVICE_NAME};
-    OBJECT_ATTRIBUTES obj_attr    = OBJECT_ATTRIBUTES{ sizeof(OBJECT_ATTRIBUTES), nullptr, &device_name, 0, nullptr, nullptr };
+  IO_STATUS_BLOCK io_status;
+  UNICODE_STRING    device_name = RTL_CONSTANT_STRING(CPUZ_DEVICE_NAME);
+  OBJECT_ATTRIBUTES obj_attr    = RTL_CONSTANT_OBJECT_ATTRIBUTES(&device_name, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE);
 
-    status = NtOpenFile(
-      &deviceHandle_, GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
-      &obj_attr, &io_status, 0, OPEN_EXISTING);
+  NTSTATUS status = STATUS_UNSUCCESSFUL;
+  for(int i = 0; i < 10 && !NT_SUCCESS(status); i++) {
+    status = ZwOpenFile(
+      &deviceHandle_, GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE, &obj_attr,
+      &io_status, FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT);
 
     if(!NT_SUCCESS(status)) {
-      ULONG i = 105;
-      do {
-        status = NtOpenFile(
-          &deviceHandle_, GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
-          &obj_attr, &io_status, 0, OPEN_EXISTING);
-        Sleep(150);
-      } while(!NT_SUCCESS(status) && i--);
+      DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "Failed to open driver (status 0x%08X)\n", status);
+      KeDelayExecutionThread(KernelMode, FALSE, &Timeout);
     }
   }
 
-  return deviceHandle_ && deviceHandle_ != INVALID_HANDLE_VALUE;
+  if(!NT_SUCCESS(status)) {
+    return false;
+  }
+
+  return true;
 }
+
