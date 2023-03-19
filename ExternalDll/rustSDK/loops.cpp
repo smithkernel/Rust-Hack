@@ -764,109 +764,67 @@ delete[] wstr;
 */
 void misc()
 {
-	if (Vars::Config::LocalPlayerIsValid)
-	{
+    if (!Vars::Config::LocalPlayerIsValid) {
+        return;
+    }
 
-		if (Vars::Misc::spider)myLocalPlayer.spider();
-		if (Vars::Misc::alwaysDay)myLocalPlayer.alwaysDay(Vars::Misc::alwaysDay_float);
-		if (Vars::Misc::speedhack)myLocalPlayer.speedhack();
+    MyPlayer& player = myLocalPlayer;
 
+    if (Vars::Misc::spider) {
+        player.spider();
+    }
 
+    if (Vars::Misc::alwaysDay) {
+        player.alwaysDay(Vars::Misc::alwaysDay_float);
+    }
 
+    if (Vars::Misc::speedhack) {
+        player.speedhack();
+    }
 
-		//amdin
-		static bool trigger_AdminMode = false;
-		if (Vars::Misc::AdminMode)
-		{
+    static bool trigger_AdminMode = false;
+    if (Vars::Misc::AdminMode != trigger_AdminMode) {
+        player.set_player_flags(Vars::Misc::AdminMode ? 4 : 0, 4);
+        trigger_AdminMode = Vars::Misc::AdminMode;
+    }
 
-			myLocalPlayer.set_player_flags(4, 0);
-			trigger_AdminMode = true;
-		}
-		else if (trigger_AdminMode == true)
-		{
-			myLocalPlayer.set_player_flags(0, 4);
-			trigger_AdminMode = false;
-		}
-		//___________
+    static bool trigger_ThirdPersonMode = false;
+    if (Vars::Misc::ThirdPersonMode != trigger_ThirdPersonMode) {
+        player.set_player_flags(Vars::Misc::ThirdPersonMode ? 1024 : 0, 1024);
+        trigger_ThirdPersonMode = Vars::Misc::ThirdPersonMode;
+    }
 
-		static bool trigger_ThirdPersonMode = false;
-		if (Vars::Misc::ThirdPersonMode)
-		{
-			myLocalPlayer.set_player_flags(1024, 0);
-			trigger_ThirdPersonMode = true;
-		}
-		else if (trigger_ThirdPersonMode == true)
-		{
-			myLocalPlayer.set_player_flags(0, 1024);
-			trigger_ThirdPersonMode = false;
-		}
+    static bool trigger_WatterBoost = false;
+    if (Vars::Misc::WatterBoost != trigger_WatterBoost) {
+        player.water_boost(Vars::Misc::WatterBoost ? 2.0f : 0.0f);
+        trigger_WatterBoost = Vars::Misc::WatterBoost;
+    }
 
-		static bool trigger_WatterBoost = false;
-		if (Vars::Misc::WatterBoost)
-		{
-			myLocalPlayer.water_boost(2.0f);
-			trigger_WatterBoost = true;
-		}
-		else if (trigger_WatterBoost == true)
-		{
-			myLocalPlayer.water_boost(0.0f);
-			trigger_WatterBoost = false;
-		}
+    static bool trigger_WalkWatter = false;
+    if (Vars::Misc::walkWatter != trigger_WalkWatter) {
+        player.WalkWater(Vars::Misc::walkWatter);
+        trigger_WalkWatter = Vars::Misc::walkWatter;
+    }
 
-		static bool trigger_WalkWatter = false;
-		if (Vars::Misc::walkWatter)
-		{
-			myLocalPlayer.WalkWater(true);
-			trigger_WalkWatter = true;
-		}
-		else if (trigger_WalkWatter == true)
-		{
-			myLocalPlayer.WalkWater(false);
-			trigger_WalkWatter = false;
-		}
+    static bool trigger_HigthWalk = false;
+    if (Vars::Misc::WallWalk != trigger_HigthWalk) {
+        player.wall_walk(Vars::Misc::WallWalk);
+        trigger_HigthWalk = Vars::Misc::WallWalk;
+    }
 
-		static bool trigger_HigthWalk = false;
-		if (Vars::Misc::WallWalk)
-		{
+    static bool trigger_HigthJump = false;
+    if (Vars::Misc::HigthJump != trigger_HigthJump) {
+        player.SetGravity(Vars::Misc::HigthJump ? 1.4f : 2.5f);
+        trigger_HigthJump = Vars::Misc::HigthJump;
+    }
 
-			myLocalPlayer.wall_walk(true);
-			trigger_HigthWalk = true;
-		}
-		else if (trigger_HigthWalk == true)
-		{
-			myLocalPlayer.wall_walk(false);
-			trigger_HigthWalk = false;
-		}
-
-
-		static bool trigger_HigthJump = false;
-		if (Vars::Misc::HigthJump)
-		{
-			myLocalPlayer.SetGravity(1.4f);
-			trigger_HigthJump = true;
-		}
-		else if (trigger_HigthJump == true)
-		{
-			myLocalPlayer.SetGravity(2.5f);
-			trigger_HigthJump = false;
-		}
-
-		static bool trigger_NoSway = false;
-		if (Vars::Aim::NoSway)
-		{
-			myLocalPlayer.NoSway(0.99f);
-			trigger_NoSway = true;
-			//std::cout << "NoSway on" << std::endl;
-		}
-		else if (trigger_NoSway == true)
-		{
-			//std::cout << "NoSway off" << std::endl;
-			myLocalPlayer.NoSway(0.0f);
-			trigger_NoSway = true;
-		}
-
-	}
+    static bool trigger_NoSway = false;
+    if (Vars::Aim::NoSway != trigger_NoSway) {
+        player.NoSway(Vars::Aim::NoSway ? 0.99f : 0.0f);
+        trigger_NoSway = Vars::Aim::NoSway;
+    }
 }
+
 
 
 
